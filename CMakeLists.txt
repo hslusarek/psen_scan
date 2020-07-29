@@ -91,6 +91,7 @@ set(${PROJECT_NAME}_sources
   src/laserscan.cpp
   src/psen_scan_internal_angle.cpp
   src/psen_scan_udp_interface.cpp
+  src/msg_decoder.cpp
 )
 
 set(${PROJECT_NAME}_node_sources

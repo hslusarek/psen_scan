@@ -12,36 +12,19 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#ifndef MSG_DECODER_H
-#define MSG_DECODER_H
 
-#include <functional>
-
-#include <boost/asio.hpp>
-
-#include <psen_scan/start_reply_msg.h>
+#include "psen_scan/msg_decoder.h"
 
 namespace psen_scan
 {
 
-using StartReplyCallback = std::function<void(const StartReplyMsg&)>;
-
-class MsgDecoder
+void MsgDecoder::decodeAndDispatch(boost::asio::mutable_buffers_1& buffer)
 {
-public:
-  MsgDecoder(StartReplyCallback start_reply_callback);
-  void decodeAndDispatch(boost::asio::mutable_buffers_1& buffer);
+  // Decode and call callbacks
 
-private:
-  StartReplyCallback start_reply_callback_;
-};
-
-inline MsgDecoder::MsgDecoder(StartReplyCallback start_reply_callback)
-  : start_reply_callback_(start_reply_callback)
-{
-
+  // if StartReply message then:
+  StartReplyMsg start_reply_msg;
+  start_reply_callback_(start_reply_msg);
 }
 
 }  // namespace psen_scan
-
-#endif // MSG_DECODER_H
