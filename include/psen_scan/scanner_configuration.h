@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
+// Copyright (c) 2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -12,34 +12,17 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#include "psen_scan/scanner.h"
-
-#include "psen_scan/scanner_controller.h"
+#ifndef SCANNER_CONFIGURATION_H
+#define SCANNER_CONFIGURATION_H
 
 namespace psen_scan
 {
 
-Scanner::Scanner(const ScannerConfiguration& scanner_configuration)
-  : vScanner(scanner_configuration)
+class ScannerConfiguration
 {
+
+};
 
 }
 
-void Scanner::start()
-{
-  scanner_controller_->start();
-}
-
-void Scanner::stop()
-{
-  scanner_controller_->stop();
-}
-
-LaserScan Scanner::getCompleteScan()
-{
-  // TODO: Add implementation in following stories
-  return LaserScan(PSENscanInternalAngle(0), PSENscanInternalAngle(0), PSENscanInternalAngle(0));
-}
-
-}  // namespace psen_scan
+#endif // SCANNER_CONFIGURATION_H

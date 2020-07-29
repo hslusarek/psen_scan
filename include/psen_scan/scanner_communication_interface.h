@@ -63,6 +63,8 @@ public:
   }
 };
 
+using NewMsgCallback = std::function<void(boost::asio::mutable_buffers_1&)>;
+
 // LCOV_EXCL_START
 /**
  * @brief Abstract base class for the communication interface with the PSENscan scanner.
@@ -72,7 +74,7 @@ class ScannerCommunicationInterface
 public:
   virtual ~ScannerCommunicationInterface() = default;
 
-public:
+public: 
   //! @brief Opens the connection to the scanner device.
   virtual void open() = 0;
   //! @brief Closes the connection to the scanner device.

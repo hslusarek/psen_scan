@@ -16,20 +16,31 @@
 #ifndef PSEN_SCAN_TEST_MOCK_SCANNER_H
 #define PSEN_SCAN_TEST_MOCK_SCANNER_H
 
-#include <psen_scan/scanner.h>
 #include <gmock/gmock.h>
+
+#include <psen_scan/scanner.h>
+#include <psen_scan/scanner_configuration.h>
 
 namespace psen_scan_test
 {
 class MockScanner : public psen_scan::vScanner
 {
 public:
+  MockScanner(const psen_scan::ScannerConfiguration& scanner_configuration);
+
   MOCK_METHOD0(start, void());
   MOCK_METHOD0(stop, void());
   MOCK_METHOD0(getCompleteScan, psen_scan::LaserScan());
 
 private:
 };
+
+MockScanner::MockScanner(const psen_scan::ScannerConfiguration& scanner_configuration)
+  : psen_scan::vScanner(scanner_configuration)
+{
+
+}
+
 }  // namespace psen_scan_test
 
 #endif  // PSEN_SCAN_TEST_MOCK_SCANNER_H

@@ -14,12 +14,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "psen_scan/scanner.h"
-#include "psen_scan/scanner_communication_interface.h"
-#include "psen_scan/psen_scan_udp_interface.h"
 #include "psen_scan/ros_parameter_handler.h"
 #include "psen_scan/ros_scanner_node.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/default_parameters.h"
+#include "psen_scan/scanner_configuration.h"
 
 using namespace psen_scan;
 typedef std::unique_ptr<PSENscanUDPInterface> PSENscanUDPptr;
@@ -32,16 +31,11 @@ int main(int argc, char** argv)
   try
   {
     psen_scan::RosParameterHandler param_handler(pnh);
-    PSENscanUDPptr udp_interface =
-        PSENscanUDPptr(new PSENscanUDPInterface(param_handler.getSensorIP(), param_handler.getHostUDPPort()));
 
-    std::unique_ptr<Scanner> scanner = std::unique_ptr<Scanner>(new Scanner(param_handler.getSensorIP(),
-                                                                            param_handler.getHostIP(),
-                                                                            param_handler.getHostUDPPort(),
-                                                                            param_handler.getPassword(),
-                                                                            param_handler.getAngleStart(),
-                                                                            param_handler.getAngleEnd(),
-                                                                            std::move(udp_interface)));
+    // TODO: Create correct scanner configuration with RosParameterHelper
+    ScannerConfiguration scanner_configuration;
+    std::unique_ptr<Scanner> scanner {new Scanner(scanner_configuration)};
+
     ROSScannerNode ros_scanner_node(pnh,
                                     DEFAULT_PUBLISH_TOPIC,
                                     param_handler.getFrameID(),

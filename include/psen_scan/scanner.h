@@ -18,9 +18,9 @@
 
 #include <memory>
 
-#include "psen_scan/scanner_frames.h"
-#include "psen_scan/scanner_communication_interface.h"
 #include "psen_scan/laserscan.h"
+#include "psen_scan/scanner_configuration.h"
+#include "psen_scan/scanner_controller.h"
 
 namespace psen_scan
 {
@@ -28,45 +28,33 @@ namespace psen_scan
 class vScanner
 {
 public:
+  vScanner(const ScannerConfiguration& scanner_configuration);
   virtual ~vScanner() = default;
   virtual void start() = 0;
   virtual void stop() = 0;
   virtual LaserScan getCompleteScan() = 0;
+
+private:
+  ScannerConfiguration scanner_configuration_;
 };
+
+inline vScanner::vScanner(const ScannerConfiguration& scanner_configuration)
+  : scanner_configuration_(scanner_configuration)
+{
+
+}
 // LCOV_EXCL_STOP
 
-/**
- * @brief Class for Modeling a PSENscan safety laser scanner
- *
- */
 class Scanner : public vScanner
 {
 public:
-  Scanner(const std::string& scanner_ip,
-          const uint32_t& host_ip,
-          const uint32_t& host_udp_port,
-          const std::string& password,
-          const PSENscanInternalAngle& angle_start,
-          const PSENscanInternalAngle& angle_end,
-          std::unique_ptr<ScannerCommunicationInterface> communication_interface);
-
+  Scanner(const ScannerConfiguration& scanner_configuration);
   void start();
   void stop();
   LaserScan getCompleteScan();
 
 private:
-  std::string scanner_ip_;                      /**< IP-Adress of Laserscanner */
-  StartMonitoringFrame start_monitoring_frame_; /**< Start Monitoring Command Frame */
-  StopMonitoringFrame stop_monitoring_frame_;   /**< Stop Monitoring Command Frame */
-  PSENscanInternalAngle angle_start_;           /**< Start angle of Laserscanner measurements */
-  PSENscanInternalAngle angle_end_;             /**< End angle of Laserscanner measurements */
-  MonitoringFrame previous_monitoring_frame_;   /**< Buffer for incoming Laserscanner data */
-  std::unique_ptr<ScannerCommunicationInterface> communication_interface_;
-
-private:
-  MonitoringFrame fetchMonitoringFrame(std::chrono::steady_clock::duration timeout);
-  bool isDiagnosticInformationOk(const DiagnosticInformation& diag_info);
-  bool parseFields(const MonitoringFrame& monitoring_frame);
+  std::unique_ptr<ScannerController> scanner_controller_;
 };
 
 }  // namespace psen_scan
