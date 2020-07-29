@@ -12,8 +12,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#ifndef SCANNER_CONFIGURATION_H
-#define SCANNER_CONFIGURATION_H
+#ifndef PSEN_SCAN_SCANNER_CONFIGURATION_H
+#define PSEN_SCAN_SCANNER_CONFIGURATION_H
 
 namespace psen_scan
 {
@@ -25,4 +25,4 @@ class ScannerConfiguration
 
 }
 
-#endif // SCANNER_CONFIGURATION_H
+#endif // PSEN_SCAN_SCANNER_CONFIGURATION_H

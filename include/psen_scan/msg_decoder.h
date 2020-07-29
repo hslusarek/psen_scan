@@ -12,8 +12,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#ifndef MSG_DECODER_H
-#define MSG_DECODER_H
+#ifndef PSEN_SCAN_MSG_DECODER_H
+#define PSEN_SCAN_MSG_DECODER_H
 
 #include <functional>
 
@@ -53,4 +53,4 @@ inline void MsgDecoder::decodeAndDispatch(boost::asio::mutable_buffers_1& buffer
 
 }  // namespace psen_scan
 
-#endif // MSG_DECODER_H
+#endif // PSEN_SCAN_MSG_DECODER_H

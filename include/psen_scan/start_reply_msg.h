@@ -12,8 +12,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#ifndef START_REPLY_H
-#define START_REPLY_H
+#ifndef PSEN_SCAN_START_REPLY_H
+#define PSEN_SCAN_START_REPLY_H
 
 namespace psen_scan
 {
@@ -25,4 +25,4 @@ class StartReplyMsg
 
 }
 
-#endif // START_REPLY_H
+#endif // PSEN_SCAN_START_REPLY_H

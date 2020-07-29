@@ -12,8 +12,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#ifndef SCANNER_CONTROLLER_H
-#define SCANNER_CONTROLLER_H
+#ifndef PSEN_SCAN_SCANNER_CONTROLLER_H
+#define PSEN_SCAN_SCANNER_CONTROLLER_H
 
 #include <functional>
 #include <chrono>
@@ -90,4 +90,4 @@ inline void ScannerController::listenForNewMessages()
 
 }
 
-#endif // SCANNER_CONTROLLER_H
+#endif // PSEN_SCAN_SCANNER_CONTROLLER_H
