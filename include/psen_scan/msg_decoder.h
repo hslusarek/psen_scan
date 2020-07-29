@@ -51,6 +51,6 @@ inline void MsgDecoder::decodeAndDispatch(boost::asio::mutable_buffers_1& buffer
   start_reply_callback_(start_reply_msg);
 }
 
-}
+}  // namespace psen_scan
 
 #endif // MSG_DECODER_H

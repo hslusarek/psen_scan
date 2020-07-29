@@ -183,6 +183,24 @@ typedef struct MonitoringFrame
   }
 } MonitoringFrame;
 
+/**
+ * @brief DataStartReply as coming from Laserscanner. Comments according to
+ *        Reference Guide Rev. A – November 2019 Page 6
+ */
+typedef struct DataStartReply
+{
+  uint32_t crc_;                      /**< A CRC32 of all the following fields. */
+  uint32_t RESERVED_;                 /**< - */
+  uint32_t opcode_;                   /**< Operation Code (START 0x35). */
+  uint32_t res_code_;                 /**< Operation result. If the message is accepted,
+                                           the returned value is 0x00. If the message is
+                                           refused, the returned value is 0xEB. If the CRC
+                                           is not correct, the device will not send any
+                                           message.*/
+} DataStartReply;
+
+
+
 #pragma pack(pop)
 }  // namespace psen_scan
 
