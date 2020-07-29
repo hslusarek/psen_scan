@@ -12,8 +12,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#ifndef MSG_DECODER_H
-#define MSG_DECODER_H
+#ifndef PSEN_SCAN_MSG_DECODER_H
+#define PSEN_SCAN_MSG_DECODER_H
 
 #include <functional>
 
@@ -44,4 +44,4 @@ inline MsgDecoder::MsgDecoder(StartReplyCallback start_reply_callback)
 
 }  // namespace psen_scan
 
-#endif // MSG_DECODER_H
+#endif // PSEN_SCAN_MSG_DECODER_H
