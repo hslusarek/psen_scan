@@ -50,7 +50,7 @@ int main(int argc, char** argv)
   laser_scan_error.measures_.push_back(1);
 
   // TODO: Implement correct scanner configuration for test
-  ScannerConfiguration scanner_configuration;
+  ScannerConfiguration scanner_configuration("127.0.0.1", 55055);
   std::unique_ptr<MockScanner> mock_scanner {new MockScanner(scanner_configuration)};
 
   EXPECT_CALL(*(mock_scanner), getCompleteScan()).Times(1).WillOnce(DoAll(ROS_SHUTDOWN(), Return(laser_scan_error)));
