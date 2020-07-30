@@ -52,7 +52,6 @@ typedef struct ScannerConfiguration
   ScannerConfiguration(const std::string& target_ip, const uint16_t& target_udp_port)
   : target_ip_(target_ip)
   , target_udp_port_(target_udp_port)
-  , master_enabled_(true)
   , slave1_enabled_(false)
   , slave2_enabled_(false)
   , slave3_enabled_(false)
