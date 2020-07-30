@@ -23,7 +23,6 @@ typedef struct ScannerConfiguration
   std::string target_ip_;
   uint16_t target_udp_port_;
 
-  bool master_enabled_;
   bool slave1_enabled_;
   bool slave2_enabled_;
   bool slave3_enabled_;
