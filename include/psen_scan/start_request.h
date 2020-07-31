@@ -76,18 +76,18 @@ public:
 public:
   StartRequest(const ScannerConfiguration& scanner_configuration)
   : target_udp_port_(htobe16(scanner_configuration.target_udp_port_))
-  , master_start_angle_(htole16(scanner_configuration.master_start_angle_))
-  , master_end_angle_(htole16(scanner_configuration.master_end_angle_))
-  , master_resolution_(htole16(scanner_configuration.master_resolution_))
-  , slave1_start_angle_(htole16(scanner_configuration.slave1_start_angle_))
-  , slave1_end_angle_(htole16(scanner_configuration.slave1_end_angle_))
-  , slave1_resolution_(htole16(scanner_configuration.slave1_resolution_))
-  , slave2_start_angle_(htole16(scanner_configuration.slave2_start_angle_))
-  , slave2_end_angle_(htole16(scanner_configuration.slave2_end_angle_))
-  , slave2_resolution_(htole16(scanner_configuration.slave2_resolution_))
-  , slave3_start_angle_(htole16(scanner_configuration.slave3_start_angle_))
-  , slave3_end_angle_(htole16(scanner_configuration.slave3_end_angle_))
-  , slave3_resolution_(htole16(scanner_configuration.slave3_resolution_))
+  , master_start_angle_(htole16(scanner_configuration.master_.start_angle_))
+  , master_end_angle_(htole16(scanner_configuration.master_.end_angle_))
+  , master_resolution_(htole16(scanner_configuration.master_.resolution_))
+  , slave1_start_angle_(htole16(scanner_configuration.slaves_[0].start_angle_))
+  , slave1_end_angle_(htole16(scanner_configuration.slaves_[0].end_angle_))
+  , slave1_resolution_(htole16(scanner_configuration.slaves_[0].resolution_))
+  , slave2_start_angle_(htole16(scanner_configuration.slaves_[1].start_angle_))
+  , slave2_end_angle_(htole16(scanner_configuration.slaves_[1].end_angle_))
+  , slave2_resolution_(htole16(scanner_configuration.slaves_[1].resolution_))
+  , slave3_start_angle_(htole16(scanner_configuration.slaves_[2].start_angle_))
+  , slave3_end_angle_(htole16(scanner_configuration.slaves_[2].end_angle_))
+  , slave3_resolution_(htole16(scanner_configuration.slaves_[2].resolution_))
   {
     // TODO: What to do with seq_number???
     setTargetIP(scanner_configuration.target_ip_);
@@ -109,9 +109,9 @@ private:
   void setEnableFields(const ScannerConfiguration& scanner_configuration)
   {
     device_enabled_ = 0b00001000
-                    + scanner_configuration.slave1_enabled_ * 0b00000100
-                    + scanner_configuration.slave2_enabled_ * 0b00000010
-                    + scanner_configuration.slave3_enabled_ * 0b00000001;
+                    + scanner_configuration.slaves_[0].enabled_ * 0b00000100
+                    + scanner_configuration.slaves_[1].enabled_ * 0b00000010
+                    + scanner_configuration.slaves_[2].enabled_ * 0b00000001;
 
     intensity_enabled_ = scanner_configuration.intensity_enabled_ * device_enabled_;
     point_in_safety_enabled_ = scanner_configuration.point_in_safety_enabled_ * device_enabled_;
