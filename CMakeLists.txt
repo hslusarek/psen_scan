@@ -247,6 +247,22 @@ if(CATKIN_ENABLE_TESTING)
     gtest_main
   )
 
+  catkin_add_gmock(integrationtest_async_udp_reader
+    test/integration_tests/integrationtest_async_udp_reader.cpp
+  )
+  target_link_libraries(integrationtest_async_udp_reader
+    ${catkin_LIBRARIES}
+    ${pilz_testutils_LIBRARIES}
+  )
+
+  catkin_add_gmock(integrationtest_sync_udp_writer
+    test/integration_tests/integrationtest_sync_udp_writer.cpp
+  )
+  target_link_libraries(integrationtest_sync_udp_writer
+    ${catkin_LIBRARIES}
+    ${pilz_testutils_LIBRARIES}
+  )
+
   catkin_add_executable_with_gmock(${PROJECT_NAME}_integrationtest_scan_topic_node
     test/integration_tests/integrationtest_scan_topic_node.cpp
     src/scanner_configuration.cpp

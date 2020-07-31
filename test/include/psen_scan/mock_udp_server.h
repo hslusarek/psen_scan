@@ -16,6 +16,8 @@
 #ifndef PSEN_SCAN_TEST_MOCK_UDP_SERVER_H
 #define PSEN_SCAN_TEST_MOCK_UDP_SERVER_H
 
+#include <memory>
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/array.hpp>
@@ -24,12 +26,15 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <psen_scan/scanner_data.h>
-
 using boost::asio::ip::udp;
 
 namespace psen_scan_test
 {
+static constexpr unsigned short const SCAN_PORT_WRITE{ 3000 };
+static constexpr unsigned short const SCAN_PORT_READ{ 2000 };
+
+static const std::string MOCK_IP_ADDRESS{ "127.0.0.1" };
+
 /**
  * @brief Class for the UDP communication with the scanner.
  *
@@ -40,8 +45,13 @@ public:
   ~MockUDPServer();
 
 public:
-  MockUDPServer(const unsigned short scanner_port_write = psen_scan::PSEN_SCAN_PORT_WRITE,
-                const unsigned short scanner_port_read = psen_scan::PSEN_SCAN_PORT_READ);
+  /**
+   * @param mock_port_send Port over which the mock sends data to the client.
+   * @param mock_port_receive Port over which the mock receives data from the client.
+   */
+  MockUDPServer(const unsigned short mock_port_send = SCAN_PORT_WRITE,
+                const unsigned short mock_port_receive = SCAN_PORT_READ);
+
   MOCK_CONST_METHOD0(receivedUdpMsg, void());
 
 public:
@@ -50,7 +60,7 @@ public:
   void asyncReceive();
 
   template <unsigned int N>
-  void asyncSend(const udp::endpoint& send_endpoint, const boost::array<char, N>& send_buffer);
+  void asyncSend(const udp::endpoint& receiver_of_data, const std::array<char, N>& data);
 
 private:
   void handleReceive(const boost::system::error_code& error, std::size_t /*bytes_transferred*/);
@@ -62,9 +72,13 @@ private:
   boost::array<char, 100> recv_buffer_;
 
   boost::asio::io_service io_service_;
+  // Prevent the run() method of the io_service from returning when there is no more work.
+  std::unique_ptr<boost::asio::io_service::work> work_{ new boost::asio::io_service::work(io_service_) };
   boost::thread service_thread_;
 
+  //! Socket over which the mock receives data from the client.
   udp::socket socket_receive_;
+  //! Socket over which the mock sends data to the client.
   udp::socket socket_send_;
 };
 
@@ -73,18 +87,21 @@ inline void MockUDPServer::startIOService()
   service_thread_ = boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_));
 }
 
-inline MockUDPServer::MockUDPServer(const unsigned short scanner_port_write, const unsigned short scanner_port_read)
-  : socket_receive_(io_service_, udp::endpoint(udp::v4(), scanner_port_write))
-  , socket_send_(io_service_, udp::endpoint(udp::v4(), scanner_port_read))
+inline MockUDPServer::MockUDPServer(const unsigned short mock_port_send, const unsigned short mock_port_receive)
+  : socket_receive_(io_service_, udp::endpoint(udp::v4(), mock_port_receive))
+  , socket_send_(io_service_, udp::endpoint(boost::asio::ip::address_v4::from_string(MOCK_IP_ADDRESS), mock_port_send))
 {
 }
 
 inline MockUDPServer::~MockUDPServer()
 {
+  io_service_.stop();
+  if (service_thread_.joinable())
+  {
+    service_thread_.join();
+  }
   socket_receive_.close();
   socket_send_.close();
-
-  service_thread_.join();
 }
 
 inline void MockUDPServer::handleSend(const boost::system::error_code& /*error*/, std::size_t /*bytes_transferred*/)
@@ -92,10 +109,10 @@ inline void MockUDPServer::handleSend(const boost::system::error_code& /*error*/
 }
 
 template <unsigned int N>
-inline void MockUDPServer::asyncSend(const udp::endpoint& send_endpoint, const boost::array<char, N>& send_buffer)
+inline void MockUDPServer::asyncSend(const udp::endpoint& receiver_of_data, const std::array<char, N>& data)
 {
-  socket_send_.async_send_to(boost::asio::buffer(send_buffer),
-                             send_endpoint,
+  socket_send_.async_send_to(boost::asio::buffer(data),
+                             receiver_of_data,
                              boost::bind(&MockUDPServer::handleSend,
                                          this,
                                          boost::asio::placeholders::error,

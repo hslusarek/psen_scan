@@ -19,6 +19,7 @@
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/default_parameters.h"
 #include "psen_scan/scanner_configuration.h"
+#include "psen_scan/psen_scan_udp_interface.h"
 
 using namespace psen_scan;
 typedef std::unique_ptr<PSENscanUDPInterface> PSENscanUDPptr;
@@ -34,7 +35,7 @@ int main(int argc, char** argv)
 
     // TODO: Create correct scanner configuration with RosParameterHelper
     ScannerConfiguration scanner_configuration("127.0.0.1", 55055);
-    std::unique_ptr<Scanner> scanner {new Scanner(scanner_configuration)};
+    std::unique_ptr<Scanner> scanner{ new Scanner(scanner_configuration) };
 
     ROSScannerNode ros_scanner_node(pnh,
                                     DEFAULT_PUBLISH_TOPIC,

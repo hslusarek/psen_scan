@@ -20,17 +20,30 @@
 #include <thread>
 #include <atomic>
 #include <array>
+#include <string>
 
 #include <boost/asio.hpp>
 
-#include <psen_scan/scanner_communication_interface.h>
 #include <psen_scan/msg_decoder.h>
 #include <psen_scan/start_reply_msg.h>
-#include <psen_scan/psen_scan_udp_interface.h>
 #include <psen_scan/controller_state_machine.h>
+#include <psen_scan/async_udp_reader.h>
+#include <psen_scan/sync_udp_writer.h>
 
 namespace psen_scan
 {
+// TODO: Move to ScannerController class and read from ScannerConfiguration
+static constexpr std::size_t DATA_SIZE_BYTES{ 1000 };
+
+// TODO: Move to ScannerController class and read from ScannerConfiguration
+static constexpr unsigned short READ_PORT_OF_SCANNER_CONTROLLER{ 45001 };
+
+// TODO: Move to ScannerController class and read from ScannerConfiguration
+static const std::string SCANNER_IP_ADDRESS{ "127.0.0.1" };
+
+// TODO: Move to ScannerController class and read from ScannerConfiguration
+static constexpr unsigned short SEND_PORT_OF_SCANNER_DEVICE{ 2000 };
+
 class ScannerController
 {
 public:
@@ -41,19 +54,31 @@ public:
 
 private:
   void reactToStartReply(const StartReplyMsg& start_reply);
+  void handleError(const std::string& error_msg);
 
 private:
-  std::unique_ptr<ScannerCommunicationInterface> communication_interface_;
-  MsgDecoder msg_decoder_;
+  MsgDecoder msg_decoder_{ std::bind(&ScannerController::reactToStartReply, this, std::placeholders::_1) };
+
+  psen_scan::AsyncUdpReader<DATA_SIZE_BYTES> async_udp_reader_{
+    std::bind(&MsgDecoder::decodeAndDispatch<DATA_SIZE_BYTES>,
+              &msg_decoder_,
+              std::placeholders::_1,
+              std::placeholders::_2),
+    std::bind(&ScannerController::handleError, this, std::placeholders::_1),
+    READ_PORT_OF_SCANNER_CONTROLLER,
+    SCANNER_IP_ADDRESS,
+    SEND_PORT_OF_SCANNER_DEVICE
+
+  };
 };
 
-using std::placeholders::_1;
-
 inline ScannerController::ScannerController()
-  // Inform ScannerController when StartReply is received from ScannerDevice.
-  : msg_decoder_(std::bind(&ScannerController::reactToStartReply, this, _1))
-
 {
+}
+
+inline void ScannerController::handleError(const std::string& error_msg)
+{
+  // TODO: Add implementation -> Tell state machine about error
 }
 
 inline void ScannerController::start()
