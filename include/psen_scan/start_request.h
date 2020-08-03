@@ -15,14 +15,11 @@
 #ifndef PSEN_SCAN_START_REQUEST_H
 #define PSEN_SCAN_START_REQUEST_H
 
-#include <arpa/inet.h>
+#include <array>
 #include <cstdint>
-#include <endian.h>
 #include <string>
-#include <vector>
 
 #include <psen_scan/scanner_configuration.h>
-#include <psen_scan/crc.h>
 
 #pragma pack(push, 1)
 
@@ -35,9 +32,21 @@ namespace psen_scan
  * Unless otherwise indicated the byte order is little endian.
  *
  */
-typedef struct StartRequest
+class StartRequest
 {
 public:
+  StartRequest(const ScannerConfiguration& scanner_configuration);
+
+private:
+  void setTargetIP(const std::string& target_ip);
+
+  void setEnableFields(const ScannerConfiguration& scanner_configuration);
+
+  void setDeviceFields(const std::array<Range, ScannerConfiguration::NUMBER_OF_SLAVES + 1>& ranges);
+
+  void setCRC();
+
+private:
   uint32_t crc_;                  /**< A CRC32 of all the following fields. */
   uint32_t seq_number_;
   uint64_t const RESERVED_ { 0 };       /**< Use all zeros */
@@ -59,76 +68,17 @@ public:
   uint8_t speed_encoder_enabled_;    /**< 0000000bin disabled, 00001111bin enabled.*/
   uint8_t diagnostics_enabled_;
 
-  /**< The following 'angle' and 'resolution' fields are all in tenth of degrees */
-  uint16_t master_start_angle_;
-  uint16_t master_end_angle_;
-  uint16_t master_resolution_;
-  uint16_t slave1_start_angle_;
-  uint16_t slave1_end_angle_;
-  uint16_t slave1_resolution_;
-  uint16_t slave2_start_angle_;
-  uint16_t slave2_end_angle_;
-  uint16_t slave2_resolution_;
-  uint16_t slave3_start_angle_;
-  uint16_t slave3_end_angle_;
-  uint16_t slave3_resolution_;
-
-public:
-  StartRequest(const ScannerConfiguration& scanner_configuration)
-  : target_udp_port_(htobe16(scanner_configuration.target_udp_port_))
-  , master_start_angle_(htole16(scanner_configuration.master_.start_angle_))
-  , master_end_angle_(htole16(scanner_configuration.master_.end_angle_))
-  , master_resolution_(htole16(scanner_configuration.master_.resolution_))
-  , slave1_start_angle_(htole16(scanner_configuration.slaves_[0].start_angle_))
-  , slave1_end_angle_(htole16(scanner_configuration.slaves_[0].end_angle_))
-  , slave1_resolution_(htole16(scanner_configuration.slaves_[0].resolution_))
-  , slave2_start_angle_(htole16(scanner_configuration.slaves_[1].start_angle_))
-  , slave2_end_angle_(htole16(scanner_configuration.slaves_[1].end_angle_))
-  , slave2_resolution_(htole16(scanner_configuration.slaves_[1].resolution_))
-  , slave3_start_angle_(htole16(scanner_configuration.slaves_[2].start_angle_))
-  , slave3_end_angle_(htole16(scanner_configuration.slaves_[2].end_angle_))
-  , slave3_resolution_(htole16(scanner_configuration.slaves_[2].resolution_))
+  typedef struct DeviceField
   {
-    // TODO: What to do with seq_number???
-    setTargetIP(scanner_configuration.target_ip_);
-    setEnableFields(scanner_configuration);
-    setCRC();
-  }
+  public:
+    /**< The following 'angle' and 'resolution' fields are all in tenth of degrees */
+    uint16_t start_angle_;
+    uint16_t end_angle_;
+    uint16_t resolution_;
+  } DeviceField;
+  std::array<DeviceField, 4> devices_;
 
-private:
-  void setTargetIP(const std::string& target_ip)
-  {
-    in_addr_t ip_addr = inet_network(target_ip.c_str());
-    if (static_cast<in_addr_t>(-1) == ip_addr)
-    {
-      throw; //TODO: What to throw
-    }
-    target_ip_ = htobe32(ip_addr);
-  }
-
-  void setEnableFields(const ScannerConfiguration& scanner_configuration)
-  {
-    device_enabled_ = 0b00001000
-                    + scanner_configuration.slaves_[0].enabled_ * 0b00000100
-                    + scanner_configuration.slaves_[1].enabled_ * 0b00000010
-                    + scanner_configuration.slaves_[2].enabled_ * 0b00000001;
-
-    intensity_enabled_ = scanner_configuration.intensity_enabled_ * device_enabled_;
-    point_in_safety_enabled_ = scanner_configuration.point_in_safety_enabled_ * device_enabled_;
-    active_zone_set_enabled_ = scanner_configuration.active_zone_set_enabled_ * device_enabled_;
-    io_pin_enabled_ = scanner_configuration.io_pin_enabled_ * device_enabled_;
-    scan_counter_enabled_ = scanner_configuration.scan_counter_enabled_ * device_enabled_;
-    diagnostics_enabled_ = scanner_configuration.diagnostics_enabled_ * device_enabled_;
-
-    speed_encoder_enabled_ = scanner_configuration.speed_encoder_enabled_ * 0b00001111;
-  }
-
-  void setCRC()
-  {
-    crc_ = htole32(crc::calcCRC32(&seq_number_, sizeof(StartRequest) - sizeof(crc_)));
-  }
-
-} StartRequest;
+};
 
 }  // namespace psen_scan
 

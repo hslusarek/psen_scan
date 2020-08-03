@@ -16,47 +16,105 @@
 #define PSEN_SCAN_SCANNER_CONFIGURATION_H
 
 #include <array>
+#include <tuple>
+
+#include <psen_scan/psen_scan_internal_angle.h>
+#include <psen_scan/scanner_data.h>
 
 namespace psen_scan
 {
 
-typedef struct MasterDeviceConfiguration
+typedef std::tuple<PSENscanInternalAngle, PSENscanInternalAngle, PSENscanInternalAngle> Range;
+
+PSENscanInternalAngle const MASTER_RESOLUTION(1);
+PSENscanInternalAngle const SLAVE_RESOLUTION(10);
+
+class ScannerConfiguration
 {
-  /**< The following 'angle' and 'resolution' fields are all in tenth of degrees */
-  uint16_t start_angle_;
-  uint16_t end_angle_;
-  uint16_t resolution_;
+public:
+  ScannerConfiguration(const std::string& target_ip, const uint16_t& target_udp_port);
 
-  MasterDeviceConfiguration()
-  : start_angle_(0)
-  , end_angle_(2750)
-  , resolution_(1)
-  {
-  }
-
-protected:
-  MasterDeviceConfiguration(const uint16_t& resolution_)
-  : start_angle_(0)
-  , end_angle_(2750)
-  , resolution_(resolution_)
-  {
-  }
-} MasterDeviceConfiguration;
-
-typedef struct SlaveDeviceConfiguration : public MasterDeviceConfiguration
-{
-  bool enabled_;
-  SlaveDeviceConfiguration()
-  : MasterDeviceConfiguration(10)
-  , enabled_(false)
-  {
-  }
-} SlaveDeviceConfiguration;
-
-typedef struct ScannerConfiguration
-{
+public:
   int unsigned constexpr static NUMBER_OF_SLAVES {3};
 
+public:
+  std::string targetIp() const;
+
+  uint16_t targetUDPPort() const;
+
+  Range getMasterRange() const;
+
+  std::array<Range, ScannerConfiguration::NUMBER_OF_SLAVES> getSlaveRanges() const;
+
+  bool getSlaveEnabled(const unsigned int& index) const;
+
+  bool intensityEnabled() const;
+
+  bool pointInSafetyEnabled() const;
+
+  bool activeZoneSetEnabled() const;
+
+  bool ioPinEnabled() const;
+
+  bool scanCounterEnabled() const;
+
+  bool speedEncoderEnabled() const;
+
+  bool diagnosticsEnabled() const;
+
+
+private:
+  class MasterDeviceConfiguration
+  {
+  public:
+    MasterDeviceConfiguration()
+    : start_angle_(MIN_SCAN_ANGLE)
+    , end_angle_(MAX_SCAN_ANGLE)
+    , resolution_(MASTER_RESOLUTION)
+    {
+    }
+
+    Range getRange() const
+    {
+      return std::make_tuple(start_angle_, end_angle_, resolution_);
+    }
+
+  protected:
+    MasterDeviceConfiguration(const PSENscanInternalAngle& resolution_)
+    : start_angle_(MIN_SCAN_ANGLE)
+    , end_angle_(MAX_SCAN_ANGLE)
+    , resolution_(resolution_)
+    {
+    }
+
+  private:
+    /**< The following 'angle' and 'resolution' fields are all in tenth of degrees */
+    PSENscanInternalAngle start_angle_;
+    PSENscanInternalAngle end_angle_;
+    PSENscanInternalAngle resolution_;
+
+  };
+
+  class SlaveDeviceConfiguration : public MasterDeviceConfiguration
+  {
+  public:
+    SlaveDeviceConfiguration()
+    : MasterDeviceConfiguration(SLAVE_RESOLUTION)
+    , enabled_(false)
+    {
+    }
+
+    bool enabled() const
+    {
+      return enabled_;
+    }
+
+  private:
+    bool enabled_;
+  };
+
+
+private:
   std::string target_ip_;
   uint16_t target_udp_port_;
 
@@ -71,19 +129,7 @@ typedef struct ScannerConfiguration
   bool speed_encoder_enabled_;
   bool diagnostics_enabled_;
 
-  ScannerConfiguration(const std::string& target_ip, const uint16_t& target_udp_port)
-  : target_ip_(target_ip)
-  , target_udp_port_(target_udp_port)
-  , intensity_enabled_(false)
-  , point_in_safety_enabled_(false)
-  , active_zone_set_enabled_(false)
-  , io_pin_enabled_(false)
-  , scan_counter_enabled_(false)
-  , speed_encoder_enabled_(false)
-  , diagnostics_enabled_(false)
-  {
-  }
-} ScannerConfiguration;
+};
 
 }
 

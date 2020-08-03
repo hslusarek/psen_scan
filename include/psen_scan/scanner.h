@@ -21,6 +21,7 @@
 #include "psen_scan/laserscan.h"
 #include "psen_scan/scanner_configuration.h"
 #include "psen_scan/scanner_controller.h"
+#include "psen_scan/msg_encoder.h"
 
 namespace psen_scan
 {
