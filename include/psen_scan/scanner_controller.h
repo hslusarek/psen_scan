@@ -27,6 +27,7 @@
 #include <psen_scan/msg_decoder.h>
 #include <psen_scan/start_reply_msg.h>
 #include <psen_scan/psen_scan_udp_interface.h>
+#include <psen_scan/controller_state_machine.h>
 
 namespace psen_scan
 {
