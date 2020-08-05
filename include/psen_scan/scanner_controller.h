@@ -31,7 +31,6 @@
 
 namespace psen_scan
 {
-
 class ScannerController
 {
 public:
@@ -41,8 +40,6 @@ public:
   void stop();
 
 private:
-  //! @brief Starts a thread which continously reads data from the communication interface / scanner device.
-  void listenForNewMessages();
   void reactToStartReply(const StartReplyMsg& start_reply);
 
 private:
@@ -54,10 +51,9 @@ using std::placeholders::_1;
 
 inline ScannerController::ScannerController()
   // Inform ScannerController when StartReply is received from ScannerDevice.
-  : msg_decoder_( std::bind(&ScannerController::reactToStartReply, this, _1) )
+  : msg_decoder_(std::bind(&ScannerController::reactToStartReply, this, _1))
 
 {
-  listenForNewMessages();
 }
 
 inline void ScannerController::start()
@@ -76,19 +72,6 @@ inline void ScannerController::reactToStartReply(const StartReplyMsg& start_repl
   // switch state to "Wait for monitoring frame"
 }
 
-inline void ScannerController::listenForNewMessages()
-{
-  constexpr std::chrono::milliseconds SLEEP_TIME{ 1000 };
-  while(true)
-  {
-    // TODO: Read from communication interface
+}  // namespace psen_scan
 
-    // msg_decoder_.decodeAndDispatch(buffer);
-
-    std::this_thread::sleep_for(SLEEP_TIME);
-  }
-}
-
-}
-
-#endif // PSEN_SCAN_SCANNER_CONTROLLER_H
+#endif  // PSEN_SCAN_SCANNER_CONTROLLER_H

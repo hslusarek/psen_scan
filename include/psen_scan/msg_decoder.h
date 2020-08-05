@@ -16,6 +16,7 @@
 #define PSEN_SCAN_MSG_DECODER_H
 
 #include <functional>
+#include <array>
 
 #include <boost/asio.hpp>
 
@@ -23,25 +24,24 @@
 
 namespace psen_scan
 {
-
 using StartReplyCallback = std::function<void(const StartReplyMsg&)>;
 
 class MsgDecoder
 {
 public:
   MsgDecoder(StartReplyCallback start_reply_callback);
-  void decodeAndDispatch(boost::asio::mutable_buffers_1& buffer);
+
+  template <std::size_t NumberOfBytes>
+  void decodeAndDispatch(const std::array<char, NumberOfBytes>& data, const std::size_t& bytes_received);
 
 private:
   StartReplyCallback start_reply_callback_;
 };
 
-inline MsgDecoder::MsgDecoder(StartReplyCallback start_reply_callback)
-  : start_reply_callback_(start_reply_callback)
+inline MsgDecoder::MsgDecoder(StartReplyCallback start_reply_callback) : start_reply_callback_(start_reply_callback)
 {
-
 }
 
 }  // namespace psen_scan
 
-#endif // PSEN_SCAN_MSG_DECODER_H
+#endif  // PSEN_SCAN_MSG_DECODER_H

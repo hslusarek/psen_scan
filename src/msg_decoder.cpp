@@ -17,8 +17,8 @@
 
 namespace psen_scan
 {
-
-void MsgDecoder::decodeAndDispatch(boost::asio::mutable_buffers_1& buffer)
+template <std::size_t NumberOfBytes>
+void MsgDecoder::decodeAndDispatch(const std::array<char, NumberOfBytes>& data, const std::size_t& bytes_received)
 {
   // Decode and call callbacks
 

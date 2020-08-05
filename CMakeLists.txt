@@ -99,6 +99,7 @@ set(${PROJECT_NAME}_node_sources
   src/psen_scan_driver.cpp
   src/ros_parameter_handler.cpp
   src/ros_scanner_node.cpp
+  src/scanner_configuration.cpp
 )
 
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_sources})
@@ -240,6 +241,7 @@ if(CATKIN_ENABLE_TESTING)
 
   catkin_add_executable_with_gmock(${PROJECT_NAME}_integrationtest_scan_topic_node
     test/integration_tests/integrationtest_scan_topic_node.cpp
+    src/scanner_configuration.cpp
     src/laserscan.cpp
     src/psen_scan_internal_angle.cpp
     src/ros_scanner_node.cpp
