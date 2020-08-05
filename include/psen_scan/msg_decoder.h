@@ -16,11 +16,16 @@
 #define PSEN_SCAN_MSG_DECODER_H
 
 #include <functional>
+
 #include <array>
 
-#include <boost/asio.hpp>
+#include <sstream>
 
-#include <psen_scan/start_reply_msg.h>
+#include "psen_scan/start_reply_msg.h"
+#include "psen_scan/scanner_frames.h"
+#include "psen_scan/scanner_frames_conversions.h"
+#include "psen_scan/not_implemented_exception.h"
+#include "psen_scan/decode_exception.h"
 
 namespace psen_scan
 {
@@ -40,6 +45,29 @@ private:
 
 inline MsgDecoder::MsgDecoder(StartReplyCallback start_reply_callback) : start_reply_callback_(start_reply_callback)
 {
+}
+
+template <std::size_t NumberOfBytes>
+void MsgDecoder::decodeAndDispatch(const std::array<char, NumberOfBytes>& data, const std::size_t& bytes_received)
+{
+  if (bytes_received == sizeof(DataReply::MemoryFormat))  // Check if this could be a reply
+  {
+    DataReply::MemoryFormat frame{ decode(data) };  // TODO how to handle throw?
+
+    if (frame.type() == DataReply::Type::Start)
+    {
+      StartReplyMsg start_reply_msg;  // should be a move
+      start_reply_callback_(start_reply_msg);
+    }
+    else
+    {
+      throw NotImplementedException();
+    }
+  }
+  else
+  {
+    throw NotImplementedException();
+  }
 }
 
 }  // namespace psen_scan

@@ -17,21 +17,32 @@
 
 #include <boost/crc.hpp>
 
+#include <psen_scan/scanner_frames.h>
+
+#include <iostream>
+
 namespace psen_scan
 {
-
 namespace crc
 {
+inline uint32_t calcCRC32(const DataReply::MemoryFormat& frame)
+{
+  boost::crc_32_type result;
+  // reading all data except the field of the sent crc at the beginning according to Reference Guide Rev. A – November
+  // 2019 Page 14
+  result.process_bytes(&(frame.RESERVED_), sizeof(DataReply::MemoryFormat::RESERVED_));
+  result.process_bytes(&(frame.opcode_), sizeof(DataReply::MemoryFormat::opcode_));
+  result.process_bytes(&(frame.res_code_), sizeof(DataReply::MemoryFormat::res_code_));
+  return result.checksum();
+}
 
-  inline uint32_t calcCRC32(const void* data_buffer, const size_t& byte_count)
-  {
-    boost::crc_32_type result;
-    result.process_bytes(data_buffer, byte_count);
-    return result.checksum();
-  }
+inline bool checkCRC(const DataReply::MemoryFormat& frame)
+{
+  return calcCRC32(frame) == frame.crc_;
+}
 
-}  // namespace msg_encoder
+}  // namespace crc
 
 }  // namespace psen_scan
 
-#endif // PSEN_SCAN_CRC_H
+#endif  // PSEN_SCAN_CRC_H

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Pilz GmbH & Co. KG
+// Copyright (c) 2019 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -13,18 +13,15 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "psen_scan/msg_decoder.h"
+#include <gtest/gtest.h>
+#include <psen_scan/decode_exception.h>
 
-namespace psen_scan
-{
-template <std::size_t NumberOfBytes>
-void MsgDecoder::decodeAndDispatch(const std::array<char, NumberOfBytes>& data, const std::size_t& bytes_received)
-{
-  // Decode and call callbacks
+using namespace psen_scan;
 
-  // if StartReply message then:
-  StartReplyMsg start_reply_msg;
-  start_reply_callback_(start_reply_msg);
+namespace psen_scan_test
+{
+TEST(DecodeExceptionTest, new_build_ros_message_exception)
+{
+  std::unique_ptr<DecodeException> e(new DecodeException());
 }
-
-}  // namespace psen_scan
+}  // namespace psen_scan_test

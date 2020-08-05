@@ -152,6 +152,16 @@ typedef struct DiagnosticArea
 } DiagnosticArea;
 
 /**
+ * @brief UnknownFrame as coming from Laserscanner. We use this to identify what type of frame it is.
+ */
+typedef struct UnknownFrame
+{
+  uint32_t RESERVED_;                /**< Not required for identification frame. */
+  uint32_t opcode_monitoring_fram;   /**< - */
+  uint32_t opcode_start_stop_reply_; /**< Operation Code in case of start or stop relply. */
+} UnknownFrame;
+
+/**
  * @brief MonitoringFrame as coming from Laserscanner
  *
  */
@@ -184,22 +194,44 @@ typedef struct MonitoringFrame
 } MonitoringFrame;
 
 /**
- * @brief DataStartReply as coming from Laserscanner. Comments according to
+ * @brief DataReply as coming from Laserscanner. Beeing either StartReply or StopReply
+ *        Comments according to
  *        Reference Guide Rev. A – November 2019 Page 6
  */
-typedef struct DataStartReply
+
+namespace DataReply
 {
-  uint32_t crc_;                      /**< A CRC32 of all the following fields. */
-  uint32_t RESERVED_;                 /**< - */
-  uint32_t opcode_;                   /**< Operation Code (START 0x35). */
-  uint32_t res_code_;                 /**< Operation result. If the message is accepted,
-                                           the returned value is 0x00. If the message is
-                                           refused, the returned value is 0xEB. If the CRC
-                                           is not correct, the device will not send any
-                                           message.*/
-} DataStartReply;
+static const uint32_t OPCODE_START{ 0x35 };
+enum class Type
+{
+  Start,
+  Unknown
+};
 
+typedef struct MemoryFormat
+{
+  Type type() const
+  {
+    if (opcode_ == OPCODE_START)
+    {
+      return Type::Start;
+    }
+    else
+    {
+      return Type::Unknown;
+    }
+  }
 
+  uint32_t crc_ = 0;      /**< A CRC32 of all the following fields. */
+  uint32_t RESERVED_ = 0; /**< - */
+  uint32_t opcode_ = 0;   /**< Operation Code (START 0x35, STOP 0x36). */
+  uint32_t res_code_ = 0; /**< Operation result. If the message is accepted,
+                               the returned value is 0x00. If the message is
+                               refused, the returned value is 0xEB. If the CRC
+                               is not correct, the device will not send any
+                               message.*/
+} MemoryFormat;
+}  // namespace DataReply
 
 #pragma pack(pop)
 }  // namespace psen_scan

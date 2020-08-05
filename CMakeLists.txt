@@ -91,7 +91,6 @@ set(${PROJECT_NAME}_sources
   src/laserscan.cpp
   src/psen_scan_internal_angle.cpp
   src/psen_scan_udp_interface.cpp
-  src/msg_decoder.cpp
   src/controller_state_machine.cpp
 )
 
@@ -201,6 +200,7 @@ if(CATKIN_ENABLE_TESTING)
     test/unit_tests/unittest_new_parse_monitoring_frame_exception.cpp
     test/unit_tests/unittest_new_psen_scan_fatal_exception.cpp
     test/unit_tests/unittest_new_udp_read_timeout_exception.cpp
+    test/unit_tests/unittest_decode_exception.cpp
   )
   target_link_libraries(unittest_build_new_exceptions
     ${catkin_LIBRARIES}
@@ -221,6 +221,14 @@ if(CATKIN_ENABLE_TESTING)
     src/psen_scan_internal_angle.cpp
   )
   target_link_libraries(unittest_scanner_communication_interface
+    ${catkin_LIBRARIES}
+    gtest_main
+  )
+
+  catkin_add_gmock(unittest_msg_decoder
+    test/unit_tests/unittest_msg_decoder.cpp
+  )
+  target_link_libraries(unittest_msg_decoder
     ${catkin_LIBRARIES}
     gtest_main
   )
