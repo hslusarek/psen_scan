@@ -34,7 +34,7 @@
 namespace psen_scan
 {
 // TODO: Move to ScannerController class and read from ScannerConfiguration
-static constexpr std::size_t DATA_SIZE_BYTES{ 1000 };
+static constexpr std::size_t DATA_SIZE_BYTES{ 65507 };
 
 // TODO: Move to ScannerController class and read from ScannerConfiguration
 static constexpr unsigned short READ_PORT_OF_SCANNER_CONTROLLER{ 45001 };

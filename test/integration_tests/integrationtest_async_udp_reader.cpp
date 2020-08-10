@@ -55,6 +55,9 @@ public:
   MOCK_METHOD1(handleError, void(const std::string&));
 
 protected:
+  void sendTestDataToClient();
+
+protected:
   MockUDPServer mock_udp_server_{ UDP_MOCK_SEND_PORT, UDP_MOCK_READ_PORT };
 
   psen_scan::AsyncUdpReader<DATA_SIZE_BYTES> async_udp_reader_{
@@ -66,16 +69,19 @@ protected:
   };
 };
 
+void AsynUdpReadTests::sendTestDataToClient()
+{
+  const udp::endpoint host_endpoint(boost::asio::ip::address_v4::from_string(HOST_IP_ADDRESS), HOST_UDP_READ_PORT);
+  std::array<char, DATA_SIZE_BYTES> send_array = { "Hello" };
+  mock_udp_server_.asyncSend<DATA_SIZE_BYTES>(host_endpoint, send_array);
+}
+
 TEST_F(AsynUdpReadTests, testAsyncReadOperation)
 {
   EXPECT_CALL(*this, handleNewData(::testing::_, DATA_SIZE_BYTES)).WillOnce(ACTION_OPEN_BARRIER_VOID(MSG_RECEIVED));
 
   async_udp_reader_.startReceiving();
-
-  const udp::endpoint host_endpoint(boost::asio::ip::address_v4::from_string(HOST_IP_ADDRESS), HOST_UDP_READ_PORT);
-  std::array<char, DATA_SIZE_BYTES> send_array = { "Hello" };
-  mock_udp_server_.asyncSend<DATA_SIZE_BYTES>(host_endpoint, send_array);
-
+  sendTestDataToClient();
   BARRIER(MSG_RECEIVED);
 }
 
@@ -104,11 +110,7 @@ TEST_F(AsynUdpReadTests, testRestartAfterTimeout)
   BARRIER(TIMEOUT_BARRIER_1);
 
   async_udp_reader_.startReceiving(RECEIVE_TIMEOUT);
-
-  const udp::endpoint host_endpoint(boost::asio::ip::address_v4::from_string(HOST_IP_ADDRESS), HOST_UDP_READ_PORT);
-  std::array<char, DATA_SIZE_BYTES> send_array = { "Hello" };
-  mock_udp_server_.asyncSend<DATA_SIZE_BYTES>(host_endpoint, send_array);
-
+  sendTestDataToClient();
   BARRIER(MSG_RECEIVED);
 }
 

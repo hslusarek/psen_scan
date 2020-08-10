@@ -39,6 +39,8 @@ public:
   ~SyncUdpWriter();
 
 public:
+  //! @brief Sends the specified data via UDP to the client.
+  //! @param NumberOfBytes Bytes send to the client.
   template <std::size_t NumberOfBytes>
   void write(const std::array<char, NumberOfBytes>& data);
 
