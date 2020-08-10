@@ -19,6 +19,7 @@
 #include <string>
 #include <thread>
 #include <atomic>
+#include <condition_variable>
 #include <functional>
 #include <iostream>
 
@@ -46,6 +47,7 @@ template <std::size_t NumberOfBytes>
 using NewDataHandler = std::function<void(const std::array<char, NumberOfBytes>&, const std::size_t&)>;
 
 using ErrorHandler = std::function<void(const std::string&)>;
+using StartedHandler = std::function<void()>;
 
 static const boost::posix_time::seconds DEFAULT_TIMEOUT{ 1 };
 
@@ -54,21 +56,18 @@ class AsyncUdpReader
 {
 public:
   AsyncUdpReader(const NewDataHandler<NumberOfBytes>& data_handler,
-                const ErrorHandler& error_handler,
-                const unsigned short& host_port,
-                const std::string& endpoint_ip,
-                const unsigned short& endpoint_port);
+                 const ErrorHandler& error_handler,
+                 const unsigned short& host_port,
+                 const std::string& endpoint_ip,
+                 const unsigned short& endpoint_port);
   ~AsyncUdpReader();
 
 public:
   void startReceiving(const boost::posix_time::time_duration timeout = DEFAULT_TIMEOUT);
-  void stopReceiving();
-
   void close();
 
 private:
   void asyncReceive(const boost::posix_time::time_duration timeout);
-  void handleTimeout(const boost::system::error_code& error_code);
   void handleReceive(const boost::system::error_code& error_code,
                      const std::size_t& bytes_received,
                      const boost::posix_time::time_duration timeout);
@@ -81,20 +80,16 @@ private:
   std::thread io_service_thread_;
 
   std::array<char, NumberOfBytes> received_data_;
+
+  std::atomic_bool receive_called_{ false };
+  std::condition_variable receive_cv_;
+  std::mutex receive_mutex_;
+
   NewDataHandler<NumberOfBytes> data_handler_;
   ErrorHandler error_handler_;
 
   boost::asio::ip::udp::socket socket_;
   boost::asio::ip::udp::endpoint endpoint_;
-
-  enum class Receiving
-  {
-    off,
-    on,
-    shutdown
-  };
-
-  std::atomic<Receiving> receive_status_{ Receiving::off };
 };
 
 inline InvalidDataHandler::InvalidDataHandler(const std::string& msg) : std::invalid_argument(msg)
@@ -107,10 +102,10 @@ inline InvalidErrorHandler::InvalidErrorHandler(const std::string& msg) : std::i
 
 template <std::size_t NumberOfBytes>
 inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<NumberOfBytes>& data_handler,
-                                                   const ErrorHandler& error_handler,
-                                                   const unsigned short& host_port,
-                                                   const std::string& endpoint_ip,
-                                                   const unsigned short& endpoint_port)
+                                                     const ErrorHandler& error_handler,
+                                                     const unsigned short& host_port,
+                                                     const std::string& endpoint_ip,
+                                                     const unsigned short& endpoint_port)
   : data_handler_(data_handler)
   , error_handler_(error_handler)
   , socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), host_port))
@@ -144,15 +139,11 @@ inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<Number
 template <std::size_t NumberOfBytes>
 inline void AsyncUdpReader<NumberOfBytes>::close()
 {
-  const Receiving old_status{ receive_status_.exchange(Receiving::shutdown) };
-  if (old_status == Receiving::shutdown)
-  {
-    return;
-  }
-
-  timeout_timer_.cancel();
+  io_service_.post([this]() {
+    timeout_timer_.cancel();
+    socket_.cancel();
+  });
   io_service_.stop();
-  socket_.cancel();
 
   if (io_service_thread_.joinable())
   {
@@ -161,8 +152,10 @@ inline void AsyncUdpReader<NumberOfBytes>::close()
 
   try
   {
-    // Do not close the socket before the io_service thread is finished,
-    // otherwise a sporadic segmentation fault appears.
+    // Function is intended to be called from the main thread,
+    // therefore, the following socket operation happens on the main thread.
+    // To avoid concurrency issues, it has to be ensured that the io_service thread
+    // is finished before the socket close operation is performed.
     socket_.close();
   }
   // LCOV_EXCL_START
@@ -183,30 +176,18 @@ inline AsyncUdpReader<NumberOfBytes>::~AsyncUdpReader()
   // LCOV_EXCL_START
   catch (const CloseConnectionFailure& ex)
   {
-    std::cout << "ERROR: " << ex.what() << std::endl;
+    std::cerr << "ERROR: " << ex.what() << std::endl;
   }
   // LCOV_EXCL_STOP
 }
 
 template <std::size_t NumberOfBytes>
-void AsyncUdpReader<NumberOfBytes>::handleTimeout(const boost::system::error_code& error_code)
-{
-  if ((receive_status_ != Receiving::on) || error_code)
-  {
-    return;
-  }
-  stopReceiving();
-}
-
-template <std::size_t NumberOfBytes>
 inline void AsyncUdpReader<NumberOfBytes>::handleReceive(const boost::system::error_code& error_code,
-                                                        const std::size_t& bytes_received,
-                                                        const boost::posix_time::time_duration timeout)
+                                                         const std::size_t& bytes_received,
+                                                         const boost::posix_time::time_duration timeout)
 {
   if (error_code || bytes_received == 0)
   {
-    static auto expected_status{ Receiving::on };
-    receive_status_.compare_exchange_strong(expected_status, Receiving::off);
     error_handler_(error_code.message());
     return;
   }
@@ -218,19 +199,16 @@ inline void AsyncUdpReader<NumberOfBytes>::handleReceive(const boost::system::er
 template <std::size_t NumberOfBytes>
 inline void AsyncUdpReader<NumberOfBytes>::startReceiving(const boost::posix_time::time_duration timeout)
 {
-  static auto expected_status{ Receiving::off };
-  if (!receive_status_.compare_exchange_strong(expected_status, Receiving::on))
-  {
-    return;
-  }
-  asyncReceive(timeout);
-}
-
-template <std::size_t NumberOfBytes>
-void AsyncUdpReader<NumberOfBytes>::stopReceiving()
-{
-  // Cancel all outstanding asynchronous receive operations
-  socket_.cancel();
+  // Function is intended to be called from main thread.
+  // To ensure that socket operations only happen on one strand (in this case an implicit one),
+  // the asyncReceive() operation is scheduled as task to the io_service thread.
+  io_service_.post([this, &timeout]() {
+    asyncReceive(timeout);
+    receive_called_ = true;
+    receive_cv_.notify_all();
+  });
+  std::unique_lock<std::mutex> lock(receive_mutex_);
+  receive_cv_.wait(lock, [this]() { return receive_called_.load(); });
 }
 
 template <std::size_t NumberOfBytes>
@@ -239,14 +217,14 @@ inline void AsyncUdpReader<NumberOfBytes>::asyncReceive(const boost::posix_time:
   using std::placeholders::_1;
   using std::placeholders::_2;
 
-  if (receive_status_.load() != Receiving::on)
-  {
-    return;
-  }
-
-  timeout_timer_.cancel();  // Cancel previous timeout's
   timeout_timer_.expires_from_now(timeout);
-  timeout_timer_.async_wait(std::bind(&AsyncUdpReader<NumberOfBytes>::handleTimeout, this, _1));
+  timeout_timer_.async_wait([this](const boost::system::error_code& error_code) {
+    if (error_code)
+    {
+      return;
+    }
+    socket_.cancel();
+  });
 
   socket_.async_receive(boost::asio::buffer(received_data_, NumberOfBytes),
                         std::bind(&AsyncUdpReader<NumberOfBytes>::handleReceive, this, _1, _2, timeout));

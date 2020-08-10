@@ -112,23 +112,6 @@ TEST_F(AsynUdpReadTests, testRestartAfterTimeout)
   BARRIER(MSG_RECEIVED);
 }
 
-TEST_F(AsynUdpReadTests, testStopReceiving)
-{
-  EXPECT_CALL(*this, handleNewData(::testing::_, ::testing::_)).WillOnce(ACTION_OPEN_BARRIER_VOID(MSG_RECEIVED));
-  EXPECT_CALL(*this, handleError(::testing::_)).WillOnce(ACTION_OPEN_BARRIER_VOID(STOP_PROCESSED));
-
-  async_udp_reader_.startReceiving(RECEIVE_TIMEOUT);
-
-  const udp::endpoint host_endpoint(boost::asio::ip::address_v4::from_string(HOST_IP_ADDRESS), HOST_UDP_READ_PORT);
-  std::array<char, DATA_SIZE_BYTES> send_array = { "Hello" };
-  mock_udp_server_.asyncSend<DATA_SIZE_BYTES>(host_endpoint, send_array);
-
-  BARRIER(MSG_RECEIVED);
-  async_udp_reader_.stopReceiving();
-
-  BARRIER(STOP_PROCESSED);
-}
-
 }  // namespace psen_scan_test
 
 int main(int argc, char* argv[])

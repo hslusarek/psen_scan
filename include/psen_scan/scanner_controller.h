@@ -21,6 +21,7 @@
 #include <atomic>
 #include <array>
 #include <string>
+#include <iostream>
 
 #include <boost/asio.hpp>
 
@@ -43,6 +44,8 @@ static const std::string SCANNER_IP_ADDRESS{ "127.0.0.1" };
 
 // TODO: Move to ScannerController class and read from ScannerConfiguration
 static constexpr unsigned short SEND_PORT_OF_SCANNER_DEVICE{ 2000 };
+
+static const boost::posix_time::millisec RECEIVE_TIMEOUT{ 1000 };
 
 class ScannerController
 {
@@ -83,6 +86,8 @@ inline void ScannerController::handleError(const std::string& error_msg)
 
 inline void ScannerController::start()
 {
+  async_udp_reader_.startReceiving(RECEIVE_TIMEOUT);
+
   // TODO: Send Start Request
   // TODO: Switch to state: Init
 }
@@ -90,6 +95,16 @@ inline void ScannerController::start()
 inline void ScannerController::stop()
 {
   // TODO: Send Stop Request
+
+  try
+  {
+    async_udp_reader_.close();
+  }
+  catch (const boost::system::system_error& ex)
+  {
+    // TODO: What do we want to do with these kind of exceptions?
+    std::cerr << "ERROR: " << ex.what() << std::endl;
+  }
 }
 
 inline void ScannerController::reactToStartReply(const StartReplyMsg& start_reply)
