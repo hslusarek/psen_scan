@@ -47,7 +47,6 @@ template <std::size_t NumberOfBytes>
 using NewDataHandler = std::function<void(const std::array<char, NumberOfBytes>&, const std::size_t&)>;
 
 using ErrorHandler = std::function<void(const std::string&)>;
-using StartedHandler = std::function<void()>;
 
 static const boost::posix_time::seconds DEFAULT_TIMEOUT{ 1 };
 
