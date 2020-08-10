@@ -21,15 +21,16 @@
 
 namespace psen_scan
 {
-
 class ControllerStateMachine
 {
 public:
   explicit ControllerStateMachine();
   virtual ~ControllerStateMachine();
 
-
-  inline void registerSendStartRequestCallback(SendStartRequestCallback sr) { sm_.InitState_.send_start_request_callback_= sr; };
+  inline void registerSendStartRequestCallback(const SendStartRequestCallback& sr)
+  {
+    sm_.InitState_.send_start_request_callback_ = sr;
+  };
 
   bool processStartRequestEvent();
   bool processStartReplyReceivedEvent();
@@ -37,25 +38,11 @@ public:
   bool processStopRequestEvent();
   bool processStopReplyReceivedEvent();
 
-
 private:
   controller_msm_state_machine sm_;
   std::mutex sm_access_mutex_;
-
-//   TODO: Do we need this here?
-//
-//   /* UDP Stuff*/
-//   boost::asio::io_service io_service_;
-//   udp::endpoint udp_read_endpoint_{udp::v4(), 5004};  /**< Endpoint for reading from UDP. */
-//   udp::socket socket_read_{io_service_, udp_read_endpoint_};               /**< Socket used for reading from UDP. */
-
-//   std::unique_ptr<std::thread> reading_thread_;
-//   std::atomic_bool reading_thread_abort_flag_{false};
-
-//   bool readUdp();
 };
 
 }  // namespace psen_scan
-
 
 #endif  // PSEN_SCAN_CONTROLLER_STATE_MACHINE_H

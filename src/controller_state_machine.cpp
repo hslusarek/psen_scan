@@ -15,58 +15,58 @@
 
 #include <psen_scan/controller_state_machine.h>
 
-
 namespace psen_scan
 {
-  ControllerStateMachine::ControllerStateMachine()
-  {
-    sm_.start();
+ControllerStateMachine::ControllerStateMachine()
+{
+  std::unique_lock<std::mutex>(sm_access_mutex_);
+  sm_.start();
+}
 
-  }
+ControllerStateMachine::~ControllerStateMachine()
+{
+  std::unique_lock<std::mutex>(sm_access_mutex_);
+  sm_.stop();
+}
 
-  ControllerStateMachine::~ControllerStateMachine()
-  {
-    sm_.stop();
-  }
+bool ControllerStateMachine::processStartRequestEvent()
+{
+  std::unique_lock<std::mutex>(sm_access_mutex_);
+  sm_.process_event(start_request_event());
 
-  bool ControllerStateMachine::processStartRequestEvent()
-  {
-    std::unique_lock<std::mutex>(sm_access_mutex_);
-    sm_.process_event(start_request_event());
+  return true;
+}
 
-    return true;
-  }
+bool ControllerStateMachine::processStartReplyReceivedEvent()
+{
+  std::unique_lock<std::mutex>(sm_access_mutex_);
+  sm_.process_event(start_reply_received_event());
 
-  bool ControllerStateMachine::processStartReplyReceivedEvent()
-  {
-    std::unique_lock<std::mutex>(sm_access_mutex_);
-    sm_.process_event(start_reply_received_event());
+  return true;
+}
 
-    return true;
-  }
+bool ControllerStateMachine::processMonitoringFrameReceivedEvent()
+{
+  std::unique_lock<std::mutex>(sm_access_mutex_);
+  sm_.process_event(monitoring_frame_received_event());
 
-  bool ControllerStateMachine::processMonitoringFrameReceivedEvent()
-  {
-    std::unique_lock<std::mutex>(sm_access_mutex_);
-    sm_.process_event(monitoring_frame_received_event());
+  return true;
+}
 
-    return true;
-  }
+bool ControllerStateMachine::processStopRequestEvent()
+{
+  std::unique_lock<std::mutex>(sm_access_mutex_);
+  sm_.process_event(stop_request_event());
 
-  bool ControllerStateMachine::processStopRequestEvent()
-  {
-    std::unique_lock<std::mutex>(sm_access_mutex_);
-    sm_.process_event(stop_request_event());
+  return true;
+}
 
-    return true;
-  }
+bool ControllerStateMachine::processStopReplyReceivedEvent()
+{
+  std::unique_lock<std::mutex>(sm_access_mutex_);
+  sm_.process_event(stop_reply_received_event());
 
-  bool ControllerStateMachine::processStopReplyReceivedEvent()
-  {
-    std::unique_lock<std::mutex>(sm_access_mutex_);
-    sm_.process_event(stop_reply_received_event());
+  return true;
+}
 
-    return true;
-  }
-
-} // namespace psen_scan
+}  // namespace psen_scan
