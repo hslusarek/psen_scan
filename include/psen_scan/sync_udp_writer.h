@@ -26,10 +26,10 @@
 
 namespace psen_scan
 {
-class WriteFaliure : public std::runtime_error
+class WriteFailure : public std::runtime_error
 {
 public:
-  WriteFaliure(const std::string& msg = "Error while writing to socket");
+  WriteFailure(const std::string& msg = "Error while writing to socket");
 };
 
 class SyncUdpWriter
@@ -50,7 +50,7 @@ private:
   boost::asio::ip::udp::socket socket_;
 };
 
-inline WriteFaliure::WriteFaliure(const std::string& msg) : std::runtime_error(msg)
+inline WriteFailure::WriteFailure(const std::string& msg) : std::runtime_error(msg)
 {
 }
 
@@ -110,7 +110,7 @@ inline void SyncUdpWriter::write(const std::array<char, NumberOfBytes>& data)
   // LCOV_EXCL_START
   catch (const boost::system::system_error& ex)
   {
-    throw WriteFaliure(ex.what());
+    throw WriteFailure(ex.what());
   }
   // LCOV_EXCL_STOP
 }
