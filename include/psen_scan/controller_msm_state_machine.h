@@ -16,7 +16,6 @@
 #ifndef PSEN_SCAN_CONTROLLER_MSM_STATE_MACHINE_H
 #define PSEN_SCAN_CONTROLLER_MSM_STATE_MACHINE_H
 
-#include <iostream>
 #include <functional>
 
 // back-end
@@ -26,113 +25,64 @@
 
 namespace psen_scan
 {
-
 namespace msm = boost::msm;
 namespace mpl = boost::mpl;
 
+// special case: lots of empty structs due to metaprogramming
+// clang-format off
+
 // events
-struct start_request_event
-{
-};
-struct start_reply_received_event
-{
-};
-struct monitoring_frame_received_event
-{
-};
-struct stop_request_event
-{
-};
-struct stop_reply_received_event
-{
-};
+struct start_request_event {};
+struct start_reply_received_event {};
+struct monitoring_frame_received_event {};
+struct stop_request_event {};
+struct stop_reply_received_event {};
 
 using SendStartRequestCallback = std::function<void()>;
 
 // front-end: define the FSM structure
 struct msm_front_ : public msm::front::state_machine_def<msm_front_>
 {
+  SendStartRequestCallback send_start_request_callback_;
+
+  void send_start_request_action(start_request_event const&)
+  {
+    send_start_request_callback_();
+  }
+
+  msm_front_(const SendStartRequestCallback& sr):
+    send_start_request_callback_(sr)
+  {
+
+  }
 
   // The list of FSM states
-  struct InitState : public msm::front::state<>
-  {
-    SendStartRequestCallback send_start_request_callback_;
-    // every (optional) entry/exit methods get the event passed.
-    template <class Event, class FSM>
-    void on_entry(Event const&, FSM&)
-    {
-    }
-
-    template <class Event, class FSM>
-    void on_exit(Event const&, FSM&)
-    {
-      // std::cerr << "leaving: InitState\n\n";
-      if (send_start_request_callback_)
-      {
-        send_start_request_callback_();
-      }
-    }
-  } InitState_;
-
-  struct WaitForStartReplyState : public msm::front::state<>
-  {
-    template <class Event, class FSM>
-    void on_entry(Event const&, FSM&)
-    {
-    }
-    template <class Event, class FSM>
-    void on_exit(Event const&, FSM&)
-    {
-    }
-  };
-  struct WaitForMonitoringFrameState : public msm::front::state<>
-  {
-    template <class Event, class FSM>
-    void on_entry(Event const&, FSM&)
-    {
-    }
-    template <class Event, class FSM>
-    void on_exit(Event const&, FSM&)
-    {
-    }
-  };
-  struct WaitForStopReplyState : public msm::front::state<>
-  {
-    template <class Event, class FSM>
-    void on_entry(Event const&, FSM&)
-    {
-    }
-    template <class Event, class FSM>
-    void on_exit(Event const&, FSM&)
-    {
-    }
-  };
+  struct InitState : public msm::front::state<> {};
+  struct WaitForStartReplyState : public msm::front::state<> {};
+  struct WaitForMonitoringFrameState : public msm::front::state<> {};
+  struct WaitForStopReplyState : public msm::front::state<> {};
 
   typedef InitState initial_state;
 
-  // TODO: m is not used? Necessary?
   typedef msm_front_ m;  // makes transition table cleaner
 
-  // TODO: Use Action for function call?
-
   // Transition table for the scanner
-  // clang-format off
   struct transition_table : mpl::vector<
-      //    Start                         Event                            Next           			 Action	     Guard
-      //  +-------------------------------+--------------------------------+---------------------------+---------+---+
-      _row < InitState,                   start_request_event,             WaitForStartReplyState                    >,
-      _row < WaitForStartReplyState,      start_reply_received_event,      WaitForMonitoringFrameState               >,
-      _row < WaitForMonitoringFrameState, monitoring_frame_received_event, WaitForMonitoringFrameState               >,
-      _row < WaitForMonitoringFrameState, stop_request_event,              WaitForStopReplyState                     >,
-      _row < WaitForStopReplyState,       stop_reply_received_event,       InitState                                 >
-      //  +-------------------------------+--------------------------------+---------------------------+---------+---+
+    //    Start                           Event                            Next           			        Action	                             Guard
+    //  +-------------------------------+--------------------------------+----------------------------+-----------------------------------+-------+
+      a_row < InitState,                  start_request_event,             WaitForStartReplyState,      &m::send_start_request_action   >,
+      _row < WaitForStartReplyState,      start_reply_received_event,      WaitForMonitoringFrameState                                  >,
+      _row < WaitForMonitoringFrameState, monitoring_frame_received_event, WaitForMonitoringFrameState                                  >,
+      _row < WaitForMonitoringFrameState, stop_request_event,              WaitForStopReplyState                                        >,
+      _row < WaitForStopReplyState,       stop_reply_received_event,       InitState                                                    >
+    //  +-------------------------------+--------------------------------+---------------------------+------------------------------------+-------+
   > {};
   // clang-format on
   // Replaces the default no-transition response.
   template <class FSM, class Event>
-  void no_transition(Event const& e, FSM&, int state)
+  void no_transition(Event const&, FSM&, int)
   {
-      //TODO Implement handling
+    // TODO Implement handling
   }
 };
 

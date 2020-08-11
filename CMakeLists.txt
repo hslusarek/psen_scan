@@ -200,6 +200,14 @@ if(CATKIN_ENABLE_TESTING)
     gtest_main
   )
 
+  catkin_add_gmock(unittest_controller_state_machine
+    test/unit_tests/unittest_controller_state_machine.cpp
+    src/controller_state_machine.cpp
+  )
+  target_link_libraries(unittest_controller_state_machine
+    ${catkin_LIBRARIES}
+  )
+
   #########################
   ##  Integration-Tests  ##
   #########################

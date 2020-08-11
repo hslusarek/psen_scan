@@ -24,13 +24,8 @@ namespace psen_scan
 class ControllerStateMachine
 {
 public:
-  explicit ControllerStateMachine();
+  explicit ControllerStateMachine(const SendStartRequestCallback& sr);
   virtual ~ControllerStateMachine();
-
-  inline void registerSendStartRequestCallback(const SendStartRequestCallback& sr)
-  {
-    sm_.InitState_.send_start_request_callback_ = sr;
-  };
 
   bool processStartRequestEvent();
   bool processStartReplyReceivedEvent();
