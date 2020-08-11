@@ -19,10 +19,8 @@
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/default_parameters.h"
 #include "psen_scan/scanner_configuration.h"
-#include "psen_scan/psen_scan_udp_interface.h"
 
 using namespace psen_scan;
-typedef std::unique_ptr<PSENscanUDPInterface> PSENscanUDPptr;
 
 int main(int argc, char** argv)
 {

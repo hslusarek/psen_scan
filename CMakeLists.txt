@@ -90,7 +90,6 @@ set(${PROJECT_NAME}_sources
   src/scanner_frames.cpp
   src/laserscan.cpp
   src/psen_scan_internal_angle.cpp
-  src/psen_scan_udp_interface.cpp
   src/controller_state_machine.cpp
 )
 
@@ -164,7 +163,6 @@ if(CATKIN_ENABLE_TESTING)
     src/scanner_frames.cpp
     src/laserscan.cpp
     src/psen_scan_internal_angle.cpp
-    src/psen_scan_udp_interface.cpp
   )
   target_link_libraries(unittest_scanner
     ${catkin_LIBRARIES}
@@ -199,28 +197,9 @@ if(CATKIN_ENABLE_TESTING)
     test/unit_tests/unittest_new_get_ros_parameter_exception.cpp
     test/unit_tests/unittest_new_parse_monitoring_frame_exception.cpp
     test/unit_tests/unittest_new_psen_scan_fatal_exception.cpp
-    test/unit_tests/unittest_new_udp_read_timeout_exception.cpp
     test/unit_tests/unittest_decode_exception.cpp
   )
   target_link_libraries(unittest_build_new_exceptions
-    ${catkin_LIBRARIES}
-    gtest_main
-  )
-
-  catkin_add_gtest(unittest_timeout_adjust_func
-    test/unit_tests/unittest_timeout_adjust_func.cpp
-  )
-  target_link_libraries(unittest_timeout_adjust_func
-    ${catkin_LIBRARIES}
-    gtest_main
-  )
-
-  catkin_add_gtest(unittest_scanner_communication_interface
-    test/unit_tests/unittest_scanner_communication_interface.cpp
-    src/psen_scan_udp_interface.cpp
-    src/psen_scan_internal_angle.cpp
-  )
-  target_link_libraries(unittest_scanner_communication_interface
     ${catkin_LIBRARIES}
     gtest_main
   )
@@ -236,17 +215,6 @@ if(CATKIN_ENABLE_TESTING)
   #########################
   ##  Integration-Tests  ##
   #########################
-  catkin_add_gmock(integrationtest_psen_scan_udp_interface
-    test/integration_tests/integrationtest_psen_scan_udp_interface.cpp
-    src/psen_scan_internal_angle.cpp
-    src/psen_scan_udp_interface.cpp
-  )
-  target_link_libraries(integrationtest_psen_scan_udp_interface
-    ${catkin_LIBRARIES}
-    ${pilz_testutils_LIBRARIES}
-    gtest_main
-  )
-
   catkin_add_gmock(integrationtest_async_udp_reader
     test/integration_tests/integrationtest_async_udp_reader.cpp
   )
