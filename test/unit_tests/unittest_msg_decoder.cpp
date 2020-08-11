@@ -23,7 +23,7 @@ using namespace psen_scan;
 class MockCallbackHolder
 {
 public:
-  MOCK_METHOD1(start_reply_callback, void(const StartReplyMsg&));
+  MOCK_METHOD0(start_reply_callback, void());
 };
 
 /**
@@ -33,7 +33,7 @@ public:
 TEST(MsgDecoderTest, decodeStartReply)
 {
   MockCallbackHolder mock;
-  MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock, std::placeholders::_1));
+  MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock));
 
   DataReply::MemoryFormat reply;
   reply.opcode_ = DataReply::OPCODE_START;
@@ -42,7 +42,7 @@ TEST(MsgDecoderTest, decodeStartReply)
   std::array<char, 60000> data{};
   std::memcpy(&data, &reply, sizeof(DataReply::MemoryFormat));
 
-  EXPECT_CALL(mock, start_reply_callback(::testing::_)).Times(1);
+  EXPECT_CALL(mock, start_reply_callback()).Times(1);
 
   decoder.decodeAndDispatch<60000>(data, sizeof(DataReply::MemoryFormat));  // TODO get correct size
 }
@@ -54,7 +54,7 @@ TEST(MsgDecoderTest, decodeStartReply)
 TEST(MsgDecoderTest, decodeStartReplyCrcFail)
 {
   MockCallbackHolder mock;
-  MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock, std::placeholders::_1));
+  MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock));
 
   DataReply::MemoryFormat reply;
   reply.opcode_ = DataReply::OPCODE_START;
@@ -63,7 +63,7 @@ TEST(MsgDecoderTest, decodeStartReplyCrcFail)
   std::array<char, 60000> data{};
   std::memcpy(&data, &reply, sizeof(DataReply::MemoryFormat));
 
-  EXPECT_CALL(mock, start_reply_callback(::testing::_)).Times(0);
+  EXPECT_CALL(mock, start_reply_callback()).Times(0);
 
   EXPECT_THROW(decoder.decodeAndDispatch<60000>(data, sizeof(DataReply::MemoryFormat)),
                DecodeCRCMismatchException);  // TODO get correct size
@@ -76,7 +76,7 @@ TEST(MsgDecoderTest, decodeStartReplyCrcFail)
 TEST(MsgDecoderTest, decodeStartReplyWrongSizeNotImplemented)
 {
   MockCallbackHolder mock;
-  MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock, std::placeholders::_1));
+  MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock));
 
   DataReply::MemoryFormat reply;
   reply.opcode_ = DataReply::OPCODE_START;
@@ -84,7 +84,7 @@ TEST(MsgDecoderTest, decodeStartReplyWrongSizeNotImplemented)
   std::array<char, 60000> data{};
   std::memcpy(&data, &reply, sizeof(DataReply::MemoryFormat));
 
-  EXPECT_CALL(mock, start_reply_callback(::testing::_)).Times(0);
+  EXPECT_CALL(mock, start_reply_callback()).Times(0);
 
   EXPECT_THROW(decoder.decodeAndDispatch<60000>(data, sizeof(DataReply::MemoryFormat) + 1),
                NotImplementedException);  // TODO get correct size
@@ -97,7 +97,7 @@ TEST(MsgDecoderTest, decodeStartReplyWrongSizeNotImplemented)
 TEST(MsgDecoderTest, decodeWrongOpCodeNotImplemented)
 {
   MockCallbackHolder mock;  // Needed
-  MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock, std::placeholders::_1));
+  MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock));
 
   DataReply::MemoryFormat reply;
   reply.opcode_ = DataReply::OPCODE_START + 1;
@@ -106,7 +106,7 @@ TEST(MsgDecoderTest, decodeWrongOpCodeNotImplemented)
   std::array<char, 60000> data{};
   std::memcpy(&data, &reply, sizeof(DataReply::MemoryFormat));
 
-  EXPECT_CALL(mock, start_reply_callback(::testing::_)).Times(0);
+  EXPECT_CALL(mock, start_reply_callback()).Times(0);
 
   EXPECT_THROW(decoder.decodeAndDispatch<60000>(data, sizeof(DataReply::MemoryFormat)),
                NotImplementedException);  // TODO get correct size

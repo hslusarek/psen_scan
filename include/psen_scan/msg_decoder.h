@@ -21,7 +21,6 @@
 
 #include <sstream>
 
-#include "psen_scan/start_reply_msg.h"
 #include "psen_scan/scanner_frames.h"
 #include "psen_scan/scanner_frames_conversions.h"
 #include "psen_scan/not_implemented_exception.h"
@@ -29,7 +28,7 @@
 
 namespace psen_scan
 {
-using StartReplyCallback = std::function<void(const StartReplyMsg&)>;
+using StartReplyCallback = std::function<void()>;
 
 class MsgDecoder
 {
@@ -56,8 +55,7 @@ void MsgDecoder::decodeAndDispatch(const std::array<char, NumberOfBytes>& data, 
 
     if (frame.type() == DataReply::Type::Start)
     {
-      StartReplyMsg start_reply_msg;  // should be a move
-      start_reply_callback_(start_reply_msg);
+      start_reply_callback_();
     }
     else
     {

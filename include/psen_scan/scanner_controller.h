@@ -17,19 +17,16 @@
 
 #include <functional>
 #include <chrono>
-#include <thread>
-#include <atomic>
 #include <array>
 #include <string>
 #include <iostream>
 
-#include <boost/asio.hpp>
-
 #include <psen_scan/msg_decoder.h>
-#include <psen_scan/start_reply_msg.h>
 #include <psen_scan/controller_state_machine.h>
 #include <psen_scan/async_udp_reader.h>
 #include <psen_scan/sync_udp_writer.h>
+#include <psen_scan/controller_state_machine.h>
+#include <psen_scan/start_request.h>
 
 namespace psen_scan
 {
@@ -38,29 +35,31 @@ static constexpr std::size_t DATA_SIZE_BYTES{ 65507 };
 
 // TODO: Move to ScannerController class and read from ScannerConfiguration
 static constexpr unsigned short READ_PORT_OF_SCANNER_CONTROLLER{ 45001 };
+static constexpr unsigned short WRITE_PORT_OF_SCANNER_CONTROLLER{ READ_PORT_OF_SCANNER_CONTROLLER + 1 };
 
 // TODO: Move to ScannerController class and read from ScannerConfiguration
 static const std::string SCANNER_IP_ADDRESS{ "127.0.0.1" };
 
 // TODO: Move to ScannerController class and read from ScannerConfiguration
 static constexpr unsigned short SEND_PORT_OF_SCANNER_DEVICE{ 2000 };
+static constexpr unsigned short RECEIVE_PORT_OF_SCANNER_DEVICE{ SEND_PORT_OF_SCANNER_DEVICE + 1 };
 
 static const boost::posix_time::millisec RECEIVE_TIMEOUT{ 1000 };
 
 class ScannerController
 {
 public:
-  ScannerController();
-
   void start();
   void stop();
 
 private:
-  void reactToStartReply(const StartReplyMsg& start_reply);
   void handleError(const std::string& error_msg);
+  void sendStartRequest();
 
 private:
-  MsgDecoder msg_decoder_{ std::bind(&ScannerController::reactToStartReply, this, std::placeholders::_1) };
+  ControllerStateMachine state_machine_{ std::bind(&ScannerController::sendStartRequest, this) };
+
+  MsgDecoder msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_) };
 
   psen_scan::AsyncUdpReader<DATA_SIZE_BYTES> async_udp_reader_{
     std::bind(&MsgDecoder::decodeAndDispatch<DATA_SIZE_BYTES>,
@@ -71,45 +70,37 @@ private:
     READ_PORT_OF_SCANNER_CONTROLLER,
     SCANNER_IP_ADDRESS,
     SEND_PORT_OF_SCANNER_DEVICE
-
   };
-};
 
-inline ScannerController::ScannerController()
-{
-}
+  psen_scan::SyncUdpWriter sync_udp_writer_{ WRITE_PORT_OF_SCANNER_CONTROLLER,
+                                             SCANNER_IP_ADDRESS,
+                                             RECEIVE_PORT_OF_SCANNER_DEVICE };
+};
 
 inline void ScannerController::handleError(const std::string& error_msg)
 {
+  std::cerr << error_msg << std::endl;
   // TODO: Add implementation -> Tell state machine about error
 }
 
 inline void ScannerController::start()
 {
   async_udp_reader_.startReceiving(RECEIVE_TIMEOUT);
-
-  // TODO: Send Start Request
-  // TODO: Switch to state: Init
+  state_machine_.processStartRequestEvent();
 }
 
 inline void ScannerController::stop()
 {
-  // TODO: Send Stop Request
-
-  try
-  {
-    async_udp_reader_.close();
-  }
-  catch (const boost::system::system_error& ex)
-  {
-    // TODO: What do we want to do with these kind of exceptions?
-    std::cerr << "ERROR: " << ex.what() << std::endl;
-  }
+  // TODO: Impl. sending of StopRequest
+  state_machine_.processStopRequestEvent();
 }
 
-inline void ScannerController::reactToStartReply(const StartReplyMsg& start_reply)
+inline void ScannerController::sendStartRequest()
 {
-  // switch state to "Wait for monitoring frame"
+  constexpr auto number_of_bytes_to_send{ sizeof(StartRequest) };
+  // TODO: std::array<char, number_of_bytes_to_send> start_request_as_byte_stream{ start_request.toArray() };
+  std::array<char, number_of_bytes_to_send> start_request_as_byte_stream;
+  sync_udp_writer_.write<number_of_bytes_to_send>(start_request_as_byte_stream);
 }
 
 }  // namespace psen_scan
