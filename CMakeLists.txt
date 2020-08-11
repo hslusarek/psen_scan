@@ -157,18 +157,6 @@ if(CATKIN_ENABLE_TESTING)
   ##################
   ##  Unit-Tests  ##
   ##################
-  catkin_add_gmock(unittest_scanner
-    test/unit_tests/unittest_scanner.cpp
-    src/scanner.cpp
-    src/scanner_frames.cpp
-    src/laserscan.cpp
-    src/psen_scan_internal_angle.cpp
-  )
-  target_link_libraries(unittest_scanner
-    ${catkin_LIBRARIES}
-    gtest_main
-  )
-
   catkin_add_gtest(unittest_psen_scan_internal_angle
     test/unit_tests/unittest_psen_scan_internal_angle.cpp
     src/psen_scan_internal_angle.cpp
