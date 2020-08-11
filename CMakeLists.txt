@@ -258,6 +258,7 @@ if(CATKIN_ENABLE_TESTING)
     src/ros_scanner_node.cpp
     src/laserscan.cpp
     src/psen_scan_internal_angle.cpp
+    src/scanner_configuration.cpp
   )
   target_link_libraries(integrationtest_ros_scanner_node
     ${catkin_LIBRARIES}
