@@ -41,38 +41,18 @@ class RosScannerNodeTests : public ::testing::Test
 {
 protected:
   void SetUp() override;
-  void TearDown() override;
 
 protected:
   ros::NodeHandle node1_nh_test;
 
   psen_scan::ScannerConfiguration config_{ TARGET_IP, TARGET_PORT };
   std::unique_ptr<MockScanner> node1_Scanner_test{ new MockScanner(config_) };
-  LaserScan* laser_scan_fake;
-  LaserScan* laser_scan_error_1;
-  LaserScan* laser_scan_error_2;
-  LaserScan* laser_scan_error_3;
+  LaserScan laser_scan_fake{ PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2) };
 };
 
 void RosScannerNodeTests::SetUp()
 {
-  laser_scan_fake = new LaserScan(PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
-  laser_scan_fake->measures_.push_back(1);
-  laser_scan_error_1 = new LaserScan(PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
-  laser_scan_error_1->measures_.push_back(1);
-  laser_scan_error_1->measures_.push_back(2);
-  laser_scan_error_2 = new LaserScan(PSENscanInternalAngle(0), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
-  laser_scan_error_2->measures_.push_back(1);
-  laser_scan_error_3 = new LaserScan(PSENscanInternalAngle(10), PSENscanInternalAngle(2), PSENscanInternalAngle(1));
-  laser_scan_error_3->measures_.push_back(1);
-}
-
-void RosScannerNodeTests::TearDown()
-{
-  delete laser_scan_fake;
-  delete laser_scan_error_1;
-  delete laser_scan_error_2;
-  delete laser_scan_error_3;
+  laser_scan_fake.measures_.push_back(1);
 }
 
 ACTION(ROS_SHUTDOWN)
@@ -124,11 +104,11 @@ TEST_F(RosScannerNodeTests, processingLoop_skip_eq_zero)
 
   EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
       .Times(1)
-      .WillOnce(DoAll(ROS_SHUTDOWN(), Return(*laser_scan_fake)));
+      .WillOnce(DoAll(ROS_SHUTDOWN(), Return(laser_scan_fake)));
 
   EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
       .Times(504)
-      .WillRepeatedly(Return(*laser_scan_fake))
+      .WillRepeatedly(Return(laser_scan_fake))
       .RetiresOnSaturation();
 
   ROSScannerNode ros_scanner_node(node1_nh_test,
@@ -158,11 +138,11 @@ TEST_F(RosScannerNodeTests, processingLoop_skip_eq_one)
 
   EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
       .Times(1)
-      .WillOnce(DoAll(ROS_SHUTDOWN(), Return(*laser_scan_fake)));
+      .WillOnce(DoAll(ROS_SHUTDOWN(), Return(laser_scan_fake)));
 
   EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
       .Times(504)
-      .WillRepeatedly(Return(*laser_scan_fake))
+      .WillRepeatedly(Return(laser_scan_fake))
       .RetiresOnSaturation();
 
   ROSScannerNode ros_scanner_node(node1_nh_test,
@@ -191,11 +171,11 @@ TEST_F(RosScannerNodeTests, processingLoop_skip_eq_99)
 
   EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
       .Times(1)
-      .WillOnce(DoAll(ROS_SHUTDOWN(), Return(*laser_scan_fake)));
+      .WillOnce(DoAll(ROS_SHUTDOWN(), Return(laser_scan_fake)));
 
   EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
       .Times(504)
-      .WillRepeatedly(Return(*laser_scan_fake))
+      .WillRepeatedly(Return(laser_scan_fake))
       .RetiresOnSaturation();
 
   ROSScannerNode ros_scanner_node(node1_nh_test,
@@ -246,10 +226,20 @@ TEST_F(RosScannerNodeTests, buildROSMessage)
   ROSScannerNode ros_scanner_node(
       node1_nh_test, "node1_topic", "node1_frame", 0, Degree(137.5), std::move(node1_Scanner_test));
 
-  ros_scanner_node.buildRosMessage(*laser_scan_fake);
-  EXPECT_THROW(ros_scanner_node.buildRosMessage(*laser_scan_error_1), BuildROSMessageException);
-  EXPECT_THROW(ros_scanner_node.buildRosMessage(*laser_scan_error_2), BuildROSMessageException);
-  EXPECT_THROW(ros_scanner_node.buildRosMessage(*laser_scan_error_3), BuildROSMessageException);
+  LaserScan laser_scan_error_1{ PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2) };
+  laser_scan_error_1.measures_.push_back(1);
+  laser_scan_error_1.measures_.push_back(2);
+
+  LaserScan laser_scan_error_2{ PSENscanInternalAngle(0), PSENscanInternalAngle(1), PSENscanInternalAngle(2) };
+  laser_scan_error_2.measures_.push_back(1);
+
+  LaserScan laser_scan_error_3{ PSENscanInternalAngle(10), PSENscanInternalAngle(2), PSENscanInternalAngle(1) };
+  laser_scan_error_3.measures_.push_back(1);
+
+  ros_scanner_node.buildRosMessage(laser_scan_fake);
+  EXPECT_THROW(ros_scanner_node.buildRosMessage(laser_scan_error_1), BuildROSMessageException);
+  EXPECT_THROW(ros_scanner_node.buildRosMessage(laser_scan_error_2), BuildROSMessageException);
+  EXPECT_THROW(ros_scanner_node.buildRosMessage(laser_scan_error_3), BuildROSMessageException);
 }
 
 TEST_F(RosScannerNodeTests, constructor)
