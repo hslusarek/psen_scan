@@ -13,7 +13,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <string>
+
 #include <gtest/gtest.h>
+
 #include "psen_scan/ros_scanner_node.h"
 #include "psen_scan/coherent_monitoring_frames_exception.h"
 #include "psen_scan/diagnostic_information_exception.h"
@@ -31,6 +34,10 @@ using ::testing::Throw;
 
 namespace psen_scan_test
 {
+
+static const std::string TARGET_IP{ "127.0.0.1" };
+static constexpr uint16_t TARGET_PORT{ 55000 };
+
 class ros_scanner_node_test : public ::testing::Test
 {
 protected:
