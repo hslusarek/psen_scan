@@ -25,7 +25,6 @@
 
 namespace psen_scan
 {
-
 /**
  * @brief Frame containing all necessary fields for a Start Request.
  *
@@ -35,53 +34,62 @@ namespace psen_scan
 class StartRequest
 {
 public:
-  StartRequest(const ScannerConfiguration& scanner_configuration);
+  StartRequest(const ScannerConfiguration& scanner_configuration, const uint32_t& seq_number);
+
+  uint32_t getCRC() const;
 
 private:
   void setTargetIP(const std::string& target_ip);
 
-  void setEnableFields(const ScannerConfiguration& scanner_configuration);
-
-  void setDeviceFields(const std::array<Range, ScannerConfiguration::NUMBER_OF_SLAVES + 1>& ranges);
-
-  void setCRC();
-
 private:
-  uint32_t crc_;                  /**< A CRC32 of all the following fields. */
+  uint32_t crc_; /**< A CRC32 of all the following fields. */
   uint32_t seq_number_;
-  uint64_t const RESERVED_ { 0 };       /**< Use all zeros */
-  uint32_t const OPCODE_ { htole32(0x35) };         /**< Constant 0x35. */
-  uint32_t target_ip_;            /**< Byte order: big endian */
-  uint16_t target_udp_port_;  /**< Byte order: big endian */
+  uint64_t const RESERVED_{ 0 };           /**< Use all zeros */
+  uint32_t const OPCODE_{ htole32(0x35) }; /**< Constant 0x35. */
+  uint32_t target_ip_;                     /**< Byte order: big endian */
+  uint16_t target_udp_port_;               /**< Byte order: big endian */
 
   /**< The following 'enable' fields are a 1-byte mask each.
    * Only the last 4 bits (little endian) are used, each of which represents a device.
    * For example, (1000) only enables the Master device, while (1010) enables both the Master
    * and the second Slave device.
    */
-  uint8_t device_enabled_;
-  uint8_t intensity_enabled_;
-  uint8_t point_in_safety_enabled_;
-  uint8_t active_zone_set_enabled_;
-  uint8_t io_pin_enabled_;
-  uint8_t scan_counter_enabled_;
-  uint8_t speed_encoder_enabled_;    /**< 0000000bin disabled, 00001111bin enabled.*/
-  uint8_t diagnostics_enabled_;
+  uint8_t device_enabled_{ 0b00001000 };
+  uint8_t intensity_enabled_{ 0 };
+  uint8_t point_in_safety_enabled_{ 0 };
+  uint8_t active_zone_set_enabled_{ 0 };
+  uint8_t io_pin_enabled_{ 0 };
+  uint8_t scan_counter_enabled_{ 0 };
+  uint8_t speed_encoder_enabled_{ 0 }; /**< 0000000bin disabled, 00001111bin enabled.*/
+  uint8_t diagnostics_enabled_{ 0 };
 
-  typedef struct DeviceField
+  class DeviceField
   {
   public:
-    /**< The following 'angle' and 'resolution' fields are all in tenth of degrees */
-    uint16_t start_angle_;
-    uint16_t end_angle_;
-    uint16_t resolution_;
-  } DeviceField;
-  std::array<DeviceField, 4> devices_;
+    DeviceField() : start_angle_(0), end_angle_(0), resolution_(0)
+    {
+    }
+    DeviceField(const uint16_t& start_angle, const uint16_t& end_angle, const uint16_t& resolution)
+      : start_angle_(start_angle), end_angle_(end_angle), resolution_(resolution)
+    {
+    }
 
+    /**< The following 'angle' and 'resolution' fields are all in tenth of degrees */
+    uint16_t start_angle_{ 0 };
+    uint16_t end_angle_{ 0 };
+    uint16_t resolution_{ 0 };
+  };
+
+  DeviceField master_{ 0, 2700, 1 };
+  std::array<DeviceField, 3> slaves_;
+
+public:
+  typedef std::array<char, 58> RawType;
+  RawType toCharArray();
 };
 
 }  // namespace psen_scan
 
 #pragma pack(pop)
 
-#endif // PSEN_SCAN_START_REQUEST_H
+#endif  // PSEN_SCAN_START_REQUEST_H

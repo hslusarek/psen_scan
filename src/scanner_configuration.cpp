@@ -17,17 +17,8 @@
 
 namespace psen_scan
 {
-
 ScannerConfiguration::ScannerConfiguration(const std::string& target_ip, const uint16_t& target_udp_port)
-: target_ip_(target_ip)
-, target_udp_port_(target_udp_port)
-, intensity_enabled_(false)
-, point_in_safety_enabled_(false)
-, active_zone_set_enabled_(false)
-, io_pin_enabled_(false)
-, scan_counter_enabled_(false)
-, speed_encoder_enabled_(false)
-, diagnostics_enabled_(false)
+  : target_ip_(target_ip), target_udp_port_(target_udp_port)
 {
 }
 
@@ -39,61 +30,6 @@ std::string ScannerConfiguration::targetIp() const
 uint16_t ScannerConfiguration::targetUDPPort() const
 {
   return target_udp_port_;
-}
-
-Range ScannerConfiguration::getMasterRange() const
-{
-  return master_.getRange();
-}
-
-std::array<Range, ScannerConfiguration::NUMBER_OF_SLAVES> ScannerConfiguration::getSlaveRanges() const
-{
-  std::array<Range, NUMBER_OF_SLAVES> ranges{Range(0,0,0), Range(0,0,0), Range(0,0,0)};
-  for(unsigned int i = 0; i < NUMBER_OF_SLAVES; i++)
-  {
-    ranges[i] = slaves_[i].getRange();
-  }
-  return ranges;
-}
-
-bool ScannerConfiguration::getSlaveEnabled(const unsigned int& index) const
-{
-  return slaves_[index].enabled();
-}
-
-bool ScannerConfiguration::intensityEnabled() const
-{
-  return intensity_enabled_;
-}
-
-bool ScannerConfiguration::pointInSafetyEnabled() const
-{
-  return point_in_safety_enabled_;
-}
-
-bool ScannerConfiguration::activeZoneSetEnabled() const
-{
-  return active_zone_set_enabled_;
-}
-
-bool ScannerConfiguration::ioPinEnabled() const
-{
-  return io_pin_enabled_;
-}
-
-bool ScannerConfiguration::scanCounterEnabled() const
-{
-  return scan_counter_enabled_;
-}
-
-bool ScannerConfiguration::speedEncoderEnabled() const
-{
-  return speed_encoder_enabled_;
-}
-
-bool ScannerConfiguration::diagnosticsEnabled() const
-{
-  return diagnostics_enabled_;
 }
 
 }  // namespace psen_scan

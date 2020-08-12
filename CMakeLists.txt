@@ -197,7 +197,17 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(unittest_msg_decoder
     ${catkin_LIBRARIES}
-    gtest_main
+    #gtest_main
+  )
+  
+  catkin_add_gtest(unittest_start_request
+    test/unit_tests/unittest_start_request.cpp
+    src/psen_scan_internal_angle.cpp
+    src/start_request.cpp
+    src/scanner_configuration.cpp
+  )
+  target_link_libraries(unittest_start_request
+    ${catkin_LIBRARIES}
   )
 
   catkin_add_gmock(unittest_controller_state_machine

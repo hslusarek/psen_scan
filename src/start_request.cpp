@@ -14,68 +14,109 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <arpa/inet.h>
+#include <boost/crc.hpp>
 #include <endian.h>
 
-#include <psen_scan/crc.h>
+#include <algorithm>
+#include <sstream>
+#include <string>
+
 #include <psen_scan/start_request.h>
 
 namespace psen_scan
 {
-
-StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration)
-: target_udp_port_(htobe16(scanner_configuration.targetUDPPort()))
+StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration, const uint32_t& seq_number)
+  : seq_number_(seq_number), target_udp_port_(scanner_configuration.targetUDPPort())
 {
-  // TODO: What to do with seq_number???
   setTargetIP(scanner_configuration.targetIp());
-  setEnableFields(scanner_configuration);
-  auto slave_ranges = scanner_configuration.getSlaveRanges();
-  std::array<Range, ScannerConfiguration::NUMBER_OF_SLAVES + 1> ranges{scanner_configuration.getMasterRange(), slave_ranges[0], slave_ranges[1], slave_ranges[2]};
-  setDeviceFields(ranges);
-  setCRC();
 }
 
 void StartRequest::setTargetIP(const std::string& target_ip)
 {
-  in_addr_t ip_addr = inet_network(target_ip.c_str());
-  if (static_cast<in_addr_t>(-1) == ip_addr)
+  target_ip_ = inet_network(target_ip.c_str());
+  if (static_cast<in_addr_t>(-1) == target_ip_)
   {
-    throw; //TODO: What to throw
-  }
-  target_ip_ = htobe32(ip_addr);
-}
-
-void StartRequest::setEnableFields(const ScannerConfiguration& scanner_configuration)
-{
-  device_enabled_ = 0b00001000
-                  + scanner_configuration.getSlaveEnabled(0) * 0b00000100
-                  + scanner_configuration.getSlaveEnabled(1) * 0b00000010
-                  + scanner_configuration.getSlaveEnabled(2) * 0b00000001;
-
-  intensity_enabled_ = scanner_configuration.intensityEnabled() * device_enabled_;
-  point_in_safety_enabled_ = scanner_configuration.pointInSafetyEnabled() * device_enabled_;
-  active_zone_set_enabled_ = scanner_configuration.activeZoneSetEnabled() * device_enabled_;
-  io_pin_enabled_ = scanner_configuration.ioPinEnabled() * device_enabled_;
-  scan_counter_enabled_ = scanner_configuration.scanCounterEnabled() * device_enabled_;
-  diagnostics_enabled_ = scanner_configuration.diagnosticsEnabled() * device_enabled_;
-
-  speed_encoder_enabled_ = scanner_configuration.speedEncoderEnabled() * 0b00001111;
-}
-
-void StartRequest::setDeviceFields(const std::array<Range, ScannerConfiguration::NUMBER_OF_SLAVES + 1>& ranges)
-{
-  PSENscanInternalAngle start_angle(0), end_angle(0), resolution(0);
-  for(unsigned int i = 0; i < ranges.size(); i++)
-  {
-    std::tie(start_angle, end_angle, resolution) = ranges[i];
-    devices_[i].start_angle_ = htole16(static_cast<uint16_t>(static_cast<int>(start_angle)));
-    devices_[i].end_angle_ = htole16(static_cast<uint16_t>(static_cast<int>(end_angle)));
-    devices_[i].resolution_ = htole16(static_cast<uint16_t>(static_cast<int>(resolution)));
+    throw;  // TODO: What to throw
   }
 }
 
-void StartRequest::setCRC()
+uint32_t StartRequest::getCRC() const
 {
-  crc_ = htole32(crc::calcCRC32(&seq_number_, sizeof(StartRequest) - sizeof(crc_)));
+  boost::crc_32_type result;
+
+  result.process_bytes((char*)&seq_number_, sizeof(uint32_t));
+  result.process_bytes((char*)&RESERVED_, sizeof(uint64_t));
+  result.process_bytes((char*)&OPCODE_, sizeof(uint32_t));
+
+  in_addr_t target_ip_big_endian = htobe32(target_ip_);
+  result.process_bytes((char*)&target_ip_big_endian, sizeof(uint32_t));
+
+  result.process_bytes((char*)&target_udp_port_, sizeof(uint16_t));
+  result.process_bytes((char*)&device_enabled_, sizeof(uint8_t));
+  result.process_bytes((char*)&intensity_enabled_, sizeof(uint8_t));
+  result.process_bytes((char*)&point_in_safety_enabled_, sizeof(uint8_t));
+  result.process_bytes((char*)&active_zone_set_enabled_, sizeof(uint8_t));
+  result.process_bytes((char*)&io_pin_enabled_, sizeof(uint8_t));
+  result.process_bytes((char*)&scan_counter_enabled_, sizeof(uint8_t));
+  result.process_bytes((char*)&speed_encoder_enabled_, sizeof(uint8_t));
+  result.process_bytes((char*)&diagnostics_enabled_, sizeof(uint8_t));
+
+  result.process_bytes((char*)&master_.start_angle_, sizeof(uint16_t));
+  result.process_bytes((char*)&master_.end_angle_, sizeof(uint16_t));
+  result.process_bytes((char*)&master_.resolution_, sizeof(uint16_t));
+
+  for (const auto& slave : slaves_)
+  {
+    result.process_bytes((char*)&(slave.start_angle_), sizeof(uint16_t));
+    result.process_bytes((char*)&(slave.end_angle_), sizeof(uint16_t));
+    result.process_bytes((char*)&(slave.resolution_), sizeof(uint16_t));
+  }
+
+  return result.checksum();
+}
+
+StartRequest::RawType StartRequest::toCharArray()
+{
+  std::ostringstream os;
+
+  uint32_t crc_placeholder{ getCRC() };
+  os.write((char*)&crc_placeholder, sizeof(uint32_t));
+  os.write((char*)&seq_number_, sizeof(uint32_t));
+  os.write((char*)&RESERVED_, sizeof(uint64_t));
+  os.write((char*)&OPCODE_, sizeof(uint32_t));
+
+  in_addr_t target_ip_big_endian = htobe32(target_ip_);
+  os.write((char*)&target_ip_big_endian, sizeof(uint32_t));
+
+  os.write((char*)&target_udp_port_, sizeof(uint16_t));
+  os.write((char*)&device_enabled_, sizeof(uint8_t));
+  os.write((char*)&intensity_enabled_, sizeof(uint8_t));
+  os.write((char*)&point_in_safety_enabled_, sizeof(uint8_t));
+  os.write((char*)&active_zone_set_enabled_, sizeof(uint8_t));
+  os.write((char*)&io_pin_enabled_, sizeof(uint8_t));
+  os.write((char*)&scan_counter_enabled_, sizeof(uint8_t));
+  os.write((char*)&speed_encoder_enabled_, sizeof(uint8_t));
+  os.write((char*)&diagnostics_enabled_, sizeof(uint8_t));
+
+  os.write((char*)&master_.start_angle_, sizeof(uint16_t));
+  os.write((char*)&master_.end_angle_, sizeof(uint16_t));
+  os.write((char*)&master_.resolution_, sizeof(uint16_t));
+
+  for (const auto& slave : slaves_)
+  {
+    os.write((char*)&(slave.start_angle_), sizeof(uint16_t));
+    os.write((char*)&(slave.end_angle_), sizeof(uint16_t));
+    os.write((char*)&(slave.resolution_), sizeof(uint16_t));
+  }
+
+  StartRequest::RawType ret_val{};
+
+  // TODO check limits
+  std::string data_str(os.str());
+  // TODO check if lengths match
+  std::copy(data_str.begin(), data_str.end(), ret_val.begin());
+
+  return ret_val;
 }
 
 }  // namespace psen_scan
