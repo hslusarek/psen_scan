@@ -36,8 +36,6 @@ using NewDataHandler = std::function<void(const std::array<char, NumberOfBytes>&
 
 using ErrorHandler = std::function<void(const std::string&)>;
 
-static const boost::posix_time::seconds DEFAULT_TIMEOUT{ 1 };
-
 template <std::size_t NumberOfBytes>
 class AsyncUdpReader
 {
@@ -50,7 +48,7 @@ public:
   ~AsyncUdpReader();
 
 public:
-  void startReceiving(const boost::posix_time::time_duration timeout = DEFAULT_TIMEOUT);
+  void startReceiving(const boost::posix_time::time_duration timeout);
   void close();
 
 private:
@@ -105,6 +103,7 @@ inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<Number
     socket_.connect(endpoint_);
   }
   // LCOV_EXCL_START
+  // No coverage check because testing the socket is not the objective here.
   catch (const boost::system::system_error& ex)
   {
     throw OpenConnectionFailure(ex.what());
@@ -133,6 +132,7 @@ inline void AsyncUdpReader<NumberOfBytes>::close()
     socket_.close();
   }
   // LCOV_EXCL_START
+  // No coverage check because testing the socket is not the objective here.
   catch (const boost::system::system_error& ex)
   {
     throw CloseConnectionFailure(ex.what());
@@ -148,6 +148,7 @@ inline AsyncUdpReader<NumberOfBytes>::~AsyncUdpReader()
     close();
   }
   // LCOV_EXCL_START
+  // No coverage check because testing the socket is not the objective here.
   catch (const CloseConnectionFailure& ex)
   {
     std::cerr << "ERROR: " << ex.what() << std::endl;
@@ -193,10 +194,13 @@ inline void AsyncUdpReader<NumberOfBytes>::asyncReceive(const boost::posix_time:
 
   timeout_timer_.expires_from_now(timeout);
   timeout_timer_.async_wait([this](const boost::system::error_code& error_code) {
+    // LCOV_EXCL_START
+    // No coverage check. Testing the if-loop is extremly difficult because of timing issues.
     if (error_code)
     {
       return;
     }
+    // LCOV_EXCL_STOP
     socket_.cancel();
   });
 

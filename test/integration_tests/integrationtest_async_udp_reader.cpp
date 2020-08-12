@@ -80,7 +80,7 @@ TEST_F(AsynUdpReadTests, testAsyncReadOperation)
 {
   EXPECT_CALL(*this, handleNewData(::testing::_, DATA_SIZE_BYTES)).WillOnce(ACTION_OPEN_BARRIER_VOID(MSG_RECEIVED));
 
-  async_udp_reader_.startReceiving();
+  async_udp_reader_.startReceiving(RECEIVE_TIMEOUT);
   sendTestDataToClient();
   BARRIER(MSG_RECEIVED);
 }
