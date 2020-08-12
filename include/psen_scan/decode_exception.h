@@ -16,26 +16,31 @@
 #define PSEN_SCAN_DECODE_EXCEPTION_H
 
 #include <stdexcept>
+#include <string>
 
 namespace psen_scan
 {
-class DecodeException : public std::exception
+class DecodeException : public std::runtime_error
 {
 public:
-  virtual char const* what() const noexcept
-  {
-    return "Decoding failed.";
-  }
+  DecodeException(const std::string& msg = "Decoding failed");
+  virtual ~DecodeException() = default;
 };
 
 class DecodeCRCMismatchException : DecodeException
 {
 public:
-  virtual char const* what() const noexcept
-  {
-    return "Decoding failed! CRC did not match!";
-  }
+  DecodeCRCMismatchException(const std::string& msg = "Decoding failed! CRC did not match");
+  virtual ~DecodeCRCMismatchException() = default;
 };
+
+inline DecodeException::DecodeException(const std::string& msg) : std::runtime_error(msg)
+{
+}
+
+inline DecodeCRCMismatchException::DecodeCRCMismatchException(const std::string& msg) : DecodeException(msg)
+{
+}
 
 }  // namespace psen_scan
 #endif  // PSEN_SCAN_NOT_IMPLEMENTED_EXCEPTION_H

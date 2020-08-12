@@ -15,6 +15,7 @@
 
 #include <cstring>
 #include <string>
+#include <memory>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -118,6 +119,16 @@ TEST(MsgDecoderTest, decodeWrongOpCodeNotImplemented)
   EXPECT_CALL(mock, errorCallback(::testing::_)).Times(1);
 
   decoder.decodeAndDispatch<60000>(data, sizeof(DataReply::MemoryFormat));  // TODO get correct size
+}
+
+TEST(MsgDecoderTest, testDecodeExceptionForCompleteCoverage)
+{
+  std::unique_ptr<DecodeException> ex{ new DecodeException() };
+}
+
+TEST(MsgDecoderTest, testDecodeCRCMismatchExceptionForCompleteCoverage)
+{
+  std::unique_ptr<DecodeCRCMismatchException> ex{ new DecodeCRCMismatchException() };
 }
 
 int main(int argc, char* argv[])
