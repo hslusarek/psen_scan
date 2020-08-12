@@ -78,12 +78,16 @@ struct msm_front_ : public msm::front::state_machine_def<msm_front_>
     //  +-------------------------------+--------------------------------+---------------------------+------------------------------------+-------+
   > {};
   // clang-format on
+
+  // LCOV_EXCL_START
+  // TODO: Activate coverage again when function is actually used
   // Replaces the default no-transition response.
   template <class FSM, class Event>
   void no_transition(Event const&, FSM&, int)
   {
     // TODO Implement handling
   }
+  // LCOV_EXCL_STOP
 };
 
 // Pick a back-end
