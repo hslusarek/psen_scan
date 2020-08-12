@@ -16,6 +16,7 @@
 #include <string>
 #include <array>
 #include <functional>
+#include <memory>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -63,6 +64,11 @@ TEST(AsyncUDPReaderTests, testInvalidErrorHandler)
                                                         UDP_MOCK_IP_ADDRESS,
                                                         UDP_MOCK_SEND_PORT),
       std::invalid_argument);
+}
+
+TEST(AsyncUDPReaderTests, testCloseConnectionFailureForCompleteCoverage)
+{
+  std::unique_ptr<psen_scan::CloseConnectionFailure> ex{ new psen_scan::CloseConnectionFailure() };
 }
 
 }  // namespace psen_scan_test
