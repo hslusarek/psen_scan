@@ -15,6 +15,7 @@
 
 #include <string>
 #include <array>
+#include <memory>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -32,7 +33,7 @@ namespace psen_scan_test
 static const std::string MSG_RECEIVED{ "MSG_RECEIVED" };
 
 static const std::string HOST_IP_ADDRESS{ "127.0.0.1" };
-static constexpr unsigned short HOST_UDP_WRITE_PORT{ 45001 };
+static constexpr unsigned short HOST_UDP_WRITE_PORT{ 57001 };
 
 static const std::string UDP_MOCK_IP_ADDRESS{ "127.0.0.1" };
 static constexpr unsigned short UDP_MOCK_SEND_PORT{ HOST_UDP_WRITE_PORT + 1 };
@@ -57,6 +58,11 @@ TEST_F(SyncUdpWriterTests, testWriteOperation)
   sync_udp_writer_.write(write_buf);
 
   BARRIER(MSG_RECEIVED);
+}
+
+TEST_F(SyncUdpWriterTests, testWriteFailureForCompleteCoverage)
+{
+  std::unique_ptr<WriteFailure> ex{ new WriteFailure() };
 }
 
 }  // namespace psen_scan_test
