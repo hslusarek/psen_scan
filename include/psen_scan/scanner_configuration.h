@@ -24,16 +24,16 @@ namespace psen_scan
 class ScannerConfiguration
 {
 public:
-  ScannerConfiguration(const std::string& target_ip, const int& target_udp_port);
+  ScannerConfiguration(const std::string& host_ip, const int& host_udp_port);
 
 public:
-  in_addr_t targetIp() const;
+  in_addr_t hostIp() const;
 
-  uint16_t targetUDPPort() const;
+  uint16_t hostUDPPort() const;
 
 private:
-  in_addr_t target_ip_;
-  uint16_t target_udp_port_;
+  in_addr_t host_ip_;
+  uint16_t host_udp_port_;
 };
 
 }  // namespace psen_scan

@@ -32,60 +32,60 @@ static const std::string INVALID_IP{ "invalid_ip" };
 
 TEST(ScannerConfigurationTest, testConstructorSuccess)
 {
-  const std::string target_ip = VALID_IP;
-  const int target_udp_port = MAXIMAL_PORT_NUMBER;
+  const std::string host_ip = VALID_IP;
+  const int host_udp_port = MAXIMAL_PORT_NUMBER;
 
-  EXPECT_NO_THROW(ScannerConfiguration sc(target_ip, target_udp_port));
+  EXPECT_NO_THROW(ScannerConfiguration sc(host_ip, host_udp_port));
 }
 
 TEST(ScannerConfigurationTest, testConstructorInvalidIp)
 {
-  const std::string target_ip = INVALID_IP;
-  const int target_udp_port = MAXIMAL_PORT_NUMBER;
+  const std::string host_ip = INVALID_IP;
+  const int host_udp_port = MAXIMAL_PORT_NUMBER;
 
-  EXPECT_THROW(ScannerConfiguration sc(target_ip, target_udp_port), std::invalid_argument);
+  EXPECT_THROW(ScannerConfiguration sc(host_ip, host_udp_port), std::invalid_argument);
 }
 
 TEST(ScannerConfigurationTest, testConstructorInvalidPort)
 {
-  const std::string target_ip = VALID_IP;
-  int target_udp_port{ std::numeric_limits<uint16_t>::min() - 1 };
+  const std::string host_ip = VALID_IP;
+  int host_udp_port{ std::numeric_limits<uint16_t>::min() - 1 };
 
-  EXPECT_THROW(ScannerConfiguration sc(target_ip, target_udp_port), std::invalid_argument);
+  EXPECT_THROW(ScannerConfiguration sc(host_ip, host_udp_port), std::invalid_argument);
 
-  target_udp_port = MAXIMAL_PORT_NUMBER + 1;
+  host_udp_port = MAXIMAL_PORT_NUMBER + 1;
 
-  EXPECT_THROW(ScannerConfiguration sc(target_ip, target_udp_port), std::invalid_argument);
+  EXPECT_THROW(ScannerConfiguration sc(host_ip, host_udp_port), std::invalid_argument);
 }
 
 TEST(ScannerConfigurationTest, testTargetIp)
 {
-  const std::string expected_target_ip = VALID_IP;
-  const int target_udp_port = MAXIMAL_PORT_NUMBER;
+  const std::string expected_host_ip = VALID_IP;
+  const int host_udp_port = MAXIMAL_PORT_NUMBER;
 
-  ScannerConfiguration sc(expected_target_ip, target_udp_port);
+  ScannerConfiguration sc(expected_host_ip, host_udp_port);
 
-  const auto target_ip = sc.targetIp();
-  EXPECT_EQ(4U, sizeof(target_ip));
+  const auto host_ip = sc.hostIp();
+  EXPECT_EQ(4U, sizeof(host_ip));
 
-  // convert target_ip back to string representation
-  const auto network_number = inet_makeaddr(target_ip, 0);
+  // convert host_ip back to string representation
+  const auto network_number = inet_makeaddr(host_ip, 0);
   const auto network_number_ascii = inet_ntoa(network_number);
-  const std::string target_ip_string(network_number_ascii);
+  const std::string host_ip_string(network_number_ascii);
 
-  EXPECT_EQ(expected_target_ip, target_ip_string);
+  EXPECT_EQ(expected_host_ip, host_ip_string);
 }
 
 TEST(ScannerConfigurationTest, testTargetUDPPort)
 {
-  const std::string target_ip = VALID_IP;
-  const int expected_target_udp_port = MAXIMAL_PORT_NUMBER;
+  const std::string host_ip = VALID_IP;
+  const int expected_host_udp_port = MAXIMAL_PORT_NUMBER;
 
-  ScannerConfiguration sc(target_ip, expected_target_udp_port);
+  ScannerConfiguration sc(host_ip, expected_host_udp_port);
 
-  const auto target_udp_port = sc.targetUDPPort();
-  EXPECT_EQ(2U, sizeof(target_udp_port));
-  EXPECT_EQ(expected_target_udp_port, static_cast<int>(target_udp_port));
+  const auto host_udp_port = sc.hostUDPPort();
+  EXPECT_EQ(2U, sizeof(host_udp_port));
+  EXPECT_EQ(expected_host_udp_port, static_cast<int>(host_udp_port));
 }
 
 }  // namespace psen_scan_test

@@ -58,10 +58,10 @@ class StartRequestTest : public ::testing::Test
 
 TEST_F(StartRequestTest, constructorTest)
 {
-  const std::string& target_ip = "192.168.0.1";
-  const uint16_t& target_udp_port = 65535;
+  const std::string& host_ip = "192.168.0.1";
+  const uint16_t& host_udp_port = 65535;
 
-  ScannerConfiguration sc(target_ip, target_udp_port);
+  ScannerConfiguration sc(host_ip, host_udp_port);
 
   uint32_t sequence_number{ 123 };
   StartRequest sr(sc, sequence_number);
@@ -76,9 +76,9 @@ TEST_F(StartRequestTest, constructorTest)
 
   EXPECT_TRUE(DecodingEquals(data, 0x10, (uint32_t)0x35));  // OP code
 
-  EXPECT_TRUE(DecodingEquals(data, 0x14, inet_network(target_ip.c_str()), Endian::BIG));  // IP
+  EXPECT_TRUE(DecodingEquals(data, 0x14, inet_network(host_ip.c_str()), Endian::BIG));  // IP
 
-  EXPECT_TRUE(DecodingEquals(data, 0x18, target_udp_port));  // UDP port
+  EXPECT_TRUE(DecodingEquals(data, 0x18, host_udp_port));  // UDP port
 
   EXPECT_TRUE(DecodingEquals(data, 0x1A, (uint8_t)0b00001000));  // Device enabled
 

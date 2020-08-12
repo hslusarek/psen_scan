@@ -26,14 +26,14 @@
 namespace psen_scan
 {
 StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration, const uint32_t& seq_number)
-  : seq_number_(seq_number), target_udp_port_(scanner_configuration.targetUDPPort())
+  : seq_number_(seq_number), host_udp_port_(scanner_configuration.hostUDPPort())
 {
-  setTargetIP(scanner_configuration.targetIp());
+  setHostIP(scanner_configuration.hostIp());
 }
 
-void StartRequest::setTargetIP(const uint32_t& target_ip)
+void StartRequest::setHostIP(const uint32_t& host_ip)
 {
-  target_ip_ = target_ip;
+  host_ip_ = host_ip;
 }
 
 uint32_t StartRequest::getCRC() const
@@ -44,10 +44,10 @@ uint32_t StartRequest::getCRC() const
   result.process_bytes((char*)&RESERVED_, sizeof(uint64_t));
   result.process_bytes((char*)&OPCODE_, sizeof(uint32_t));
 
-  in_addr_t target_ip_big_endian = htobe32(target_ip_);
-  result.process_bytes((char*)&target_ip_big_endian, sizeof(uint32_t));
+  in_addr_t host_ip_big_endian = htobe32(host_ip_);
+  result.process_bytes((char*)&host_ip_big_endian, sizeof(uint32_t));
 
-  result.process_bytes((char*)&target_udp_port_, sizeof(uint16_t));
+  result.process_bytes((char*)&host_udp_port_, sizeof(uint16_t));
   result.process_bytes((char*)&device_enabled_, sizeof(uint8_t));
   result.process_bytes((char*)&intensity_enabled_, sizeof(uint8_t));
   result.process_bytes((char*)&point_in_safety_enabled_, sizeof(uint8_t));
@@ -81,10 +81,10 @@ StartRequest::RawType StartRequest::toCharArray()
   os.write((char*)&RESERVED_, sizeof(uint64_t));
   os.write((char*)&OPCODE_, sizeof(uint32_t));
 
-  in_addr_t target_ip_big_endian = htobe32(target_ip_);
-  os.write((char*)&target_ip_big_endian, sizeof(uint32_t));
+  in_addr_t host_ip_big_endian = htobe32(host_ip_);
+  os.write((char*)&host_ip_big_endian, sizeof(uint32_t));
 
-  os.write((char*)&target_udp_port_, sizeof(uint16_t));
+  os.write((char*)&host_udp_port_, sizeof(uint16_t));
   os.write((char*)&device_enabled_, sizeof(uint8_t));
   os.write((char*)&intensity_enabled_, sizeof(uint8_t));
   os.write((char*)&point_in_safety_enabled_, sizeof(uint8_t));
