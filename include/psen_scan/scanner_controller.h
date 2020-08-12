@@ -27,6 +27,7 @@
 #include <psen_scan/sync_udp_writer.h>
 #include <psen_scan/controller_state_machine.h>
 #include <psen_scan/start_request.h>
+#include <psen_scan/scanner_configuration.h>
 
 namespace psen_scan
 {
@@ -46,9 +47,13 @@ static constexpr unsigned short RECEIVE_PORT_OF_SCANNER_DEVICE{ SEND_PORT_OF_SCA
 
 static const boost::posix_time::millisec RECEIVE_TIMEOUT{ 1000 };
 
+static constexpr uint32_t DEFAULt_SEQ_NUMBER{ 0 };
+
 class ScannerController
 {
 public:
+  ScannerController(const ScannerConfiguration& config);
+
   void start();
   void stop();
 
@@ -57,6 +62,8 @@ private:
   void sendStartRequest();
 
 private:
+  ScannerConfiguration scanner_config_;
+
   ControllerStateMachine state_machine_{ std::bind(&ScannerController::sendStartRequest, this) };
 
   MsgDecoder msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
@@ -78,6 +85,10 @@ private:
                                              RECEIVE_PORT_OF_SCANNER_DEVICE };
 };
 
+inline ScannerController::ScannerController(const ScannerConfiguration& config) : scanner_config_(config)
+{
+}
+
 inline void ScannerController::handleError(const std::string& error_msg)
 {
   std::cerr << error_msg << std::endl;
@@ -98,10 +109,9 @@ inline void ScannerController::stop()
 
 inline void ScannerController::sendStartRequest()
 {
-  constexpr auto number_of_bytes_to_send{ sizeof(StartRequest) };
-  // TODO: std::array<char, number_of_bytes_to_send> start_request_as_byte_stream{ start_request.toArray() };
-  std::array<char, number_of_bytes_to_send> start_request_as_byte_stream;
-  sync_udp_writer_.write<number_of_bytes_to_send>(start_request_as_byte_stream);
+  StartRequest start_request(scanner_config_, DEFAULt_SEQ_NUMBER);
+  const auto start_request_as_byte_stream{ start_request.toCharArray() };
+  sync_udp_writer_.write<sizeof(start_request_as_byte_stream)>(start_request_as_byte_stream);
 }
 
 }  // namespace psen_scan

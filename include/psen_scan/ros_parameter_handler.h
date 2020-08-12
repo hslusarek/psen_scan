@@ -16,6 +16,8 @@
 #ifndef PSEN_SCAN_ROS_PARAMETER_HANDLER_H
 #define PSEN_SCAN_ROS_PARAMETER_HANDLER_H
 
+#include <string>
+
 #include <ros/ros.h>
 #include <psen_scan/psen_scan_internal_angle.h>
 
@@ -35,7 +37,7 @@ public:
   template <class T>
   bool getOptionalParamFromParamServer(const std::string& key, T& param);
   std::string getPassword() const;
-  uint32_t getHostIP() const;
+  std::string getHostIP() const;
   uint32_t getHostUDPPort() const;
   std::string getSensorIP() const;
   std::string getFrameID() const;
@@ -47,8 +49,8 @@ public:
 private:
   ros::NodeHandle const nh_;          /**< Nodehandle through which parameters are fetched */
   std::string password_;              /**< Password for Laserscanner */
-  uint32_t host_ip_;                  /**< IP-Adress of host machine */
-  uint32_t host_udp_port_;            /**< UDP Port on which packets from Laserscanner should be received */
+  std::string host_ip_;               /**< IP-Adress of host machine */
+  int host_udp_port_;                 /**< UDP Port on which packets from Laserscanner should be received */
   std::string sensor_ip_;             /**< IP-Adress of Safety laser scanner */
   std::string frame_id_;              /**< ROS Frame ID */
   uint16_t skip_;                     /**< How many incoming frames should be skipped (reduces publish rate) */

@@ -22,15 +22,15 @@ namespace psen_scan
 class ScannerConfiguration
 {
 public:
-  ScannerConfiguration(const std::string& target_ip, const uint16_t& target_udp_port);
+  ScannerConfiguration(const std::string& target_ip, const int& target_udp_port);
 
 public:
-  std::string targetIp() const;
+  uint32_t targetIp() const;
 
   uint16_t targetUDPPort() const;
 
 private:
-  std::string target_ip_;
+  uint32_t target_ip_;
   uint16_t target_udp_port_;
 };
 

@@ -21,8 +21,8 @@
 
 using namespace psen_scan;
 using namespace psen_scan_test;
-using ::testing::Return;
 using ::testing::DoAll;
+using ::testing::Return;
 
 ACTION(ROS_SHUTDOWN)
 {
@@ -49,9 +49,7 @@ int main(int argc, char** argv)
   LaserScan laser_scan_error(PSENscanInternalAngle(0), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
   laser_scan_error.measures_.push_back(1);
 
-  // TODO: Implement correct scanner configuration for test
-  ScannerConfiguration scanner_configuration("127.0.0.1", 55055);
-  std::unique_ptr<MockScanner> mock_scanner {new MockScanner(scanner_configuration)};
+  std::unique_ptr<MockScanner> mock_scanner{ new MockScanner() };
 
   EXPECT_CALL(*(mock_scanner), getCompleteScan()).Times(1).WillOnce(DoAll(ROS_SHUTDOWN(), Return(laser_scan_error)));
 

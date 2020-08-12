@@ -31,13 +31,9 @@ StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration, co
   setTargetIP(scanner_configuration.targetIp());
 }
 
-void StartRequest::setTargetIP(const std::string& target_ip)
+void StartRequest::setTargetIP(const uint32_t& target_ip)
 {
-  target_ip_ = inet_network(target_ip.c_str());
-  if (static_cast<in_addr_t>(-1) == target_ip_)
-  {
-    throw;  // TODO: What to throw
-  }
+  target_ip_ = target_ip;
 }
 
 uint32_t StartRequest::getCRC() const

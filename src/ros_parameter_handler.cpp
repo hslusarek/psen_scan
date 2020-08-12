@@ -19,7 +19,6 @@
 #include "psen_scan/decrypt_password_exception.h"
 #include <psen_scan/default_parameters.h>
 #include <psen_scan/scanner_data.h>
-#include <arpa/inet.h>
 #include <algorithm>
 
 namespace psen_scan
@@ -74,14 +73,7 @@ void RosParameterHandler::updateAllParamsFromParamServer()
   // update parameter host_ip
   try
   {
-    std::string host_ip;
-    getRequiredParamFromParamServer<std::string>("host_ip", host_ip);
-    in_addr_t ip_addr = inet_network(host_ip.c_str());
-    if (static_cast<in_addr_t>(-1) == ip_addr)
-    {
-      throw PSENScanFatalException("Host IP address conversion failed!");
-    }
-    host_ip_ = htobe32(ip_addr);
+    getRequiredParamFromParamServer<std::string>("host_ip", host_ip_);
   }
   catch (const GetROSParameterException& e)
   {
@@ -91,17 +83,7 @@ void RosParameterHandler::updateAllParamsFromParamServer()
   // update parameter host_udp_port
   try
   {
-    int host_udp_port;
-    getRequiredParamFromParamServer<int>("host_udp_port", host_udp_port);
-    if (host_udp_port < 0)
-    {
-      throw PSENScanFatalException("Parameter host_udp_port may not be negative!");
-    }
-    if (host_udp_port > 65535)
-    {
-      throw PSENScanFatalException("Parameter host_udp_port too large!");
-    }
-    host_udp_port_ = htole32(static_cast<uint32_t>(host_udp_port));
+    getRequiredParamFromParamServer<int>("host_udp_port", host_udp_port_);
   }
   catch (const GetROSParameterException& e)
   {
@@ -111,14 +93,7 @@ void RosParameterHandler::updateAllParamsFromParamServer()
   // update parameter sensor_ip
   try
   {
-    std::string sensor_ip;
-    getRequiredParamFromParamServer<std::string>("sensor_ip", sensor_ip);
-    in_addr_t ip_addr = inet_network(sensor_ip.c_str());
-    if (static_cast<in_addr_t>(-1) == ip_addr)
-    {
-      throw PSENScanFatalException("Sensor IP address conversion failed!");
-    }
-    sensor_ip_ = sensor_ip;
+    getRequiredParamFromParamServer<std::string>("sensor_ip", sensor_ip_);
   }
   catch (const GetROSParameterException& e)
   {
@@ -278,10 +253,8 @@ std::string RosParameterHandler::getPassword() const
 
 /**
  * @brief Getter method for host_ip_
- *
- * @return uint32_t
  */
-uint32_t RosParameterHandler::getHostIP() const
+std::string RosParameterHandler::getHostIP() const
 {
   return host_ip_;
 }

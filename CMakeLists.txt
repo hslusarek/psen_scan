@@ -91,6 +91,7 @@ set(${PROJECT_NAME}_sources
   src/laserscan.cpp
   src/psen_scan_internal_angle.cpp
   src/controller_state_machine.cpp
+  src/start_request.cpp
 )
 
 set(${PROJECT_NAME}_node_sources

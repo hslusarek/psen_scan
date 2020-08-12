@@ -26,7 +26,7 @@ namespace psen_scan_test
 class MockScanner : public psen_scan::vScanner
 {
 public:
-  MockScanner(const psen_scan::ScannerConfiguration& scanner_configuration);
+  MockScanner();
 
   MOCK_METHOD0(start, void());
   MOCK_METHOD0(stop, void());
@@ -35,10 +35,8 @@ public:
 private:
 };
 
-MockScanner::MockScanner(const psen_scan::ScannerConfiguration& scanner_configuration)
-  : psen_scan::vScanner(scanner_configuration)
+MockScanner::MockScanner() : psen_scan::vScanner()
 {
-
 }
 
 }  // namespace psen_scan_test

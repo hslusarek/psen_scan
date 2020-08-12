@@ -31,8 +31,7 @@ int main(int argc, char** argv)
   {
     psen_scan::RosParameterHandler param_handler(pnh);
 
-    // TODO: Create correct scanner configuration with RosParameterHelper
-    ScannerConfiguration scanner_configuration("127.0.0.1", 55055);
+    ScannerConfiguration scanner_configuration(param_handler.getHostIP(), param_handler.getHostUDPPort());
     std::unique_ptr<Scanner> scanner{ new Scanner(scanner_configuration) };
 
     ROSScannerNode ros_scanner_node(pnh,

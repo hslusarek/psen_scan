@@ -16,8 +16,6 @@
 #ifndef PSEN_SCAN_SCANNER_H
 #define PSEN_SCAN_SCANNER_H
 
-#include <memory>
-
 #include "psen_scan/laserscan.h"
 #include "psen_scan/scanner_configuration.h"
 #include "psen_scan/scanner_controller.h"
@@ -28,20 +26,12 @@ namespace psen_scan
 class vScanner
 {
 public:
-  vScanner(const ScannerConfiguration& scanner_configuration);
   virtual ~vScanner() = default;
   virtual void start() = 0;
   virtual void stop() = 0;
   virtual LaserScan getCompleteScan() = 0;
-
-private:
-  ScannerConfiguration scanner_configuration_;
 };
 
-inline vScanner::vScanner(const ScannerConfiguration& scanner_configuration)
-  : scanner_configuration_(scanner_configuration)
-{
-}
 // LCOV_EXCL_STOP
 
 class Scanner : public vScanner
@@ -53,7 +43,7 @@ public:
   LaserScan getCompleteScan();
 
 private:
-  std::unique_ptr<ScannerController> scanner_controller_;
+  ScannerController scanner_controller_;
 };
 
 }  // namespace psen_scan

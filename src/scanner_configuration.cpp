@@ -13,16 +13,31 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <stdexcept>
+#include <limits>
+
+#include <arpa/inet.h>
+
 #include <psen_scan/scanner_configuration.h>
 
 namespace psen_scan
 {
-ScannerConfiguration::ScannerConfiguration(const std::string& target_ip, const uint16_t& target_udp_port)
-  : target_ip_(target_ip), target_udp_port_(target_udp_port)
+ScannerConfiguration::ScannerConfiguration(const std::string& target_ip, const int& target_udp_port)
 {
+  target_ip_ = inet_network(target_ip.c_str());
+  if (static_cast<in_addr_t>(-1) == target_ip_)
+  {
+    throw std::invalid_argument("Host IP invalid");
+  }
+
+  if (target_udp_port < std::numeric_limits<uint16_t>::min() || target_udp_port > std::numeric_limits<uint16_t>::max())
+  {
+    throw std::invalid_argument("Host UDP port out of range");
+  }
+  target_udp_port_ = htole16(static_cast<uint16_t>(target_udp_port));
 }
 
-std::string ScannerConfiguration::targetIp() const
+uint32_t ScannerConfiguration::targetIp() const
 {
   return target_ip_;
 }

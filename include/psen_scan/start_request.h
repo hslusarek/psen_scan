@@ -39,7 +39,7 @@ public:
   uint32_t getCRC() const;
 
 private:
-  void setTargetIP(const std::string& target_ip);
+  void setTargetIP(const uint32_t& target_ip);
 
 private:
   uint32_t crc_; /**< A CRC32 of all the following fields. */
@@ -84,7 +84,7 @@ private:
   std::array<DeviceField, 3> slaves_;
 
 public:
-  typedef std::array<char, 58> RawType;
+  using RawType = std::array<char, 58>;
   RawType toCharArray();
 };
 

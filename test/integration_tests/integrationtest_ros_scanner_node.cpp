@@ -34,9 +34,6 @@ using ::testing::Throw;
 
 namespace psen_scan_test
 {
-static const std::string TARGET_IP{ "127.0.0.1" };
-static constexpr uint16_t TARGET_PORT{ 55000 };
-
 class RosScannerNodeTests : public ::testing::Test
 {
 protected:
@@ -45,8 +42,7 @@ protected:
 protected:
   ros::NodeHandle node1_nh_test;
 
-  psen_scan::ScannerConfiguration config_{ TARGET_IP, TARGET_PORT };
-  std::unique_ptr<MockScanner> node1_Scanner_test{ new MockScanner(config_) };
+  std::unique_ptr<MockScanner> node1_Scanner_test{ new MockScanner() };
   LaserScan laser_scan_fake{ PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2) };
 };
 

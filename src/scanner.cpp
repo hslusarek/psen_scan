@@ -19,21 +19,18 @@
 
 namespace psen_scan
 {
-
-Scanner::Scanner(const ScannerConfiguration& scanner_configuration)
-  : vScanner(scanner_configuration)
+Scanner::Scanner(const ScannerConfiguration& scanner_configuration) : scanner_controller_(scanner_configuration)
 {
-
 }
 
 void Scanner::start()
 {
-  scanner_controller_->start();
+  scanner_controller_.start();
 }
 
 void Scanner::stop()
 {
-  scanner_controller_->stop();
+  scanner_controller_.stop();
 }
 
 LaserScan Scanner::getCompleteScan()
