@@ -42,9 +42,14 @@ uint32_t ScannerConfiguration::hostIp() const
   return host_ip_;
 }
 
-uint16_t ScannerConfiguration::hostUDPPort() const
+uint16_t ScannerConfiguration::hostUDPPortRead() const
 {
   return host_udp_port_;
+}
+
+uint16_t ScannerConfiguration::hostUDPPortWrite() const
+{
+  return host_udp_port_+1;
 }
 
 }  // namespace psen_scan

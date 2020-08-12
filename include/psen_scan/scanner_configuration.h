@@ -29,7 +29,8 @@ public:
 public:
   in_addr_t hostIp() const;
 
-  uint16_t hostUDPPort() const;
+  uint16_t hostUDPPortRead() const;
+  uint16_t hostUDPPortWrite() const;
 
 private:
   in_addr_t host_ip_;

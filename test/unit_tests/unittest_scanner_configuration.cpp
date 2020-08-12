@@ -83,7 +83,7 @@ TEST(ScannerConfigurationTest, testTargetUDPPort)
 
   ScannerConfiguration sc(host_ip, expected_host_udp_port);
 
-  const auto host_udp_port = sc.hostUDPPort();
+  const auto host_udp_port = sc.hostUDPPortRead();
   EXPECT_EQ(2U, sizeof(host_udp_port));
   EXPECT_EQ(expected_host_udp_port, static_cast<int>(host_udp_port));
 }
