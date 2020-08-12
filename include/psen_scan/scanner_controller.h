@@ -40,7 +40,7 @@ static constexpr unsigned short RECEIVE_PORT_OF_SCANNER_DEVICE{ 3000 };
 
 static const boost::posix_time::millisec RECEIVE_TIMEOUT{ 1000 };
 
-static constexpr uint32_t DEFAULt_SEQ_NUMBER{ 0 };
+static constexpr uint32_t DEFAULT_SEQ_NUMBER{ 0 };
 
 class ScannerController
 {
@@ -102,7 +102,7 @@ inline void ScannerController::stop()
 
 inline void ScannerController::sendStartRequest()
 {
-  StartRequest start_request(scanner_config_, DEFAULt_SEQ_NUMBER);
+  StartRequest start_request(scanner_config_, DEFAULT_SEQ_NUMBER);
   const auto start_request_as_byte_stream{ start_request.toCharArray() };
   sync_udp_writer_.write<sizeof(start_request_as_byte_stream)>(start_request_as_byte_stream);
 }
