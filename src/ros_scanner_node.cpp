@@ -112,41 +112,14 @@ sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& lasersca
  */
 void ROSScannerNode::processingLoop()
 {
-  uint16_t skip_counter = 0;
 
   scanner_->start();
+
+  ros::Rate r(10);
   while (ros::ok())
   {
-    try
-    {
-      LaserScan complete_scan = scanner_->getCompleteScan();
-      if (skip_counter == skip_)
-      {
-        pub_.publish(buildRosMessage(complete_scan));
-      }
-    }
-    catch (const CoherentMonitoringFramesException& e)
-    {
-      ROS_WARN_STREAM("Could not build a coherent message: " << e.what() << " Skipping this message.");
-    }
-    catch (const ParseMonitoringFrameException& e)
-    {
-      ROS_FATAL_STREAM("Fatal error occured: " << e.what());
-    }
-    catch (const DiagnosticInformationException& e)
-    {
-      ROS_FATAL_STREAM("Fatal error occured: " << e.what());
-      // throw PSENScanFatalException("");
-    }
-    catch (const BuildROSMessageException& e)
-    {
-      ROS_WARN_STREAM("Could not build ROS message: " << e.what() << " Skipping this message.");
-    }
+    r.sleep();
 
-    if (++skip_counter > skip_)
-    {
-      skip_counter = 0;
-    }
   }
   scanner_->stop();
 }

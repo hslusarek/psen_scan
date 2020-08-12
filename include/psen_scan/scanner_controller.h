@@ -35,15 +35,15 @@ namespace psen_scan
 static constexpr std::size_t DATA_SIZE_BYTES{ 65507 };
 
 // TODO: Move to ScannerController class and read from ScannerConfiguration
-static constexpr unsigned short READ_PORT_OF_SCANNER_CONTROLLER{ 45001 };
+static constexpr unsigned short READ_PORT_OF_SCANNER_CONTROLLER{ 55115 };
 static constexpr unsigned short WRITE_PORT_OF_SCANNER_CONTROLLER{ READ_PORT_OF_SCANNER_CONTROLLER + 1 };
 
 // TODO: Move to ScannerController class and read from ScannerConfiguration
-static const std::string SCANNER_IP_ADDRESS{ "127.0.0.1" };
+static const std::string SCANNER_IP_ADDRESS{ "192.168.0.10" };
 
 // TODO: Move to ScannerController class and read from ScannerConfiguration
 static constexpr unsigned short SEND_PORT_OF_SCANNER_DEVICE{ 2000 };
-static constexpr unsigned short RECEIVE_PORT_OF_SCANNER_DEVICE{ SEND_PORT_OF_SCANNER_DEVICE + 1 };
+static constexpr unsigned short RECEIVE_PORT_OF_SCANNER_DEVICE{ 3000 };
 
 static const boost::posix_time::millisec RECEIVE_TIMEOUT{ 1000 };
 
