@@ -199,7 +199,7 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(unittest_msg_decoder
     ${catkin_LIBRARIES}
   )
-  
+
   catkin_add_gtest(unittest_start_request
     test/unit_tests/unittest_start_request.cpp
     src/psen_scan_internal_angle.cpp
@@ -215,6 +215,14 @@ if(CATKIN_ENABLE_TESTING)
     src/controller_state_machine.cpp
   )
   target_link_libraries(unittest_controller_state_machine
+    ${catkin_LIBRARIES}
+  )
+
+  catkin_add_gtest(unittest_scanner_configuration
+    test/unit_tests/unittest_scanner_configuration.cpp
+    src/scanner_configuration.cpp
+  )
+  target_link_libraries(unittest_scanner_configuration
     ${catkin_LIBRARIES}
   )
 
