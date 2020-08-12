@@ -71,6 +71,11 @@ TEST(AsyncUDPReaderTests, testCloseConnectionFailureForCompleteCoverage)
   std::unique_ptr<psen_scan::CloseConnectionFailure> ex{ new psen_scan::CloseConnectionFailure() };
 }
 
+TEST(AsyncUDPReaderTests, testOpenConnectionFailureForCompleteCoverage)
+{
+  std::unique_ptr<psen_scan::OpenConnectionFailure> ex{ new psen_scan::OpenConnectionFailure() };
+}
+
 }  // namespace psen_scan_test
 
 int main(int argc, char* argv[])
