@@ -75,8 +75,8 @@ StartRequest::RawType StartRequest::toCharArray()
 {
   std::ostringstream os;
 
-  uint32_t crc_placeholder{ getCRC() };
-  os.write((char*)&crc_placeholder, sizeof(uint32_t));
+  uint32_t crc{ getCRC() };
+  os.write((char*)&crc, sizeof(uint32_t));
   os.write((char*)&seq_number_, sizeof(uint32_t));
   os.write((char*)&RESERVED_, sizeof(uint64_t));
   os.write((char*)&OPCODE_, sizeof(uint32_t));
