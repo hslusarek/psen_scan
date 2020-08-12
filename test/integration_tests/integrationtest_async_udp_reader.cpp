@@ -64,7 +64,7 @@ protected:
     std::bind(&AsynUdpReadTests::handleNewData, this, std::placeholders::_1, std::placeholders::_2),
     std::bind(&AsynUdpReadTests::handleError, this, std::placeholders::_1),
     HOST_UDP_READ_PORT,
-    UDP_MOCK_IP_ADDRESS,
+    inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
     UDP_MOCK_SEND_PORT
   };
 };

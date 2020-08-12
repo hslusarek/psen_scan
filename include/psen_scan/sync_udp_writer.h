@@ -19,6 +19,8 @@
 #include <array>
 #include <string>
 
+#include <arpa/inet.h>
+
 #include <boost/asio.hpp>
 
 #include "psen_scan/open_connection_failure.h"
@@ -35,7 +37,7 @@ public:
 class SyncUdpWriter
 {
 public:
-  SyncUdpWriter(const unsigned short& host_port, const std::string& endpoint_ip, const unsigned short& endpoint_port);
+  SyncUdpWriter(const unsigned short& host_port, const in_addr_t& endpoint_ip, const unsigned short& endpoint_port);
   ~SyncUdpWriter();
 
 public:
@@ -57,9 +59,9 @@ inline WriteFailure::WriteFailure(const std::string& msg) : std::runtime_error(m
 }
 
 inline SyncUdpWriter::SyncUdpWriter(const unsigned short& host_port,
-                                    const std::string& endpoint_ip,
+                                    const in_addr_t& endpoint_ip,
                                     const unsigned short& endpoint_port)
-  : endpoint_(boost::asio::ip::address_v4::from_string(endpoint_ip), endpoint_port)
+  : endpoint_(boost::asio::ip::address_v4(endpoint_ip), endpoint_port)
   , socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), host_port))
 {
   try

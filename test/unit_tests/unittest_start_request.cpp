@@ -61,7 +61,7 @@ TEST_F(StartRequestTest, constructorTest)
   const std::string& host_ip = "192.168.0.1";
   const uint16_t& host_udp_port = 65535;
 
-  ScannerConfiguration sc(host_ip, host_udp_port);
+  ScannerConfiguration sc(host_ip, host_udp_port, "192.168.0.50");
 
   uint32_t sequence_number{ 123 };
   StartRequest sr(sc, sequence_number);

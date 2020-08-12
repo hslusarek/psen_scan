@@ -22,7 +22,9 @@
 
 namespace psen_scan
 {
-ScannerConfiguration::ScannerConfiguration(const std::string& host_ip, const int& host_udp_port)
+ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
+                                           const int& host_udp_port,
+                                           const std::string& device_ip)
 {
   host_ip_ = inet_network(host_ip.c_str());
   if (static_cast<in_addr_t>(-1) == host_ip_)
@@ -35,6 +37,12 @@ ScannerConfiguration::ScannerConfiguration(const std::string& host_ip, const int
     throw std::invalid_argument("Host UDP port out of range");
   }
   host_udp_port_ = htole16(static_cast<uint16_t>(host_udp_port));
+
+  device_ip_ = inet_network(device_ip.c_str());
+  if (static_cast<in_addr_t>(-1) == device_ip_)
+  {
+    throw std::invalid_argument("Device IP invalid");
+  }
 }
 
 uint32_t ScannerConfiguration::hostIp() const
@@ -50,6 +58,11 @@ uint16_t ScannerConfiguration::hostUDPPortRead() const
 uint16_t ScannerConfiguration::hostUDPPortWrite() const
 {
   return host_udp_port_+1;
+}
+
+in_addr_t ScannerConfiguration::deviceIp() const
+{
+  return device_ip_;
 }
 
 }  // namespace psen_scan

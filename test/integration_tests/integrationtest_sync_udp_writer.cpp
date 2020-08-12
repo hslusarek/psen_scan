@@ -45,7 +45,9 @@ class SyncUdpWriterTests : public testing::Test, public testing::AsyncTest
 {
 protected:
   MockUDPServer mock_udp_server_{ UDP_MOCK_SEND_PORT, UDP_MOCK_READ_PORT };
-  psen_scan::SyncUdpWriter sync_udp_writer_{ HOST_UDP_WRITE_PORT, UDP_MOCK_IP_ADDRESS, UDP_MOCK_READ_PORT };
+  psen_scan::SyncUdpWriter sync_udp_writer_{ HOST_UDP_WRITE_PORT,
+                                             inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
+                                             UDP_MOCK_READ_PORT };
 };
 
 TEST_F(SyncUdpWriterTests, testWriteOperation)

@@ -35,13 +35,6 @@ namespace psen_scan
 static constexpr std::size_t DATA_SIZE_BYTES{ 65507 };
 
 // TODO: Move to ScannerController class and read from ScannerConfiguration
-static constexpr unsigned short READ_PORT_OF_SCANNER_CONTROLLER{ 55115 };
-static constexpr unsigned short WRITE_PORT_OF_SCANNER_CONTROLLER{ READ_PORT_OF_SCANNER_CONTROLLER + 1 };
-
-// TODO: Move to ScannerController class and read from ScannerConfiguration
-static const std::string SCANNER_IP_ADDRESS{ "192.168.0.10" };
-
-// TODO: Move to ScannerController class and read from ScannerConfiguration
 static constexpr unsigned short SEND_PORT_OF_SCANNER_DEVICE{ 2000 };
 static constexpr unsigned short RECEIVE_PORT_OF_SCANNER_DEVICE{ 3000 };
 
@@ -75,13 +68,13 @@ private:
               std::placeholders::_1,
               std::placeholders::_2),
     std::bind(&ScannerController::handleError, this, std::placeholders::_1),
-    READ_PORT_OF_SCANNER_CONTROLLER,
-    SCANNER_IP_ADDRESS,
+    scanner_config_.hostUDPPortRead(),
+    scanner_config_.deviceIp(),
     SEND_PORT_OF_SCANNER_DEVICE
   };
 
-  psen_scan::SyncUdpWriter sync_udp_writer_{ WRITE_PORT_OF_SCANNER_CONTROLLER,
-                                             SCANNER_IP_ADDRESS,
+  psen_scan::SyncUdpWriter sync_udp_writer_{ scanner_config_.hostUDPPortWrite(),
+                                             scanner_config_.deviceIp(),
                                              RECEIVE_PORT_OF_SCANNER_DEVICE };
 };
 

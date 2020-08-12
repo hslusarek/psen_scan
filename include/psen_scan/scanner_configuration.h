@@ -24,7 +24,9 @@ namespace psen_scan
 class ScannerConfiguration
 {
 public:
-  ScannerConfiguration(const std::string& host_ip, const int& host_udp_port);
+  ScannerConfiguration(const std::string& host_ip,
+                       const int& host_udp_port,
+                       const std::string& device_ip);
 
 public:
   in_addr_t hostIp() const;
@@ -32,9 +34,13 @@ public:
   uint16_t hostUDPPortRead() const;
   uint16_t hostUDPPortWrite() const;
 
+  in_addr_t deviceIp() const;
+
 private:
   in_addr_t host_ip_;
   uint16_t host_udp_port_;
+
+  in_addr_t device_ip_;
 };
 
 }  // namespace psen_scan

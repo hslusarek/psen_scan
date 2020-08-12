@@ -48,7 +48,7 @@ TEST(AsyncUDPReaderTests, testInvalidNewDataHandler)
   EXPECT_THROW(psen_scan::AsyncUdpReader<DATA_SIZE_BYTES> reader(nullptr,
                                                                  std::bind(&CallbackHandler::handleError, &handler, _1),
                                                                  HOST_UDP_READ_PORT,
-                                                                 UDP_MOCK_IP_ADDRESS,
+                                                                 inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
                                                                  UDP_MOCK_SEND_PORT),
                std::invalid_argument);
 }
@@ -61,7 +61,7 @@ TEST(AsyncUDPReaderTests, testInvalidErrorHandler)
       psen_scan::AsyncUdpReader<DATA_SIZE_BYTES> reader(std::bind(&CallbackHandler::handleNewData, &handler, _1, _2),
                                                         nullptr,
                                                         HOST_UDP_READ_PORT,
-                                                        UDP_MOCK_IP_ADDRESS,
+                                                        inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
                                                         UDP_MOCK_SEND_PORT),
       std::invalid_argument);
 }

@@ -23,6 +23,8 @@
 #include <functional>
 #include <iostream>
 
+#include <arpa/inet.h>
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
@@ -43,7 +45,7 @@ public:
   AsyncUdpReader(const NewDataHandler<NumberOfBytes>& data_handler,
                  const ErrorHandler& error_handler,
                  const unsigned short& host_port,
-                 const std::string& endpoint_ip,
+                 const in_addr_t& endpoint_ip,
                  const unsigned short& endpoint_port);
   ~AsyncUdpReader();
 
@@ -81,12 +83,12 @@ template <std::size_t NumberOfBytes>
 inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<NumberOfBytes>& data_handler,
                                                      const ErrorHandler& error_handler,
                                                      const unsigned short& host_port,
-                                                     const std::string& endpoint_ip,
+                                                     const in_addr_t& endpoint_ip,
                                                      const unsigned short& endpoint_port)
   : data_handler_(data_handler)
   , error_handler_(error_handler)
   , socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), host_port))
-  , endpoint_(boost::asio::ip::address_v4::from_string(endpoint_ip), endpoint_port)
+  , endpoint_(boost::asio::ip::address_v4(endpoint_ip), endpoint_port)
 {
   if (!data_handler)
   {
