@@ -61,13 +61,13 @@ void MsgDecoder::decodeAndDispatch(const std::array<char, NumberOfBytes>& data, 
     else
     {
       // TODO: Replace with stop reply callback in future.
-      error_callback_("Unknown message type");
+      error_callback_("Unknown message type (Size " + std::to_string(bytes_received) + ")");
     }
   }
   else
   {
     // TODO: Replace with monitoring frame callback in future.
-    error_callback_("Unknown message type");
+    error_callback_("Unknown message type (Size " + std::to_string(bytes_received) + ")");
   }
 }
 
