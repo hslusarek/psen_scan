@@ -31,18 +31,6 @@
 
 namespace psen_scan
 {
-class InvalidDataHandler : public std::invalid_argument
-{
-public:
-  InvalidDataHandler(const std::string& msg = "New data handler is invalid");
-};
-
-class InvalidErrorHandler : public std::invalid_argument
-{
-public:
-  InvalidErrorHandler(const std::string& msg = "Error handler is invalid");
-};
-
 template <std::size_t NumberOfBytes>
 using NewDataHandler = std::function<void(const std::array<char, NumberOfBytes>&, const std::size_t&)>;
 
@@ -91,14 +79,6 @@ private:
   boost::asio::ip::udp::endpoint endpoint_;
 };
 
-inline InvalidDataHandler::InvalidDataHandler(const std::string& msg) : std::invalid_argument(msg)
-{
-}
-
-inline InvalidErrorHandler::InvalidErrorHandler(const std::string& msg) : std::invalid_argument(msg)
-{
-}
-
 template <std::size_t NumberOfBytes>
 inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<NumberOfBytes>& data_handler,
                                                      const ErrorHandler& error_handler,
@@ -112,12 +92,12 @@ inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<Number
 {
   if (!data_handler)
   {
-    throw InvalidDataHandler();
+    throw std::invalid_argument("New data handler is invalid");
   }
 
   if (!error_handler)
   {
-    throw InvalidErrorHandler();
+    throw std::invalid_argument("Error handler is invalid");
   }
 
   try
@@ -138,12 +118,7 @@ inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<Number
 template <std::size_t NumberOfBytes>
 inline void AsyncUdpReader<NumberOfBytes>::close()
 {
-  io_service_.post([this]() {
-    timeout_timer_.cancel();
-    socket_.cancel();
-  });
   io_service_.stop();
-
   if (io_service_thread_.joinable())
   {
     io_service_thread_.join();

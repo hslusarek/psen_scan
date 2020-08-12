@@ -218,6 +218,13 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
 
+  catkin_add_gmock(unittest_async_upd_reader
+    test/unit_tests/unittest_async_upd_reader.cpp
+  )
+  target_link_libraries(unittest_async_upd_reader
+    ${catkin_LIBRARIES}
+  )
+
   #########################
   ##  Integration-Tests  ##
   #########################
