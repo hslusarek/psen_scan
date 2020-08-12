@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include <arpa/inet.h>
+
 namespace psen_scan
 {
 class ScannerConfiguration
@@ -25,12 +27,12 @@ public:
   ScannerConfiguration(const std::string& target_ip, const int& target_udp_port);
 
 public:
-  uint32_t targetIp() const;
+  in_addr_t targetIp() const;
 
   uint16_t targetUDPPort() const;
 
 private:
-  uint32_t target_ip_;
+  in_addr_t target_ip_;
   uint16_t target_udp_port_;
 };
 
