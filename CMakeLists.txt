@@ -87,7 +87,6 @@ include_directories(
 
 set(${PROJECT_NAME}_sources
   src/scanner.cpp
-  src/scanner_frames.cpp
   src/laserscan.cpp
   src/psen_scan_internal_angle.cpp
   src/controller_state_machine.cpp
