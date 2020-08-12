@@ -59,7 +59,8 @@ private:
 private:
   ControllerStateMachine state_machine_{ std::bind(&ScannerController::sendStartRequest, this) };
 
-  MsgDecoder msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_) };
+  MsgDecoder msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
+                           std::bind(&ScannerController::handleError, this, std::placeholders::_1) };
 
   psen_scan::AsyncUdpReader<DATA_SIZE_BYTES> async_udp_reader_{
     std::bind(&MsgDecoder::decodeAndDispatch<DATA_SIZE_BYTES>,

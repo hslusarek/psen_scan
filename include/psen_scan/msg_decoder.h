@@ -16,33 +16,34 @@
 #define PSEN_SCAN_MSG_DECODER_H
 
 #include <functional>
-
 #include <array>
-
 #include <sstream>
+#include <string>
 
 #include "psen_scan/scanner_frames.h"
 #include "psen_scan/scanner_frames_conversions.h"
-#include "psen_scan/not_implemented_exception.h"
 #include "psen_scan/decode_exception.h"
 
 namespace psen_scan
 {
 using StartReplyCallback = std::function<void()>;
+using ErrorCallback = std::function<void(const std::string&)>;
 
 class MsgDecoder
 {
 public:
-  MsgDecoder(StartReplyCallback start_reply_callback);
+  MsgDecoder(const StartReplyCallback& start_reply_callback, const ErrorCallback& error_callback);
 
   template <std::size_t NumberOfBytes>
   void decodeAndDispatch(const std::array<char, NumberOfBytes>& data, const std::size_t& bytes_received);
 
 private:
   StartReplyCallback start_reply_callback_;
+  ErrorCallback error_callback_;
 };
 
-inline MsgDecoder::MsgDecoder(StartReplyCallback start_reply_callback) : start_reply_callback_(start_reply_callback)
+inline MsgDecoder::MsgDecoder(const StartReplyCallback& start_reply_callback, const ErrorCallback& error_callback)
+  : start_reply_callback_(start_reply_callback), error_callback_(error_callback)
 {
 }
 
@@ -59,12 +60,14 @@ void MsgDecoder::decodeAndDispatch(const std::array<char, NumberOfBytes>& data, 
     }
     else
     {
-      throw NotImplementedException();
+      // TODO: Replace with stop reply callback in future.
+      error_callback_("Unknown message type");
     }
   }
   else
   {
-    throw NotImplementedException();
+    // TODO: Replace with monitoring frame callback in future.
+    error_callback_("Unknown message type");
   }
 }
 

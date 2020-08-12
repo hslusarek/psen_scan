@@ -197,7 +197,6 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(unittest_msg_decoder
     ${catkin_LIBRARIES}
-    #gtest_main
   )
   
   catkin_add_gtest(unittest_start_request
