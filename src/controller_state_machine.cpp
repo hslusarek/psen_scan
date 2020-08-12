@@ -38,6 +38,8 @@ bool ControllerStateMachine::processStartRequestEvent()
   return true;
 }
 
+// LCOV_EXCL_START
+// TODO: Add again to coverage when function are actually used.
 bool ControllerStateMachine::processStartReplyReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
@@ -69,5 +71,6 @@ bool ControllerStateMachine::processStopReplyReceivedEvent()
 
   return true;
 }
+// LCOV_EXCL_STOP
 
 }  // namespace psen_scan
