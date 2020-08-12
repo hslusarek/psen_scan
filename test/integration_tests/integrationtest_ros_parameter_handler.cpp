@@ -118,7 +118,7 @@ TEST_F(ROSRequiredParameterTest, test_required_params_only)
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_);
                   EXPECT_EQ(param_handler.getPassword(), expected_password_);
                   EXPECT_EQ(param_handler.getSensorIP(), sensor_ip_);
-                  EXPECT_EQ(param_handler.getHostIP(), expected_host_ip_);
+                  EXPECT_EQ(param_handler.getHostIP(), host_ip_);
                   EXPECT_EQ(param_handler.getHostUDPPort(), expected_host_udp_port_);
                   EXPECT_EQ(param_handler.getFrameID(), expected_frame_id_);
                   EXPECT_EQ(param_handler.getSkip(), expected_skip_);
@@ -176,7 +176,7 @@ TEST_F(ROSRequiredParameterTest, test_all_params)
   RosParameterHandler param_handler(node_handle_);
   EXPECT_EQ(param_handler.getPassword(), expected_password_);
   EXPECT_EQ(param_handler.getSensorIP(), sensor_ip_);
-  EXPECT_EQ(param_handler.getHostIP(), expected_host_ip_);
+  EXPECT_EQ(param_handler.getHostIP(), host_ip_);
   EXPECT_EQ(param_handler.getHostUDPPort(), expected_host_udp_port_);
   EXPECT_EQ(param_handler.getFrameID(), frame_id);
   EXPECT_EQ(param_handler.getSkip(), expected_skip);
@@ -200,75 +200,6 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_password)
 
   // Set password back to valid data type
   ros::param::set("password", password_);
-  ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
-}
-
-TEST_F(ROSInvalidParameterTest, test_invalid_params_host_ip)
-{
-  // Set host_ip with wrong datatype (expected string) as example for wrong datatypes on expected strings
-  ros::param::set("host_ip", 25);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  ros::param::set("host_ip", true);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Set host_ip back to valid data type but not IP-Format
-  ros::param::set("host_ip", "AABBCCDDEEFFGG");
-  // ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-  ASSERT_ANY_THROW(RosParameterHandler param_handler(node_handle_);
-                   EXPECT_EQ(static_cast<uint32_t>(0), param_handler.getHostIP()));
-
-  // test valid
-  ros::param::set("host_ip", "1.2.3.4");
-  ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
-}
-
-TEST_F(ROSInvalidParameterTest, test_invalid_params_host_udp_port)
-{
-  // Set host_udp_port with wrong datatype (expected int) as example for wrong datatypes on expected integers
-  ros::param::set("host_udp_port", true);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Wrong Datatype, but could be converted to int
-  ros::param::set("host_udp_port", "52425");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Wrong Datatype, but could be converted to int, but it's too large
-  ros::param::set("host_udp_port", "152425");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Wrong Datatype, but can't be converted to int
-  ros::param::set("host_udp_port", "AABBCCDDEEFFGG");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Integer too large
-  ros::param::set("host_udp_port", 150000);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Set negative parameter
-  ros::param::set("host_udp_port", -1);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // test valid
-  ros::param::set("host_udp_port", 1000);
-  ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
-}
-
-TEST_F(ROSInvalidParameterTest, test_invalid_params_sensor_ip)
-{
-  // Set sensor_ip with wrong datatype (expected string) as example for wrong datatypes on expected strings
-  ros::param::set("sensor_ip", 35);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  ros::param::set("sensor_ip", true);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Set sensor_ip back to valid data type, but not valid IP-Address
-  ros::param::set("sensor_ip", "AABBCCDDEEFFGG");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // test valid
-  ros::param::set("sensor_ip", "1.2.3.4");
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 
