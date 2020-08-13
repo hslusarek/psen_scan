@@ -16,6 +16,8 @@
 #ifndef PSEN_SCAN_ROS_SCANNER_NODE_H
 #define PSEN_SCAN_ROS_SCANNER_NODE_H
 
+#include <atomic>
+
 #include "psen_scan/scanner.h"
 #include <sensor_msgs/LaserScan.h>
 #include <string>
@@ -38,6 +40,7 @@ public:
                  std::unique_ptr<vScanner> scanner);
   sensor_msgs::LaserScan buildRosMessage(const LaserScan& laserscan);
   void processingLoop();
+  void terminateProcessingLoop();
 
 private:
   ros::NodeHandle nh_;                /**< ROS Node handler*/
@@ -46,6 +49,7 @@ private:
   uint16_t skip_;                     /**< Skip certain number of frames. Reduces publish rate. */
   std::unique_ptr<vScanner> scanner_; /**< Points to an instance of the Scanner class.*/
   Degree x_axis_rotation_;            /**< X-axis rotation.*/
+  std::atomic_bool terminate_{ false };
 };
 }  // namespace psen_scan
 

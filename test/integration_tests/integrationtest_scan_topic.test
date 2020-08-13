@@ -16,17 +16,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
 <launch>
 
-  <node name="integrationtest_scan_topic_node" pkg="psen_scan" type="psen_scan_integrationtest_scan_topic_node"/>
-
-  <test name="publishtest"
-        test-name="publishtest"
-        pkg="rostest" type="publishtest">
-    <rosparam>
-      topics:
-        - name: /integrationtest_scan_topic_node/scan
-          timeout: 10
-          negative: False
-    </rosparam>
-  </test>
+  <test test-name="integrationtest_scan_topic" pkg="psen_scan" type="integrationtest_scan_topic"/>
 
 </launch>

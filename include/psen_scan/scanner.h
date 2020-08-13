@@ -16,12 +16,20 @@
 #ifndef PSEN_SCAN_SCANNER_H
 #define PSEN_SCAN_SCANNER_H
 
+#include <stdexcept>
+
 #include "psen_scan/laserscan.h"
 #include "psen_scan/scanner_configuration.h"
 #include "psen_scan/scanner_controller.h"
 
 namespace psen_scan
 {
+class LaserScanBuildFailure : public std::runtime_error
+{
+public:
+  LaserScanBuildFailure(const std::string& msg = "Error while building laser scan");
+};
+
 // LCOV_EXCL_START
 class vScanner
 {
@@ -45,6 +53,10 @@ public:
 private:
   ScannerController scanner_controller_;
 };
+
+inline LaserScanBuildFailure::LaserScanBuildFailure(const std::string& msg) : std::runtime_error(msg)
+{
+}
 
 }  // namespace psen_scan
 

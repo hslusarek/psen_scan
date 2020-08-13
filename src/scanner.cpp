@@ -36,7 +36,7 @@ void Scanner::stop()
 LaserScan Scanner::getCompleteScan()
 {
   // TODO: Add implementation in following stories
-  return LaserScan(PSENscanInternalAngle(0), PSENscanInternalAngle(0), PSENscanInternalAngle(0));
+  throw LaserScanBuildFailure();
 }
 
 }  // namespace psen_scan

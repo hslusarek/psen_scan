@@ -1,0 +1,106 @@
+// Copyright (c) 2020 Pilz GmbH & Co. KG
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#include <memory>
+#include <chrono>
+#include <thread>
+#include <future>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
+#include <ros/ros.h>
+
+#include <sensor_msgs/LaserScan.h>
+#include <pilz_utils/wait_for_message.h>
+#include <pilz_testutils/async_test.h>
+
+#include "psen_scan/ros_scanner_node.h"
+#include "psen_scan/laserscan.h"
+#include "psen_scan/mock_scanner.h"
+
+using namespace psen_scan;
+using namespace psen_scan_test;
+using ::testing::DoAll;
+using ::testing::Return;
+
+ACTION(PSEN_SCAN_PAUSE)
+{
+  usleep(3000);
+}
+
+static constexpr std::chrono::seconds LOOP_END_TIMEOUT{ 3 };
+
+static const std::string TOPIC_NAME{ "integrationtest_scan_topic/scan" };
+static constexpr int QUEUE_SIZE{ 10 };
+
+static const std::string LASER_SCAN_RECEIVED{ "LASER_SCAN_RECEIVED" };
+
+class SubscriberMock
+{
+public:
+  void initialize(ros::NodeHandle& nh);
+
+  MOCK_METHOD1(callback, void(const sensor_msgs::LaserScan& msg));
+
+private:
+  ros::Subscriber subscriber_;
+};
+
+inline void SubscriberMock::initialize(ros::NodeHandle& nh)
+{
+  subscriber_ = nh.subscribe("scan", QUEUE_SIZE, &SubscriberMock::callback, this);
+}
+
+class ScanTopicTest : public testing::Test, public testing::AsyncTest
+{
+protected:
+  ros::NodeHandle nh_priv_{ "~" };
+};
+
+TEST_F(ScanTopicTest, testScanTopicAvailable)
+{
+  SubscriberMock subscriber;
+  EXPECT_CALL(subscriber, callback(::testing::_)).WillOnce(ACTION_OPEN_BARRIER_VOID(LASER_SCAN_RECEIVED));
+
+  LaserScan laser_scan_fake(PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
+  laser_scan_fake.measures_.push_back(1);
+  std::unique_ptr<MockScanner> mock_scanner{ new MockScanner() };
+  EXPECT_CALL(*(mock_scanner), getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
+  ROSScannerNode ros_scanner_node(nh_priv_,
+                                  "scan",
+                                  "scanner",
+                                  0,  // every frame
+                                  Degree(137.5),
+                                  std::move(mock_scanner));
+
+  subscriber.initialize(nh_priv_);
+  std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
+  BARRIER(LASER_SCAN_RECEIVED);
+  ros_scanner_node.terminateProcessingLoop();
+  EXPECT_EQ(loop.wait_for(LOOP_END_TIMEOUT), std::future_status::ready);
+}
+
+int main(int argc, char* argv[])
+{
+  ros::init(argc, argv, "integrationtest_scan_topic");
+  ros::NodeHandle nh;
+
+  ros::AsyncSpinner spinner{ 2 };
+  spinner.start();
+
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

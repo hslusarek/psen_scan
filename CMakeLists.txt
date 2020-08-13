@@ -251,19 +251,16 @@ if(CATKIN_ENABLE_TESTING)
     ${pilz_testutils_LIBRARIES}
   )
 
-  catkin_add_executable_with_gmock(${PROJECT_NAME}_integrationtest_scan_topic_node
-    test/integration_tests/integrationtest_scan_topic_node.cpp
-    src/scanner_configuration.cpp
+  add_rostest_gmock(integrationtest_scan_topic
+    test/integration_tests/integrationtest_scan_topic.test
+    test/integration_tests/integrationtest_scan_topic.cpp
     src/laserscan.cpp
     src/psen_scan_internal_angle.cpp
     src/ros_scanner_node.cpp
   )
-  target_link_libraries(${PROJECT_NAME}_integrationtest_scan_topic_node
+  target_link_libraries(integrationtest_scan_topic
     ${catkin_LIBRARIES}
-  )
-
-  add_rostest(
-    test/integration_tests/integrationtest_scan_topic.test DEPENDENCIES ${PROJECT_NAME}_integrationtest_scan_topic_node
+    ${pilz_testutils_LIBRARIES}
   )
 
   add_rostest_gtest(integrationtest_ros_parameter_handler

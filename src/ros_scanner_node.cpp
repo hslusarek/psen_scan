@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <iostream>
+
 #include "psen_scan/ros_scanner_node.h"
 #include "psen_scan/coherent_monitoring_frames_exception.h"
 #include "psen_scan/diagnostic_information_exception.h"
@@ -106,6 +108,12 @@ sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& lasersca
 
   return ros_message;
 }
+
+void ROSScannerNode::terminateProcessingLoop()
+{
+  terminate_ = true;
+}
+
 /**
  * @brief endless loop for processing incoming UDP data from the laser scanner
  *
@@ -114,9 +122,16 @@ void ROSScannerNode::processingLoop()
 {
   ros::Rate r(10);
   scanner_->start();
-  while (ros::ok())
+  while (ros::ok() && !terminate_)
   {
-    pub_.publish(buildRosMessage(scanner_->getCompleteScan()));
+    try
+    {
+      pub_.publish(buildRosMessage(scanner_->getCompleteScan()));
+    }
+    catch (const LaserScanBuildFailure& ex)
+    {
+      std::cout << ex.what() << std::endl;
+    }
     r.sleep();
   }
   scanner_->stop();
