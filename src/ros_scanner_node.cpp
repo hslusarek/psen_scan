@@ -112,14 +112,12 @@ sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& lasersca
  */
 void ROSScannerNode::processingLoop()
 {
-
   scanner_->start();
 
   ros::Rate r(10);
   while (ros::ok())
   {
     r.sleep();
-
   }
   scanner_->stop();
 }

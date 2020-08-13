@@ -57,7 +57,7 @@ uint16_t ScannerConfiguration::hostUDPPortRead() const
 
 uint16_t ScannerConfiguration::hostUDPPortWrite() const
 {
-  return host_udp_port_+1;
+  return host_udp_port_ + 1;
 }
 
 in_addr_t ScannerConfiguration::deviceIp() const

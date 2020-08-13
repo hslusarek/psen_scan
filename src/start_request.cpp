@@ -26,7 +26,7 @@
 namespace psen_scan
 {
 StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration, const uint32_t& seq_number)
-  : seq_number_(seq_number), host_udp_port_(scanner_configuration.hostUDPPortRead()) // Write is deduced by the scanner
+  : seq_number_(seq_number), host_udp_port_(scanner_configuration.hostUDPPortRead())  // Write is deduced by the scanner
 {
   setHostIP(scanner_configuration.hostIp());
 }
