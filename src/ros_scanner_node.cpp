@@ -16,9 +16,6 @@
 #include <iostream>
 
 #include "psen_scan/ros_scanner_node.h"
-#include "psen_scan/coherent_monitoring_frames_exception.h"
-#include "psen_scan/diagnostic_information_exception.h"
-#include "psen_scan/parse_monitoring_frame_exception.h"
 #include "psen_scan/build_ros_message_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include <psen_scan/scanner_data.h>

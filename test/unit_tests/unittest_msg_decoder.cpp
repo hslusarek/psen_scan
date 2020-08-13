@@ -53,10 +53,6 @@ TEST(MsgDecoderTest, decodeStartReply)
   decoder.decodeAndDispatch<60000>(data, sizeof(ReplyMsg));  // TODO get correct size
 }
 
-/**
- * Testing if a StartReply message can be identified correctly with an *incorrect* crc value.
- * This should *not* call the start_reply_callback method and raise a ParseMonitoringFrameException.
- */
 TEST(MsgDecoderTest, decodeStartReplyCrcFail)
 {
   MockCallbackHolder mock;

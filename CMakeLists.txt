@@ -178,12 +178,8 @@ if(CATKIN_ENABLE_TESTING)
 
   catkin_add_gtest(unittest_build_new_exceptions
     test/unit_tests/unittest_new_build_ros_message_exception.cpp
-    test/unit_tests/unittest_new_coherent_monitoring_frames_exception.cpp
     test/unit_tests/unittest_new_decrypt_password_exception.cpp
-    test/unit_tests/unittest_new_diagnostic_information_exception.cpp
-    test/unit_tests/unittest_new_fetch_monitoring_frame_exception.cpp
     test/unit_tests/unittest_new_get_ros_parameter_exception.cpp
-    test/unit_tests/unittest_new_parse_monitoring_frame_exception.cpp
     test/unit_tests/unittest_new_psen_scan_fatal_exception.cpp
     test/unit_tests/unittest_decode_exception.cpp
   )
