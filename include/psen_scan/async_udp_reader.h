@@ -45,7 +45,7 @@ public:
   AsyncUdpReader(const NewDataHandler<NumberOfBytes>& data_handler,
                  const ErrorHandler& error_handler,
                  const unsigned short& host_port,
-                 const in_addr_t& endpoint_ip,
+                 const unsigned int& endpoint_ip,
                  const unsigned short& endpoint_port);
   ~AsyncUdpReader();
 
@@ -83,7 +83,7 @@ template <std::size_t NumberOfBytes>
 inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<NumberOfBytes>& data_handler,
                                                      const ErrorHandler& error_handler,
                                                      const unsigned short& host_port,
-                                                     const in_addr_t& endpoint_ip,
+                                                     const unsigned int& endpoint_ip,
                                                      const unsigned short& endpoint_port)
   : data_handler_(data_handler)
   , error_handler_(error_handler)

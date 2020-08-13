@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <cassert>
 #include <stdexcept>
 #include <limits>
 
@@ -26,11 +27,13 @@ ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
                                            const int& host_udp_port,
                                            const std::string& device_ip)
 {
-  host_ip_ = inet_network(host_ip.c_str());
-  if (static_cast<in_addr_t>(-1) == host_ip_)
+  const auto host_ip_number = inet_network(host_ip.c_str());
+  if (static_cast<in_addr_t>(-1) == host_ip_number)
   {
     throw std::invalid_argument("Host IP invalid");
   }
+  assert(sizeof(host_ip_number) == 4);
+  host_ip_ = static_cast<uint32_t>(host_ip_number);
 
   if (host_udp_port < std::numeric_limits<uint16_t>::min() || host_udp_port > std::numeric_limits<uint16_t>::max())
   {
@@ -38,11 +41,13 @@ ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
   }
   host_udp_port_ = htole16(static_cast<uint16_t>(host_udp_port));
 
-  device_ip_ = inet_network(device_ip.c_str());
-  if (static_cast<in_addr_t>(-1) == device_ip_)
+  const auto device_ip_number = inet_network(device_ip.c_str());
+  if (static_cast<in_addr_t>(-1) == device_ip_number)
   {
     throw std::invalid_argument("Device IP invalid");
   }
+  assert(sizeof(device_ip_number) == 4);
+  device_ip_ = static_cast<uint32_t>(device_ip_number);
 }
 
 uint32_t ScannerConfiguration::hostIp() const
@@ -57,10 +62,10 @@ uint16_t ScannerConfiguration::hostUDPPortRead() const
 
 uint16_t ScannerConfiguration::hostUDPPortWrite() const
 {
-  return host_udp_port_+1;
+  return host_udp_port_ + 1;
 }
 
-in_addr_t ScannerConfiguration::deviceIp() const
+uint32_t ScannerConfiguration::deviceIp() const
 {
   return device_ip_;
 }

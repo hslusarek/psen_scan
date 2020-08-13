@@ -44,7 +44,7 @@ uint32_t StartRequest::getCRC() const
   result.process_bytes((char*)&RESERVED_, sizeof(uint64_t));
   result.process_bytes((char*)&OPCODE_, sizeof(uint32_t));
 
-  in_addr_t host_ip_big_endian = htobe32(host_ip_);
+  uint32_t host_ip_big_endian = htobe32(host_ip_);
   result.process_bytes((char*)&host_ip_big_endian, sizeof(uint32_t));
 
   result.process_bytes((char*)&host_udp_port_, sizeof(uint16_t));
@@ -81,7 +81,7 @@ StartRequest::RawType StartRequest::toCharArray()
   os.write((char*)&RESERVED_, sizeof(uint64_t));
   os.write((char*)&OPCODE_, sizeof(uint32_t));
 
-  in_addr_t host_ip_big_endian = htobe32(host_ip_);
+  uint32_t host_ip_big_endian = htobe32(host_ip_);
   os.write((char*)&host_ip_big_endian, sizeof(uint32_t));
 
   os.write((char*)&host_udp_port_, sizeof(uint16_t));
