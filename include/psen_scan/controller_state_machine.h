@@ -27,11 +27,15 @@ public:
   explicit ControllerStateMachine(const SendStartRequestCallback& sr);
   virtual ~ControllerStateMachine();
 
-  bool processStartRequestEvent();
-  bool processStartReplyReceivedEvent();
-  bool processMonitoringFrameReceivedEvent();
-  bool processStopRequestEvent();
-  bool processStopReplyReceivedEvent();
+  void processStartRequestEvent();
+  void processStartReplyReceivedEvent();
+  void processMonitoringFrameReceivedEvent();
+  void processStopRequestEvent();
+  void processStopReplyReceivedEvent();
+
+private:
+  template <typename T>
+  void processEvent();
 
 private:
   controller_msm_state_machine sm_;

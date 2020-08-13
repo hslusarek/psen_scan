@@ -17,59 +17,50 @@
 
 namespace psen_scan
 {
-ControllerStateMachine::ControllerStateMachine(const SendStartRequestCallback& sr) : sm_(sr)
+ControllerStateMachine::ControllerStateMachine(const SendStartRequestCallback& sr):
+  sm_(sr)
 {
-  const std::lock_guard<std::mutex> lock(sm_access_mutex_);
+  const std::lock_guard<std::mutex> lock (sm_access_mutex_);
   sm_.start();
 }
 
 ControllerStateMachine::~ControllerStateMachine()
 {
-  const std::lock_guard<std::mutex> lock(sm_access_mutex_);
+  const std::lock_guard<std::mutex> lock (sm_access_mutex_);
   sm_.send_start_request_callback_ = nullptr;
   sm_.stop();
 }
 
-bool ControllerStateMachine::processStartRequestEvent()
+void ControllerStateMachine::processStartRequestEvent()
 {
-  const std::lock_guard<std::mutex> lock(sm_access_mutex_);
+  const std::lock_guard<std::mutex> lock (sm_access_mutex_);
   sm_.process_event(start_request_event());
-
-  return true;
 }
 
 // LCOV_EXCL_START
 // TODO: Add again to coverage when function are actually used.
-bool ControllerStateMachine::processStartReplyReceivedEvent()
+void ControllerStateMachine::processStartReplyReceivedEvent()
 {
-  const std::lock_guard<std::mutex> lock(sm_access_mutex_);
+  const std::lock_guard<std::mutex> lock (sm_access_mutex_);
   sm_.process_event(start_reply_received_event());
-
-  return true;
 }
 
-bool ControllerStateMachine::processMonitoringFrameReceivedEvent()
+void ControllerStateMachine::processMonitoringFrameReceivedEvent()
 {
-  const std::lock_guard<std::mutex> lock(sm_access_mutex_);
+  const std::lock_guard<std::mutex> lock (sm_access_mutex_);
   sm_.process_event(monitoring_frame_received_event());
-
-  return true;
 }
 
-bool ControllerStateMachine::processStopRequestEvent()
+void ControllerStateMachine::processStopRequestEvent()
 {
-  const std::lock_guard<std::mutex> lock(sm_access_mutex_);
+  const std::lock_guard<std::mutex> lock (sm_access_mutex_);
   sm_.process_event(stop_request_event());
-
-  return true;
 }
 
-bool ControllerStateMachine::processStopReplyReceivedEvent()
+void ControllerStateMachine::processStopReplyReceivedEvent()
 {
-  const std::lock_guard<std::mutex> lock(sm_access_mutex_);
+  const std::lock_guard<std::mutex> lock (sm_access_mutex_);
   sm_.process_event(stop_reply_received_event());
-
-  return true;
 }
 // LCOV_EXCL_STOP
 
