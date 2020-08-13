@@ -30,17 +30,15 @@
 #include "psen_scan/ros_scanner_node.h"
 #include "psen_scan/laserscan.h"
 #include "psen_scan/mock_scanner.h"
+#include "psen_scan/psen_scan_fatal_exception.h"
 
 using namespace psen_scan;
 using namespace psen_scan_test;
 using ::testing::DoAll;
 using ::testing::Return;
 
-ACTION(PSEN_SCAN_PAUSE)
+namespace psen_scan_test
 {
-  usleep(3000);
-}
-
 static constexpr std::chrono::seconds LOOP_END_TIMEOUT{ 3 };
 
 static const std::string TOPIC_NAME{ "integrationtest_scan_topic/scan" };
@@ -70,7 +68,7 @@ protected:
   ros::NodeHandle nh_priv_{ "~" };
 };
 
-TEST_F(ScanTopicTest, testScanTopicAvailable)
+TEST_F(ScanTopicTest, testScanTopicReceived)
 {
   SubscriberMock subscriber;
   EXPECT_CALL(subscriber, callback(::testing::_)).WillOnce(ACTION_OPEN_BARRIER_VOID(LASER_SCAN_RECEIVED));
@@ -79,12 +77,7 @@ TEST_F(ScanTopicTest, testScanTopicAvailable)
   laser_scan_fake.measures_.push_back(1);
   std::unique_ptr<MockScanner> mock_scanner{ new MockScanner() };
   EXPECT_CALL(*(mock_scanner), getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
-  ROSScannerNode ros_scanner_node(nh_priv_,
-                                  "scan",
-                                  "scanner",
-                                  0,  // every frame
-                                  Degree(137.5),
-                                  std::move(mock_scanner));
+  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", Degree(137.5), std::move(mock_scanner));
 
   subscriber.initialize(nh_priv_);
   std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
@@ -92,6 +85,48 @@ TEST_F(ScanTopicTest, testScanTopicAvailable)
   ros_scanner_node.terminateProcessingLoop();
   EXPECT_EQ(loop.wait_for(LOOP_END_TIMEOUT), std::future_status::ready);
 }
+
+ACTION(ThrowScanBuildFailure)
+{
+  throw LaserScanBuildFailure();
+}
+
+TEST_F(ScanTopicTest, testScanBuildFailure)
+{
+  SubscriberMock subscriber;
+  EXPECT_CALL(subscriber, callback(::testing::_)).Times(1).WillOnce(ACTION_OPEN_BARRIER_VOID(LASER_SCAN_RECEIVED));
+
+  LaserScan laser_scan_fake(PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
+  laser_scan_fake.measures_.push_back(1);
+  std::unique_ptr<MockScanner> mock_scanner{ new MockScanner() };
+  {
+    ::testing::InSequence s;
+    EXPECT_CALL(*(mock_scanner), getCompleteScan())
+        .Times(100)
+        .WillRepeatedly(DoAll(ThrowScanBuildFailure(), Return(laser_scan_fake)));
+    EXPECT_CALL(*(mock_scanner), getCompleteScan()).Times(1).WillRepeatedly(Return(laser_scan_fake));
+  }
+  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", Degree(137.5), std::move(mock_scanner));
+
+  subscriber.initialize(nh_priv_);
+  std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
+  BARRIER(LASER_SCAN_RECEIVED);
+  ros_scanner_node.terminateProcessingLoop();
+  EXPECT_EQ(loop.wait_for(LOOP_END_TIMEOUT), std::future_status::ready);
+}
+
+TEST_F(ScanTopicTest, testMissingScannerObject)
+{
+  EXPECT_THROW(ROSScannerNode scanner_node(nh_priv_,
+                                           "scan",
+                                           "scanner",
+                                           Degree(137.5),
+                                           nullptr  // This throws exception
+                                           ),
+               psen_scan::PSENScanFatalException);
+}
+
+}  // namespace psen_scan_test
 
 int main(int argc, char* argv[])
 {

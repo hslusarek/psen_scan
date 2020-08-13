@@ -31,16 +31,14 @@ namespace psen_scan
  * @param nh node handle for the ROS node
  * @param topic name of the ROS topic
  * @param frame_id name of the frame id
- * @param skip skip certain number of frames, reduces publish rate
  * @param scanner pointer ot an instance of the class Scanner
  */
 ROSScannerNode::ROSScannerNode(ros::NodeHandle& nh,
                                const std::string& topic,
                                const std::string& frame_id,
-                               const uint16_t& skip,
                                const Degree& x_axis_rotation,
                                std::unique_ptr<vScanner> scanner)
-  : nh_(nh), frame_id_(frame_id), skip_(skip), scanner_(std::move(scanner)), x_axis_rotation_(x_axis_rotation)
+  : nh_(nh), frame_id_(frame_id), scanner_(std::move(scanner)), x_axis_rotation_(x_axis_rotation)
 {
   if (!scanner_)
   {
