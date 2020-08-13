@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2020 Pilz GmbH & Co. KG
+Copyright (c) 2019 Pilz GmbH & Co. KG
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -14,8 +14,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
+
 <launch>
-
-  <test test-name="integrationtest_scan_topic" pkg="psen_scan" type="integrationtest_scan_topic"/>
-
+  <test pkg="psen_scan" test-name="unittest_build_ros_msg" type="unittest_build_ros_msg">
+  </test>
 </launch>

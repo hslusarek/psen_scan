@@ -232,6 +232,17 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
 
+  add_rostest_gmock(unittest_build_ros_msg
+    test/unit_tests/unittest_build_ros_msg.test
+    test/unit_tests/unittest_build_ros_msg.cpp
+    src/ros_scanner_node.cpp
+    src/laserscan.cpp
+    src/psen_scan_internal_angle.cpp
+  )
+  target_link_libraries(unittest_build_ros_msg
+    ${catkin_LIBRARIES}
+  )
+
   #########################
   ##  Integration-Tests  ##
   #########################
@@ -251,14 +262,14 @@ if(CATKIN_ENABLE_TESTING)
     ${pilz_testutils_LIBRARIES}
   )
 
-  add_rostest_gmock(integrationtest_scan_topic
-    test/integration_tests/integrationtest_scan_topic.test
-    test/integration_tests/integrationtest_scan_topic.cpp
+  add_rostest_gmock(integrationtest_ros_scanner_node
+    test/integration_tests/integrationtest_ros_scanner_node.test
+    test/integration_tests/integrationtest_ros_scanner_node.cpp
     src/laserscan.cpp
     src/psen_scan_internal_angle.cpp
     src/ros_scanner_node.cpp
   )
-  target_link_libraries(integrationtest_scan_topic
+  target_link_libraries(integrationtest_ros_scanner_node
     ${catkin_LIBRARIES}
     ${pilz_testutils_LIBRARIES}
   )
@@ -270,18 +281,6 @@ if(CATKIN_ENABLE_TESTING)
     src/psen_scan_internal_angle.cpp
   )
   target_link_libraries(integrationtest_ros_parameter_handler
-    ${catkin_LIBRARIES}
-  )
-
-  add_rostest_gmock(integrationtest_ros_scanner_node
-    test/integration_tests/integrationtest_ros_scanner_node.test
-    test/integration_tests/integrationtest_ros_scanner_node.cpp
-    src/ros_scanner_node.cpp
-    src/laserscan.cpp
-    src/psen_scan_internal_angle.cpp
-    src/scanner_configuration.cpp
-  )
-  target_link_libraries(integrationtest_ros_scanner_node
     ${catkin_LIBRARIES}
   )
 
