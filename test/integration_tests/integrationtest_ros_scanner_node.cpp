@@ -24,7 +24,6 @@
 #include <ros/ros.h>
 
 #include <sensor_msgs/LaserScan.h>
-#include <pilz_utils/wait_for_message.h>
 #include <pilz_testutils/async_test.h>
 
 #include "psen_scan/ros_scanner_node.h"
