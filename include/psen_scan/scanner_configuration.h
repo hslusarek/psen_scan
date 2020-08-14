@@ -26,7 +26,9 @@ class ScannerConfiguration
 public:
   ScannerConfiguration(const std::string& host_ip,
                        const int& host_udp_port,
-                       const std::string& device_ip);
+                       const std::string& device_ip,
+                       const float& start_angle,
+                       const float& end_angle);
 
 public:
   uint32_t hostIp() const;
@@ -36,11 +38,20 @@ public:
 
   uint32_t deviceIp() const;
 
+  //! @brief Start angle in tenth of degrees
+  uint16_t startAngle() const;
+
+  //! @brief End angle in tenth of degrees
+  uint16_t endAngle() const;
+
 private:
   uint32_t host_ip_;
   uint16_t host_udp_port_;
 
   uint32_t device_ip_;
+
+  uint16_t start_angle_;
+  uint16_t end_angle_;
 };
 
 }  // namespace psen_scan

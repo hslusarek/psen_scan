@@ -115,19 +115,7 @@ void RosParameterHandler::updateAllParamsFromParamServer()
   // update parameter angle_start
   try
   {
-    float angle_start;
-    if (getOptionalParamFromParamServer<float>("angle_start", angle_start))
-    {
-      if (PSENscanInternalAngle(Degree(angle_start)) < MIN_SCAN_ANGLE)
-      {
-        throw PSENScanFatalException("Parameter angle_start may not be negative!");
-      }
-      if (PSENscanInternalAngle(Degree(angle_start)) > MAX_SCAN_ANGLE)
-      {
-        throw PSENScanFatalException("Parameter angle_start too large!");
-      }
-      angle_start_ = PSENscanInternalAngle(Degree(angle_start));
-    }
+    getOptionalParamFromParamServer<float>("angle_start", angle_start_);
   }
   catch (const GetROSParameterException& e)
   {
@@ -137,19 +125,7 @@ void RosParameterHandler::updateAllParamsFromParamServer()
   // update parameter angle_end
   try
   {
-    float angle_end;
-    if (getOptionalParamFromParamServer<float>("angle_end", angle_end))
-    {
-      if (PSENscanInternalAngle(Degree(angle_end)) < MIN_SCAN_ANGLE)
-      {
-        throw PSENScanFatalException("Parameter angle_end may not be negative!");
-      }
-      if (PSENscanInternalAngle(Degree(angle_end)) > MAX_SCAN_ANGLE)
-      {
-        throw PSENScanFatalException("Parameter angle_end too large!");
-      }
-      angle_end_ = PSENscanInternalAngle(Degree(angle_end));
-    }
+    getOptionalParamFromParamServer<float>("angle_end", angle_end_);
   }
   catch (const GetROSParameterException& e)
   {
@@ -271,22 +247,12 @@ std::string RosParameterHandler::getFrameID() const
   return frame_id_;
 }
 
-/**
- * @brief Getter Method for angle_start_
- *
- * @return uint16_t
- */
-PSENscanInternalAngle RosParameterHandler::getAngleStart() const
+float RosParameterHandler::getAngleStart() const
 {
   return angle_start_;
 }
 
-/**
- * @brief Getter Method for angle_end_
- *
- * @return uint16_t
- */
-PSENscanInternalAngle RosParameterHandler::getAngleEnd() const
+float RosParameterHandler::getAngleEnd() const
 {
   return angle_end_;
 }

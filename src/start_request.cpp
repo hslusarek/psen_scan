@@ -21,19 +21,19 @@
 #include <sstream>
 #include <string>
 
+#include <psen_scan/psen_scan_internal_angle.h>
 #include <psen_scan/start_request.h>
 
 namespace psen_scan
 {
-StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration, const uint32_t& seq_number)
-  : seq_number_(seq_number), host_udp_port_(scanner_configuration.hostUDPPortRead()) // Write is deduced by the scanner
-{
-  setHostIP(scanner_configuration.hostIp());
-}
+static constexpr uint16_t MASTER_RESOLUTION{ 1 };
 
-void StartRequest::setHostIP(const uint32_t& host_ip)
+StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration, const uint32_t& seq_number)
+  : seq_number_(seq_number)
+  , host_ip_(scanner_configuration.hostIp())
+  , host_udp_port_(scanner_configuration.hostUDPPortRead())  // Write is deduced by the scanner
+  , master_(scanner_configuration.startAngle(), scanner_configuration.endAngle(), MASTER_RESOLUTION)
 {
-  host_ip_ = host_ip;
 }
 
 uint32_t StartRequest::getCRC() const

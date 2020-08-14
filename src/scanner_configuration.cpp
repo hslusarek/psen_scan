@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <cmath>
 #include <cassert>
 #include <stdexcept>
 #include <limits>
@@ -23,9 +24,14 @@
 
 namespace psen_scan
 {
+static constexpr float MIN_SCAN_ANGLE{ 0.0 };
+static constexpr float MAX_SCAN_ANGLE{ 275.0 };
+
 ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
                                            const int& host_udp_port,
-                                           const std::string& device_ip)
+                                           const std::string& device_ip,
+                                           const float& start_angle,
+                                           const float& end_angle)
 {
   const auto host_ip_number = inet_network(host_ip.c_str());
   if (static_cast<in_addr_t>(-1) == host_ip_number)
@@ -48,6 +54,18 @@ ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
   }
   assert(sizeof(device_ip_number) == 4);
   device_ip_ = static_cast<uint32_t>(device_ip_number);
+
+  if (start_angle < MIN_SCAN_ANGLE || start_angle > MAX_SCAN_ANGLE)
+  {
+    throw std::invalid_argument("Start angle out of supported range");
+  }
+  if (end_angle < start_angle || end_angle > MAX_SCAN_ANGLE)
+  {
+    throw std::invalid_argument("End angle out of supported range");
+  }
+
+  start_angle_ = static_cast<uint16_t>(round(start_angle*10.0));
+  end_angle_ = static_cast<uint16_t>(round(end_angle*10.0));
 }
 
 uint32_t ScannerConfiguration::hostIp() const
@@ -68,6 +86,16 @@ uint16_t ScannerConfiguration::hostUDPPortWrite() const
 uint32_t ScannerConfiguration::deviceIp() const
 {
   return device_ip_;
+}
+
+uint16_t ScannerConfiguration::startAngle() const
+{
+  return start_angle_;
+}
+
+uint16_t ScannerConfiguration::endAngle() const
+{
+  return end_angle_;
 }
 
 }  // namespace psen_scan

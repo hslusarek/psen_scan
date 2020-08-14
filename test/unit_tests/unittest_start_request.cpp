@@ -61,7 +61,11 @@ TEST_F(StartRequestTest, constructorTest)
   const std::string& host_ip = "192.168.0.1";
   const uint16_t& host_udp_port = 65535;
 
-  ScannerConfiguration sc(host_ip, host_udp_port, "192.168.0.50");
+  const float start_angle = 0.0;
+  const uint16_t start_angle_code = 0;
+  const float end_angle = 270.0;
+  const uint16_t end_angle_code = 2700;
+  ScannerConfiguration sc(host_ip, host_udp_port, "192.168.0.50", start_angle, end_angle);
 
   uint32_t sequence_number{ 123 };
   StartRequest sr(sc, sequence_number);
@@ -90,9 +94,9 @@ TEST_F(StartRequestTest, constructorTest)
   EXPECT_TRUE(DecodingEquals(data, 0x20, (uint8_t)0));  // Speed encoder enabled
   EXPECT_TRUE(DecodingEquals(data, 0x21, (uint8_t)0));  // Diagnostics enabled
 
-  EXPECT_TRUE(DecodingEquals(data, 0x22, (uint16_t)0));     // Master Start Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x24, (uint16_t)2700));  // Master End Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x26, (uint16_t)1));     // Master Angle Resolution
+  EXPECT_TRUE(DecodingEquals(data, 0x22, start_angle_code));  // Master Start Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x24, end_angle_code));    // Master End Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x26, (uint16_t)1));       // Master Angle Resolution
 
   EXPECT_TRUE(DecodingEquals(data, 0x28, (uint16_t)0));  // Slave 1 Start Angle
   EXPECT_TRUE(DecodingEquals(data, 0x2A, (uint16_t)0));  // Slave 1 End Angle

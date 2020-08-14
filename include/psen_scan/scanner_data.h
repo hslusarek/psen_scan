@@ -51,8 +51,6 @@ uint32_t const MONITORING_FRAME_OPCODE = 0xC9;    /**< Constant 0xC9. Byte order
 uint16_t const MAX_NUMBER_OF_SAMPLES = 550;       /**< Maximum number of samples per UDP message from Laserscanner */
 unsigned short const PSEN_SCAN_PORT_WRITE = 3000; /**< Port on which Laserscanner expects messages */
 unsigned short const PSEN_SCAN_PORT_READ = 2000;  /**< Port from which Laserscanner sends messages */
-PSENscanInternalAngle const MIN_SCAN_ANGLE(0);    /**< Lowest  scan angle in tenth of degree */
-PSENscanInternalAngle const MAX_SCAN_ANGLE(2750); /**< Highest scan angle in tenth of degree */
 uint16_t const NUMBER_OF_SAMPLES_FULL_SCAN_MASTER = 2750; /**< Number of samples for complete scan for master scanner*/
 double const SCAN_TIME = 0.03;                            /**< Time per scan in seconds*/
 }  // namespace psen_scan

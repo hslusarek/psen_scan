@@ -31,8 +31,11 @@ int main(int argc, char** argv)
   {
     psen_scan::RosParameterHandler param_handler(pnh);
 
-    ScannerConfiguration scanner_configuration(
-        param_handler.getHostIP(), param_handler.getHostUDPPort(), param_handler.getSensorIP());
+    ScannerConfiguration scanner_configuration(param_handler.getHostIP(),
+                                               param_handler.getHostUDPPort(),
+                                               param_handler.getSensorIP(),
+                                               param_handler.getAngleStart(),
+                                               param_handler.getAngleEnd());
 
     std::unique_ptr<Scanner> scanner{ new Scanner(scanner_configuration) };
 

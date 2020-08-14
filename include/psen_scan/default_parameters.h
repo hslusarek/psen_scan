@@ -23,8 +23,8 @@
 namespace psen_scan
 {
 static const std::string DEFAULT_FRAME_ID = "scanner";      /**< ROS Frame ID */
-static const PSENscanInternalAngle DEFAULT_ANGLE_START(0);  /**< Start angle of measurement */
-static const PSENscanInternalAngle DEFAULT_ANGLE_END(2750); /**< End angle of measurement */
+static const float DEFAULT_ANGLE_START(0.0);  /**< Start angle of measurement */
+static const float DEFAULT_ANGLE_END(275.0); /**< End angle of measurement */
 static const Degree DEFAULT_X_AXIS_ROTATION(137.5);         /**< Rotation of x-axis around the center. */
 static const Degree MAX_X_AXIS_ROTATION(360.0);             /**< Maximum value for x-axis-rotation parameter */
 static const Degree MIN_X_AXIS_ROTATION(-360.0);            /**< Minimum value for x-axis-rotation parameter */

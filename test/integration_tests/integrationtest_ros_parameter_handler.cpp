@@ -71,8 +71,8 @@ protected:
   uint32_t expected_host_ip_;
   uint32_t expected_host_udp_port_;
   std::string expected_frame_id_;
-  PSENscanInternalAngle expected_angle_start_;
-  PSENscanInternalAngle expected_angle_end_;
+  float expected_angle_start_;
+  float expected_angle_end_;
   Degree expected_x_axis_rotation_;
 };
 
@@ -98,8 +98,8 @@ protected:
     ros::param::set("host_udp_port", host_udp_port_);
     ros::param::set("sensor_ip", sensor_ip_);
     ros::param::set("frame_id", DEFAULT_FRAME_ID);
-    ros::param::set("angle_start", static_cast<double>(Degree(DEFAULT_ANGLE_START)));
-    ros::param::set("angle_end", static_cast<double>(Degree(DEFAULT_ANGLE_END)));
+    ros::param::set("angle_start", DEFAULT_ANGLE_START);
+    ros::param::set("angle_end", DEFAULT_ANGLE_END);
     ros::param::set("x_axis_rotation", static_cast<double>(DEFAULT_X_AXIS_ROTATION));
   }
 };
@@ -153,16 +153,14 @@ TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_po
 TEST_F(ROSRequiredParameterTest, test_all_params)
 {
   std::string frame_id = "abcdefg";
-  float angle_start = 10.5;
-  float angle_end = 204.7;
+  float expected_angle_start = 10.5;
+  float expected_angle_end = 204.7;
   double x_axis_rotation = 100.3;
-  ros::param::set("angle_start", angle_start);
-  ros::param::set("angle_end", angle_end);
+  ros::param::set("angle_start", expected_angle_start);
+  ros::param::set("angle_end", expected_angle_end);
   ros::param::set("x_axis_rotation", x_axis_rotation);
   ros::param::set("frame_id", frame_id);
 
-  PSENscanInternalAngle expected_angle_start(105);
-  PSENscanInternalAngle expected_angle_end(2047);
   Degree expected_x_axis_rotation(x_axis_rotation);
 
   RosParameterHandler param_handler(node_handle_);
@@ -222,14 +220,6 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_start)
   ros::param::set("angle_start", "12");
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 
-  // Set angle_start back to valid data type, but too big
-  ros::param::set("angle_start", 276);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Set angle_start back to valid data type, but negative
-  ros::param::set("angle_start", -1);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
   // valid test
   ros::param::set("angle_start", 20.);
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
@@ -246,14 +236,6 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_end)
 
   // Wrong Datatype, but can be converted to int
   ros::param::set("angle_end", "250");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Set angle_end back to valid data type, but too large
-  ros::param::set("angle_end", 276);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Set angle_end back to valid data type, but negative
-  ros::param::set("angle_end", -1);
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 
   // valid test

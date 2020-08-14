@@ -39,15 +39,12 @@ public:
   uint32_t getCRC() const;
 
 private:
-  void setHostIP(const uint32_t& host_ip);
-
-private:
   uint32_t crc_; /**< A CRC32 of all the following fields. */
   uint32_t seq_number_;
   uint64_t const RESERVED_{ 0 };           /**< Use all zeros */
   uint32_t const OPCODE_{ htole32(0x35) }; /**< Constant 0x35. */
-  uint32_t host_ip_;                     /**< Byte order: big endian */
-  uint16_t host_udp_port_;               /**< Byte order: big endian */
+  uint32_t host_ip_;                       /**< Byte order: big endian */
+  uint16_t host_udp_port_;                 /**< Byte order: big endian */
 
   /**< The following 'enable' fields are a 1-byte mask each.
    * Only the last 4 bits (little endian) are used, each of which represents a device.
@@ -80,7 +77,7 @@ private:
     uint16_t resolution_{ 0 };
   };
 
-  DeviceField master_{ 0, 2700, 1 };
+  DeviceField master_;
   std::array<DeviceField, 3> slaves_;
 
 public:
