@@ -73,9 +73,6 @@ IP-Address of safety laser scanner.
 _frame_id_ (_string_, default: "scanner")<br/>
 Identifier used for transformations within ROS environment.
 
-_skip_ (_int_, default: 0)<br/>
-How many incoming frames should be skipped (reduces publish rate).
-
 _angle_start_ (_float_, default: 0)<br/>
 Start angle of measurement.
 

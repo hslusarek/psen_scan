@@ -35,7 +35,6 @@ using namespace psen_scan;
   DELETE_ROS_PARAM("angle_start");                                                                                     \
   DELETE_ROS_PARAM("angle_end");                                                                                       \
   DELETE_ROS_PARAM("frame_id");                                                                                        \
-  DELETE_ROS_PARAM("skip");                                                                                            \
   DELETE_ROS_PARAM("x_axis_rotation");
 
 namespace psen_scan_test
@@ -52,7 +51,6 @@ protected:
     , expected_host_ip_(htobe32(inet_network(host_ip_.c_str())))
     , expected_host_udp_port_(htole32(host_udp_port_))
     , expected_frame_id_(DEFAULT_FRAME_ID)
-    , expected_skip_(DEFAULT_SKIP)
     , expected_angle_start_(DEFAULT_ANGLE_START)
     , expected_angle_end_(DEFAULT_ANGLE_END)
     , expected_x_axis_rotation_(DEFAULT_X_AXIS_ROTATION)
@@ -73,7 +71,6 @@ protected:
   uint32_t expected_host_ip_;
   uint32_t expected_host_udp_port_;
   std::string expected_frame_id_;
-  uint16_t expected_skip_;
   PSENscanInternalAngle expected_angle_start_;
   PSENscanInternalAngle expected_angle_end_;
   Degree expected_x_axis_rotation_;
@@ -101,7 +98,6 @@ protected:
     ros::param::set("host_udp_port", host_udp_port_);
     ros::param::set("sensor_ip", sensor_ip_);
     ros::param::set("frame_id", DEFAULT_FRAME_ID);
-    ros::param::set("skip", DEFAULT_SKIP);
     ros::param::set("angle_start", static_cast<double>(Degree(DEFAULT_ANGLE_START)));
     ros::param::set("angle_end", static_cast<double>(Degree(DEFAULT_ANGLE_END)));
     ros::param::set("x_axis_rotation", static_cast<double>(DEFAULT_X_AXIS_ROTATION));
@@ -121,7 +117,6 @@ TEST_F(ROSRequiredParameterTest, test_required_params_only)
                   EXPECT_EQ(param_handler.getHostIP(), host_ip_);
                   EXPECT_EQ(param_handler.getHostUDPPort(), expected_host_udp_port_);
                   EXPECT_EQ(param_handler.getFrameID(), expected_frame_id_);
-                  EXPECT_EQ(param_handler.getSkip(), expected_skip_);
                   EXPECT_EQ(param_handler.getAngleStart(), expected_angle_start_);
                   EXPECT_EQ(param_handler.getAngleEnd(), expected_angle_end_);
                   EXPECT_EQ(param_handler.getXAxisRotation(), expected_x_axis_rotation_););
@@ -157,7 +152,6 @@ TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_po
 
 TEST_F(ROSRequiredParameterTest, test_all_params)
 {
-  int skip = 2;
   std::string frame_id = "abcdefg";
   float angle_start = 10.5;
   float angle_end = 204.7;
@@ -166,9 +160,7 @@ TEST_F(ROSRequiredParameterTest, test_all_params)
   ros::param::set("angle_end", angle_end);
   ros::param::set("x_axis_rotation", x_axis_rotation);
   ros::param::set("frame_id", frame_id);
-  ros::param::set("skip", skip);
 
-  uint16_t expected_skip = 2;
   PSENscanInternalAngle expected_angle_start(105);
   PSENscanInternalAngle expected_angle_end(2047);
   Degree expected_x_axis_rotation(x_axis_rotation);
@@ -179,7 +171,6 @@ TEST_F(ROSRequiredParameterTest, test_all_params)
   EXPECT_EQ(param_handler.getHostIP(), host_ip_);
   EXPECT_EQ(param_handler.getHostUDPPort(), expected_host_udp_port_);
   EXPECT_EQ(param_handler.getFrameID(), frame_id);
-  EXPECT_EQ(param_handler.getSkip(), expected_skip);
   EXPECT_EQ(param_handler.getAngleStart(), expected_angle_start);
   EXPECT_EQ(param_handler.getAngleEnd(), expected_angle_end);
   EXPECT_EQ(param_handler.getXAxisRotation(), expected_x_axis_rotation);
@@ -215,28 +206,6 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_frame_id)
   // Set frame_id back to valid data type, which could be interpreted as int
   // Numbers are allowed for frame id TODO: discussion
   ros::param::set("frame_id", "125");
-  ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
-}
-
-TEST_F(ROSInvalidParameterTest, test_invalid_params_skip)
-{
-  // Set skip with wrong datatype (expected int) as example for wrong datatypes on expected integers
-  ros::param::set("skip", "abcde");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  ros::param::set("skip", true);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Wrong Datatype, but could be converted to int
-  ros::param::set("skip", "12");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Set skip back to valid data type, but negative
-  ros::param::set("skip", -1);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // valid test
-  ros::param::set("skip", 0);
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 

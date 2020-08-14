@@ -37,7 +37,6 @@ RosParameterHandler::RosParameterHandler(const ros::NodeHandle& nh)
   , host_ip_()
   , host_udp_port_()
   , frame_id_(DEFAULT_FRAME_ID)
-  , skip_(DEFAULT_SKIP)
   , angle_start_(DEFAULT_ANGLE_START)
   , angle_end_(DEFAULT_ANGLE_END)
   , x_axis_rotation_(DEFAULT_X_AXIS_ROTATION)
@@ -112,24 +111,7 @@ void RosParameterHandler::updateAllParamsFromParamServer()
     ROS_WARN_STREAM(e.what());
     throw PSENScanFatalException("Reading of required parameter failed!");
   }  // update parameter frame_id
-  // update parameter skip
-  try
-  {
-    int skip;
-    if (getOptionalParamFromParamServer<int>("skip", skip))
-    {
-      if (skip < 0)
-      {
-        throw PSENScanFatalException("Parameter skip may not be negative!");
-      }
-      skip_ = static_cast<uint16_t>(skip);
-    }
-  }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter skip
+
   // update parameter angle_start
   try
   {
@@ -287,16 +269,6 @@ std::string RosParameterHandler::getSensorIP() const
 std::string RosParameterHandler::getFrameID() const
 {
   return frame_id_;
-}
-
-/**
- * @brief Getter method for skip_
- *
- * @return uint16_t
- */
-uint16_t RosParameterHandler::getSkip() const
-{
-  return skip_;
 }
 
 /**

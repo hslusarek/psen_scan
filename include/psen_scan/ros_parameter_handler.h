@@ -41,7 +41,6 @@ public:
   uint32_t getHostUDPPort() const;
   std::string getSensorIP() const;
   std::string getFrameID() const;
-  uint16_t getSkip() const;
   PSENscanInternalAngle getAngleStart() const;
   PSENscanInternalAngle getAngleEnd() const;
   Degree getXAxisRotation() const;
@@ -53,7 +52,6 @@ private:
   int host_udp_port_;                 /**< UDP Port on which packets from Laserscanner should be received */
   std::string sensor_ip_;             /**< IP-Adress of Safety laser scanner */
   std::string frame_id_;              /**< ROS Frame ID */
-  uint16_t skip_;                     /**< How many incoming frames should be skipped (reduces publish rate) */
   PSENscanInternalAngle angle_start_; /**< Start angle of measurement */
   PSENscanInternalAngle angle_end_;   /**< End angle of measurement */
   Degree x_axis_rotation_;            /**< Rotation of x-axis arround the center */

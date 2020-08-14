@@ -22,8 +22,7 @@
 
 namespace psen_scan
 {
-static const std::string DEFAULT_FRAME_ID = "scanner"; /**< ROS Frame ID */
-static const uint16_t DEFAULT_SKIP = 0; /**< How many incoming frames should be skipped (reduces publish rate) */
+static const std::string DEFAULT_FRAME_ID = "scanner";      /**< ROS Frame ID */
 static const PSENscanInternalAngle DEFAULT_ANGLE_START(0);  /**< Start angle of measurement */
 static const PSENscanInternalAngle DEFAULT_ANGLE_END(2750); /**< End angle of measurement */
 static const Degree DEFAULT_X_AXIS_ROTATION(137.5);         /**< Rotation of x-axis around the center. */
