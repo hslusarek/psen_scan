@@ -125,7 +125,7 @@ TEST_F(ScannerConfigurationTest, testStartAngle)
 
   const auto start_angle = sc.startAngle();
   EXPECT_EQ(2U, sizeof(start_angle));
-  EXPECT_FLOAT_EQ(start_angle_, start_angle*0.1F);
+  EXPECT_FLOAT_EQ(start_angle_, start_angle * 0.1F);
 }
 
 TEST_F(ScannerConfigurationTest, testEndAngle)
@@ -134,7 +134,7 @@ TEST_F(ScannerConfigurationTest, testEndAngle)
 
   const auto end_angle = sc.endAngle();
   EXPECT_EQ(2U, sizeof(end_angle));
-  EXPECT_FLOAT_EQ(end_angle_, end_angle*0.1F);
+  EXPECT_FLOAT_EQ(end_angle_, end_angle * 0.1F);
 }
 
 }  // namespace psen_scan_test

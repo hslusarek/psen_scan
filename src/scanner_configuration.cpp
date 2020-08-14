@@ -64,8 +64,8 @@ ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
     throw std::invalid_argument("End angle out of supported range");
   }
 
-  start_angle_ = static_cast<uint16_t>(round(start_angle*10.0));
-  end_angle_ = static_cast<uint16_t>(round(end_angle*10.0));
+  start_angle_ = static_cast<uint16_t>(round(start_angle * 10.0));
+  end_angle_ = static_cast<uint16_t>(round(end_angle * 10.0));
 }
 
 uint32_t ScannerConfiguration::hostIp() const

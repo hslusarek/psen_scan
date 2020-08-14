@@ -46,15 +46,15 @@ public:
   Degree getXAxisRotation() const;
 
 private:
-  ros::NodeHandle const nh_;          /**< Nodehandle through which parameters are fetched */
-  std::string password_;              /**< Password for Laserscanner */
-  std::string host_ip_;               /**< IP-Adress of host machine */
-  int host_udp_port_;                 /**< UDP Port on which packets from Laserscanner should be received */
-  std::string sensor_ip_;             /**< IP-Adress of Safety laser scanner */
-  std::string frame_id_;              /**< ROS Frame ID */
-  float angle_start_; /**< Start angle of measurement */
-  float angle_end_;   /**< End angle of measurement */
-  Degree x_axis_rotation_;            /**< Rotation of x-axis arround the center */
+  ros::NodeHandle const nh_; /**< Nodehandle through which parameters are fetched */
+  std::string password_;     /**< Password for Laserscanner */
+  std::string host_ip_;      /**< IP-Adress of host machine */
+  int host_udp_port_;        /**< UDP Port on which packets from Laserscanner should be received */
+  std::string sensor_ip_;    /**< IP-Adress of Safety laser scanner */
+  std::string frame_id_;     /**< ROS Frame ID */
+  float angle_start_;        /**< Start angle of measurement */
+  float angle_end_;          /**< End angle of measurement */
+  Degree x_axis_rotation_;   /**< Rotation of x-axis arround the center */
 
 public:
   static std::string decryptPassword(const std::string& encrypted_password);
