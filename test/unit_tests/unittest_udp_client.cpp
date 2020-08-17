@@ -21,7 +21,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <psen_scan/async_udp_reader.h>
+#include <psen_scan/udp_client.h>
 
 namespace psen_scan_test
 {
@@ -41,37 +41,37 @@ public:
   MOCK_METHOD1(handleError, void(const std::string&));
 };
 
-TEST(AsyncUDPReaderTests, testInvalidNewDataHandler)
+TEST(UdpClientTests, testInvalidNewDataHandler)
 {
   CallbackHandler handler;
 
-  EXPECT_THROW(psen_scan::AsyncUdpReader<DATA_SIZE_BYTES> reader(nullptr,
-                                                                 std::bind(&CallbackHandler::handleError, &handler, _1),
-                                                                 HOST_UDP_READ_PORT,
-                                                                 inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
-                                                                 UDP_MOCK_SEND_PORT),
+  EXPECT_THROW(psen_scan::UdpClient<DATA_SIZE_BYTES> reader(nullptr,
+                                                            std::bind(&CallbackHandler::handleError, &handler, _1),
+                                                            HOST_UDP_READ_PORT,
+                                                            inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
+                                                            UDP_MOCK_SEND_PORT),
                std::invalid_argument);
 }
 
-TEST(AsyncUDPReaderTests, testInvalidErrorHandler)
+TEST(UdpClientTests, testInvalidErrorHandler)
 {
   CallbackHandler handler;
 
   EXPECT_THROW(
-      psen_scan::AsyncUdpReader<DATA_SIZE_BYTES> reader(std::bind(&CallbackHandler::handleNewData, &handler, _1, _2),
-                                                        nullptr,
-                                                        HOST_UDP_READ_PORT,
-                                                        inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
-                                                        UDP_MOCK_SEND_PORT),
+      psen_scan::UdpClient<DATA_SIZE_BYTES> reader(std::bind(&CallbackHandler::handleNewData, &handler, _1, _2),
+                                                   nullptr,
+                                                   HOST_UDP_READ_PORT,
+                                                   inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
+                                                   UDP_MOCK_SEND_PORT),
       std::invalid_argument);
 }
 
-TEST(AsyncUDPReaderTests, testCloseConnectionFailureForCompleteCoverage)
+TEST(UdpClientTests, testCloseConnectionFailureForCompleteCoverage)
 {
   std::unique_ptr<psen_scan::CloseConnectionFailure> ex{ new psen_scan::CloseConnectionFailure() };
 }
 
-TEST(AsyncUDPReaderTests, testOpenConnectionFailureForCompleteCoverage)
+TEST(UdpClientTests, testOpenConnectionFailureForCompleteCoverage)
 {
   std::unique_ptr<psen_scan::OpenConnectionFailure> ex{ new psen_scan::OpenConnectionFailure() };
 }
