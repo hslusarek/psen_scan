@@ -23,6 +23,8 @@
 // front-end
 #include <boost/msm/front/state_machine_def.hpp>
 
+#include "psen_scan/logging.h"
+
 namespace psen_scan
 {
 namespace msm = boost::msm;
@@ -47,20 +49,71 @@ struct msm_front_ : public msm::front::state_machine_def<msm_front_>
 
   void send_start_request_action(start_request_event const&)
   {
+    PSENSCAN_DEBUG("StateMachine", "Action: send_start_request_action");
     send_start_request_callback_();
   }
 
   msm_front_(const SendStartRequestCallback& sr):
     send_start_request_callback_(sr)
   {
-
   }
 
   // The list of FSM states
-  struct InitState : public msm::front::state<> {};
-  struct WaitForStartReplyState : public msm::front::state<> {};
-  struct WaitForMonitoringFrameState : public msm::front::state<> {};
-  struct WaitForStopReplyState : public msm::front::state<> {};
+  struct InitState : public msm::front::state<>
+  {
+    template <class Event,class FSM>
+    void on_entry(Event const& ,FSM&)
+    {
+      PSENSCAN_DEBUG("StateMachine", "Entering: InitState");
+    }
+    template <class Event,class FSM>
+    void on_exit(Event const&,FSM& )
+    {
+      PSENSCAN_DEBUG("StateMachine", "Leaving: InitState");
+  }
+  };
+
+  struct WaitForStartReplyState : public msm::front::state<>
+  {
+    template <class Event,class FSM>
+    void on_entry(Event const& ,FSM&)
+    {
+      PSENSCAN_DEBUG("StateMachine", "Entering: WaitForStartReplyState");
+    }
+    template <class Event,class FSM>
+    void on_exit(Event const&,FSM& )
+    {
+      PSENSCAN_DEBUG("StateMachine", "Leaving: WaitForStartReplyState");
+    }
+  };
+
+  struct WaitForMonitoringFrameState : public msm::front::state<>
+  {
+    template <class Event,class FSM>
+    void on_entry(Event const& ,FSM&)
+    {
+      PSENSCAN_DEBUG("StateMachine", "Entering: WaitForMonitoringFrameState");
+    }
+    template <class Event,class FSM>
+    void on_exit(Event const&,FSM& )
+    {
+      PSENSCAN_DEBUG("StateMachine", "Leaving: WaitForMonitoringFrameState");
+    }
+  };
+
+  struct WaitForStopReplyState : public msm::front::state<>
+  {
+    template <class Event,class FSM>
+    void on_entry(Event const& ,FSM&)
+    {
+      PSENSCAN_DEBUG("StateMachine", "Entering: WaitForStopReplyState");
+    }
+    template <class Event,class FSM>
+    void on_exit(Event const&,FSM& )
+    {
+      PSENSCAN_DEBUG("StateMachine", "Leaving: WaitForStopReplyState");
+    }
+  };
 
   typedef InitState initial_state;
 
