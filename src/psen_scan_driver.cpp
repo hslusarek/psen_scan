@@ -19,6 +19,8 @@
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/default_parameters.h"
 #include "psen_scan/scanner_configuration.h"
+#include <rosconsole_bridge/bridge.h>
+REGISTER_ROSCONSOLE_BRIDGE;
 
 using namespace psen_scan;
 
