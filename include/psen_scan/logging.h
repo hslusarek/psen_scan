@@ -21,9 +21,9 @@
 
 #define PSENSCAN_LOG(name, file, line, level, args)                                                                    \
   {                                                                                                                    \
-    std::stringstream ss;                                                                                            \
-    ss << name << ": " << args;                                                                                      \
-    console_bridge::getOutputHandler()->log(ss.str(), level, file, line);                                            \
+    std::stringstream ss;                                                                                              \
+    ss << name << ": " << args;                                                                                        \
+    console_bridge::getOutputHandler()->log(ss.str(), level, file, line);                                              \
   }
 
 using namespace console_bridge;
