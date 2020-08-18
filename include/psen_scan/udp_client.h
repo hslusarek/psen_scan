@@ -12,8 +12,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#ifndef PSEN_UDP_CLIENT_H
-#define PSEN_UDP_CLIENT_H
+#ifndef PSEN_SCAN_UDP_CLIENT_H
+#define PSEN_SCAN_UDP_CLIENT_H
 
 #include <stdexcept>
 #include <string>
@@ -235,4 +235,4 @@ inline void UdpClient::asyncReceive(const std::chrono::high_resolution_clock::du
 }
 
 }  // namespace psen_scan
-#endif  // PSEN_UDP_CLIENT_H
+#endif  // PSEN_SCAN_UDP_CLIENT_H
