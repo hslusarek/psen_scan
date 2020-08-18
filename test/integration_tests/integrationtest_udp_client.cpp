@@ -16,6 +16,7 @@
 #include <string>
 #include <functional>
 #include <array>
+#include <chrono>
 
 #include <boost/asio.hpp>
 
@@ -45,7 +46,7 @@ static const std::string UDP_MOCK_IP_ADDRESS{ "127.0.0.1" };
 static constexpr unsigned short UDP_MOCK_PORT{ HOST_UDP_PORT + 1 };
 
 static constexpr std::size_t DATA_SIZE_BYTES{ 100 };
-static const boost::posix_time::millisec RECEIVE_TIMEOUT{ 50 };
+static constexpr std::chrono::milliseconds RECEIVE_TIMEOUT{ 50 };
 
 class UdpClientTests : public testing::Test, public testing::AsyncTest
 {

@@ -23,10 +23,12 @@
 #include <condition_variable>
 #include <functional>
 #include <iostream>
+#include <chrono>
 
 #include <arpa/inet.h>
 
 #include <boost/asio.hpp>
+#include <boost/asio/high_resolution_timer.hpp>
 #include <boost/bind.hpp>
 
 #include "psen_scan/open_connection_failure.h"
@@ -51,16 +53,16 @@ public:
   ~UdpClient();
 
 public:
-  void startReceiving(const boost::posix_time::time_duration timeout);
+  void startReceiving(const std::chrono::high_resolution_clock::duration timeout);
   template <std::size_t NumberOfBytesToSend>
   void write(const std::array<char, NumberOfBytesToSend>& data);
   void close();
 
 private:
-  void asyncReceive(const boost::posix_time::time_duration timeout);
+  void asyncReceive(const std::chrono::high_resolution_clock::duration timeout);
   void handleReceive(const boost::system::error_code& error_code,
                      const std::size_t& bytes_received,
-                     const boost::posix_time::time_duration timeout);
+                     const std::chrono::high_resolution_clock::duration timeout);
 
   void sendCompleteHandler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
@@ -68,7 +70,7 @@ private:
   boost::asio::io_service io_service_;
   // Prevent the run() method of the io_service from returning when there is no more work.
   boost::asio::io_service::work work_{ io_service_ };
-  boost::asio::deadline_timer timeout_timer_{ io_service_ };
+  boost::asio::high_resolution_timer timeout_timer_{ io_service_ };
   std::thread io_service_thread_;
 
   std::array<char, NumberOfBytes> received_data_;
@@ -167,11 +169,14 @@ template <std::size_t NumberOfBytes>
 inline void UdpClient<NumberOfBytes>::sendCompleteHandler(const boost::system::error_code& error,
                                                           std::size_t bytes_transferred)
 {
+  // LCOV_EXCL_START
+  // No coverage check because testing the if-loop is extremly difficult.
   if (error || bytes_transferred == 0)
   {
     std::cerr << "Failed to send data."
               << "Error message: " << error.message() << std::endl;
   }
+  // LCOV_EXCL_STOP
   std::cout << "Data successfully send." << std::endl;
 }
 
@@ -191,7 +196,7 @@ inline void UdpClient<NumberOfBytes>::write(const std::array<char, NumberOfBytes
 template <std::size_t NumberOfBytes>
 inline void UdpClient<NumberOfBytes>::handleReceive(const boost::system::error_code& error_code,
                                                     const std::size_t& bytes_received,
-                                                    const boost::posix_time::time_duration timeout)
+                                                    const std::chrono::high_resolution_clock::duration timeout)
 {
   if (error_code || bytes_received == 0)
   {
@@ -204,7 +209,7 @@ inline void UdpClient<NumberOfBytes>::handleReceive(const boost::system::error_c
 }
 
 template <std::size_t NumberOfBytes>
-inline void UdpClient<NumberOfBytes>::startReceiving(const boost::posix_time::time_duration timeout)
+inline void UdpClient<NumberOfBytes>::startReceiving(const std::chrono::high_resolution_clock::duration timeout)
 {
   // Function is intended to be called from main thread.
   // To ensure that socket operations only happen on one strand (in this case an implicit one),
@@ -219,7 +224,7 @@ inline void UdpClient<NumberOfBytes>::startReceiving(const boost::posix_time::ti
 }
 
 template <std::size_t NumberOfBytes>
-inline void UdpClient<NumberOfBytes>::asyncReceive(const boost::posix_time::time_duration timeout)
+inline void UdpClient<NumberOfBytes>::asyncReceive(const std::chrono::high_resolution_clock::duration timeout)
 {
   using std::placeholders::_1;
   using std::placeholders::_2;

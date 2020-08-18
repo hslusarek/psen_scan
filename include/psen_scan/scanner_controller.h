@@ -37,7 +37,7 @@ static constexpr std::size_t DATA_SIZE_BYTES{ 65507 };
 static constexpr unsigned short SEND_PORT_OF_SCANNER_DEVICE{ 2000 };
 static constexpr unsigned short RECEIVE_PORT_OF_SCANNER_DEVICE{ 3000 };
 
-static const boost::posix_time::millisec RECEIVE_TIMEOUT{ 1000 };
+static constexpr std::chrono::milliseconds RECEIVE_TIMEOUT{ 1000 };
 
 static constexpr uint32_t DEFAULT_SEQ_NUMBER{ 0 };
 
