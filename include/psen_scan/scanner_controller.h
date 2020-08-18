@@ -31,9 +31,6 @@
 namespace psen_scan
 {
 // TODO: Move to ScannerController class and read from ScannerConfiguration
-static constexpr std::size_t DATA_SIZE_BYTES{ 65507 };
-
-// TODO: Move to ScannerController class and read from ScannerConfiguration
 static constexpr unsigned short SEND_PORT_OF_SCANNER_DEVICE{ 2000 };
 static constexpr unsigned short RECEIVE_PORT_OF_SCANNER_DEVICE{ 3000 };
 
@@ -61,11 +58,8 @@ private:
   MsgDecoder msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
                            std::bind(&ScannerController::handleError, this, std::placeholders::_1) };
 
-  psen_scan::UdpClient<DATA_SIZE_BYTES> udp_client_{
-    std::bind(&MsgDecoder::decodeAndDispatch<DATA_SIZE_BYTES>,
-              &msg_decoder_,
-              std::placeholders::_1,
-              std::placeholders::_2),
+  psen_scan::UdpClient udp_client_{
+    std::bind(&MsgDecoder::decodeAndDispatch, &msg_decoder_, std::placeholders::_1, std::placeholders::_2),
     std::bind(&ScannerController::handleError, this, std::placeholders::_1),
     scanner_config_.hostUDPPortRead(),
     scanner_config_.deviceIp(),

@@ -45,12 +45,12 @@ TEST(MsgDecoderTest, decodeStartReply)
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
 
-  std::array<char, 60000> data{};
+  RawScannerData data{};
   std::memcpy(&data, &reply, sizeof(ReplyMsg));
 
   EXPECT_CALL(mock, start_reply_callback()).Times(1);
 
-  decoder.decodeAndDispatch<60000>(data, sizeof(ReplyMsg));  // TODO get correct size
+  decoder.decodeAndDispatch(data, sizeof(ReplyMsg));  // TODO get correct size
 }
 
 TEST(MsgDecoderTest, decodeStartReplyCrcFail)
@@ -61,13 +61,13 @@ TEST(MsgDecoderTest, decodeStartReplyCrcFail)
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
 
-  std::array<char, 60000> data{};
+  RawScannerData data{};
   std::memcpy(&data, &reply, sizeof(ReplyMsg));
   data[0] = 'a';
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
 
-  EXPECT_THROW(decoder.decodeAndDispatch<60000>(data, sizeof(ReplyMsg)),
+  EXPECT_THROW(decoder.decodeAndDispatch(data, sizeof(ReplyMsg)),
                DecodeCRCMismatchException);  // TODO get correct size
 }
 
@@ -83,13 +83,13 @@ TEST(MsgDecoderTest, decodeStartReplyWrongSizeNotImplemented)
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
 
-  std::array<char, 60000> data{};
+  RawScannerData data{};
   std::memcpy(&data, &reply, sizeof(ReplyMsg));
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
   EXPECT_CALL(mock, errorCallback(::testing::_)).Times(1);
 
-  decoder.decodeAndDispatch<60000>(data, sizeof(ReplyMsg) + 1);  // TODO get correct size
+  decoder.decodeAndDispatch(data, sizeof(ReplyMsg) + 1);  // TODO get correct size
 }
 
 /**
@@ -104,13 +104,13 @@ TEST(MsgDecoderTest, decodeWrongOpCodeNotImplemented)
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode() + 1, DEFAULT_RESULT_CODE };
 
-  std::array<char, 60000> data{};
+  RawScannerData data{};
   std::memcpy(&data, &reply, sizeof(ReplyMsg));
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
   EXPECT_CALL(mock, errorCallback(::testing::_)).Times(1);
 
-  decoder.decodeAndDispatch<60000>(data, sizeof(ReplyMsg));  // TODO get correct size
+  decoder.decodeAndDispatch(data, sizeof(ReplyMsg));  // TODO get correct size
 }
 
 TEST(MsgDecoderTest, testDecodeExceptionForCompleteCoverage)

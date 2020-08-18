@@ -20,6 +20,7 @@
 #include <sstream>
 #include <string>
 
+#include "psen_scan/raw_scanner_data.h"
 #include "psen_scan/reply_msg.h"
 #include "psen_scan/decode_exception.h"
 
@@ -33,8 +34,7 @@ class MsgDecoder
 public:
   MsgDecoder(const StartReplyCallback& start_reply_callback, const ErrorCallback& error_callback);
 
-  template <std::size_t NumberOfBytes>
-  void decodeAndDispatch(const std::array<char, NumberOfBytes>& data, const std::size_t& bytes_received);
+  void decodeAndDispatch(const RawScannerData& data, const std::size_t& bytes_received);
 
 private:
   StartReplyCallback start_reply_callback_;
@@ -46,12 +46,11 @@ inline MsgDecoder::MsgDecoder(const StartReplyCallback& start_reply_callback, co
 {
 }
 
-template <std::size_t NumberOfBytes>
-void MsgDecoder::decodeAndDispatch(const std::array<char, NumberOfBytes>& data, const std::size_t& bytes_received)
+inline void MsgDecoder::decodeAndDispatch(const RawScannerData& data, const std::size_t& bytes_received)
 {
   if (bytes_received == sizeof(ReplyMsg))  // Check if this could be a reply
   {
-    ReplyMsg frame{ ReplyMsg::fromRawData<NumberOfBytes>(data) };  // TODO how to handle throw?
+    ReplyMsg frame{ ReplyMsg::fromRawData(data) };  // TODO how to handle throw?
 
     if (frame.type() == ReplyMsgType::Start)
     {

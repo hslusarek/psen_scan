@@ -15,7 +15,6 @@
 
 #include <string>
 #include <functional>
-#include <array>
 #include <chrono>
 
 #include <boost/asio.hpp>
@@ -25,6 +24,7 @@
 
 #include <pilz_testutils/async_test.h>
 
+#include "psen_scan/raw_scanner_data.h"
 #include "psen_scan/mock_udp_server.h"
 #include "psen_scan/udp_client.h"
 
@@ -52,16 +52,16 @@ class UdpClientTests : public testing::Test, public testing::AsyncTest
 {
 public:
   UdpClientTests();
-  MOCK_METHOD2(handleNewData, void(const std::array<char, DATA_SIZE_BYTES>&, const std::size_t&));
+  MOCK_METHOD2(handleNewData, void(const RawScannerData&, const std::size_t&));
   MOCK_METHOD1(handleError, void(const std::string&));
 
 public:
   void sendTestDataToClient();
 
 protected:
-  MockUDPServer<DATA_SIZE_BYTES> mock_udp_server_{ UDP_MOCK_PORT };
+  MockUDPServer mock_udp_server_{ UDP_MOCK_PORT };
 
-  psen_scan::UdpClient<DATA_SIZE_BYTES> udp_client_{
+  psen_scan::UdpClient udp_client_{
     std::bind(&UdpClientTests::handleNewData, this, std::placeholders::_1, std::placeholders::_2),
     std::bind(&UdpClientTests::handleError, this, std::placeholders::_1),
     HOST_UDP_PORT,
@@ -69,7 +69,7 @@ protected:
     UDP_MOCK_PORT
   };
 
-  std::array<char, DATA_SIZE_BYTES> send_array = { "Hello" };
+  RawDataContainer<DATA_SIZE_BYTES> send_array = { "Hello" };
   const udp::endpoint host_endpoint;
 };
 
@@ -126,7 +126,7 @@ TEST_F(UdpClientTests, testWriteOperation)
   EXPECT_CALL(mock_udp_server_, receivedUdpMsg(_)).WillOnce(ACTION_OPEN_BARRIER_VOID(CLIENT_RECEIVED_DATA));
 
   mock_udp_server_.asyncReceive();
-  std::array<char, DATA_SIZE_BYTES> write_buf = { "Hello!" };
+  RawDataContainer<DATA_SIZE_BYTES> write_buf = { "Hello!" };
   udp_client_.write(write_buf);
 
   BARRIER(CLIENT_RECEIVED_DATA);
@@ -143,7 +143,7 @@ TEST_F(UdpClientTests, testWritingWhileReceiving)
 
   udp_client_.startReceiving(RECEIVE_TIMEOUT);
 
-  std::array<char, DATA_SIZE_BYTES> write_buf = { "Hello!" };
+  RawDataContainer<DATA_SIZE_BYTES> write_buf = { "Hello!" };
   udp_client_.write(write_buf);
 
   BARRIER(MOCK_RECEIVED_DATA);

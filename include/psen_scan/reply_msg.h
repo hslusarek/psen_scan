@@ -22,6 +22,7 @@
 
 #include <boost/crc.hpp>
 
+#include <psen_scan/raw_scanner_data.h>
 #include <psen_scan/decode_exception.h>
 
 namespace psen_scan
@@ -40,8 +41,7 @@ enum class ReplyMsgType
 class ReplyMsg
 {
 public:
-  template <std::size_t NumberOfBytes>
-  static ReplyMsg fromRawData(const std::array<char, NumberOfBytes>& data);
+  static ReplyMsg fromRawData(const RawScannerData& data);
 
 public:
   ReplyMsg(const uint32_t op_code, const uint32_t res_code);
@@ -93,8 +93,7 @@ inline ReplyMsg::ReplyMsg(const uint32_t op_code, const uint32_t res_code) : opc
   crc_ = calcCRC(*this);
 }
 
-template <std::size_t NumberOfBytes>
-inline ReplyMsg ReplyMsg::fromRawData(const std::array<char, NumberOfBytes>& data)
+inline ReplyMsg ReplyMsg::fromRawData(const RawScannerData& data)
 {
   ReplyMsg msg{ 0, 0 };
 
