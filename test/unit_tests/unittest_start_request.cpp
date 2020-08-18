@@ -65,7 +65,7 @@ TEST_F(StartRequestTest, constructorTest)
   const uint16_t start_angle_code = 0;
   const float end_angle = 270.0;
   const uint16_t end_angle_code = 2700;
-  ScannerConfiguration sc(host_ip, host_udp_port_data, 0, "192.168.0.50", start_angle, end_angle);
+  ScannerConfiguration sc(host_ip, host_udp_port_data, 0 /* irrelevant */, "192.168.0.50", start_angle, end_angle);
 
   uint32_t sequence_number{ 123 };
   StartRequest sr(sc, sequence_number);
