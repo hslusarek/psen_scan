@@ -68,8 +68,7 @@ TEST(MsgDecoderTest, decodeStartReplyCrcFail)
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
 
-  EXPECT_THROW(decoder.decodeAndDispatch(data, REPLY_MSG_SIZE),
-               DecodeCRCMismatchException);  // TODO get correct size
+  EXPECT_THROW(decoder.decodeAndDispatch(data, REPLY_MSG_SIZE), DecodeCRCMismatchException);  // TODO get correct size
 }
 
 /**
