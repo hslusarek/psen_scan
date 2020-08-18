@@ -39,7 +39,6 @@ public:
   uint32_t getCRC() const;
 
 private:
-  uint32_t crc_; /**< A CRC32 of all the following fields. */
   uint32_t seq_number_;
   uint64_t const RESERVED_{ 0 };           /**< Use all zeros */
   uint32_t const OPCODE_{ htole32(0x35) }; /**< Constant 0x35. */

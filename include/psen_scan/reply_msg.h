@@ -33,6 +33,8 @@ enum class ReplyMsgType
   Unknown
 };
 
+static constexpr std::size_t REPLY_MSG_SIZE = 16;
+
 /**
  * @brief Represents the reply messages send from the scanner device.
  */
@@ -50,7 +52,6 @@ public:
 public:
   static uint32_t getStartOpCode();
   static uint32_t calcCRC(const ReplyMsg& msg);
-  static constexpr std::size_t MSG_SIZE{ 16 };
 
 private:
   ReplyMsg() = delete;
@@ -70,8 +71,6 @@ private:
 private:
   static constexpr uint32_t OPCODE_START{ 0x35 };
 };
-
-constexpr std::size_t ReplyMsg::MSG_SIZE;
 
 inline uint32_t ReplyMsg::calcCRC(const ReplyMsg& msg)
 {
@@ -102,7 +101,7 @@ inline ReplyMsg ReplyMsg::fromRawData(const RawScannerData& data)
   // typedef boost::iostreams::basic_array_source<char> Device;
   // boost::iostreams::stream<Device> stream((char*)&data, sizeof(DataReply::MemoryFormat));
 
-  std::istringstream stream(std::string((char*)&data, ReplyMsg::MSG_SIZE));
+  std::istringstream stream(std::string((char*)&data, REPLY_MSG_SIZE));
 
   stream.read((char*)&msg.crc_, sizeof(ReplyMsg::crc_));
   stream.read((char*)&msg.reserved_, sizeof(ReplyMsg::reserved_));
