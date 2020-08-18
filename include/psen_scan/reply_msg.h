@@ -27,8 +27,6 @@
 
 namespace psen_scan
 {
-#pragma pack(push, 1)  // Don't allow padding
-
 enum class ReplyMsgType
 {
   Start,
@@ -52,6 +50,7 @@ public:
 public:
   static uint32_t getStartOpCode();
   static uint32_t calcCRC(const ReplyMsg& msg);
+  static constexpr std::size_t MSG_SIZE{ 16 };
 
 private:
   ReplyMsg() = delete;
@@ -71,6 +70,8 @@ private:
 private:
   static constexpr uint32_t OPCODE_START{ 0x35 };
 };
+
+constexpr std::size_t ReplyMsg::MSG_SIZE;
 
 inline uint32_t ReplyMsg::calcCRC(const ReplyMsg& msg)
 {
@@ -101,7 +102,7 @@ inline ReplyMsg ReplyMsg::fromRawData(const RawScannerData& data)
   // typedef boost::iostreams::basic_array_source<char> Device;
   // boost::iostreams::stream<Device> stream((char*)&data, sizeof(DataReply::MemoryFormat));
 
-  std::istringstream stream(std::string((char*)&data, sizeof(ReplyMsg)));
+  std::istringstream stream(std::string((char*)&data, ReplyMsg::MSG_SIZE));
 
   stream.read((char*)&msg.crc_, sizeof(ReplyMsg::crc_));
   stream.read((char*)&msg.reserved_, sizeof(ReplyMsg::reserved_));
@@ -124,8 +125,6 @@ inline ReplyMsgType ReplyMsg::type() const
   }
   return ReplyMsgType::Unknown;
 }
-
-#pragma pack(pop)
 
 }  // namespace psen_scan
 

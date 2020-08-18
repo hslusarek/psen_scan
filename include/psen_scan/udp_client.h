@@ -93,7 +93,6 @@ inline UdpClient::UdpClient(const NewDataHandler& data_handler,
   , socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), host_port))
   , endpoint_(boost::asio::ip::address_v4(endpoint_ip), endpoint_port)
 {
-
   if (!data_handler)
   {
     throw std::invalid_argument("New data handler is invalid");
