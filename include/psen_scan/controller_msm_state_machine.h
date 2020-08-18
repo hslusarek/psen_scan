@@ -40,12 +40,13 @@ struct monitoring_frame_received_event {};
 struct stop_request_event {};
 struct stop_reply_received_event {};
 
-using SendStartRequestCallback = std::function<void()>;
+using SendRequestCallback = std::function<void()>;
 
 // front-end: define the FSM structure
 struct msm_front_ : public msm::front::state_machine_def<msm_front_>
 {
-  SendStartRequestCallback send_start_request_callback_;
+  SendRequestCallback send_start_request_callback_;
+  SendRequestCallback send_stop_request_callback_;
 
   void send_start_request_action(start_request_event const&)
   {
@@ -53,8 +54,15 @@ struct msm_front_ : public msm::front::state_machine_def<msm_front_>
     send_start_request_callback_();
   }
 
-  msm_front_(const SendStartRequestCallback& sr):
-    send_start_request_callback_(sr)
+  void send_stop_request_action(stop_request_event const&)
+  {
+    PSENSCAN_DEBUG("StateMachine", "Action: send_stop_request_action");
+    send_stop_request_callback_();
+  }
+
+  msm_front_(const SendRequestCallback& start_request_cb, const SendRequestCallback& stop_request_cb):
+    send_start_request_callback_(start_request_cb),
+    send_stop_request_callback_(stop_request_cb)
   {
   }
 
@@ -122,13 +130,13 @@ struct msm_front_ : public msm::front::state_machine_def<msm_front_>
   // Transition table for the scanner
   struct transition_table : mpl::vector<
     //    Start                           Event                            Next           			        Action	                             Guard
-    //  +-------------------------------+--------------------------------+----------------------------+-----------------------------------+-------+
-      a_row < InitState,                  start_request_event,             WaitForStartReplyState,      &m::send_start_request_action   >,
-      _row < WaitForStartReplyState,      start_reply_received_event,      WaitForMonitoringFrameState                                  >,
-      _row < WaitForMonitoringFrameState, monitoring_frame_received_event, WaitForMonitoringFrameState                                  >,
-      _row < WaitForMonitoringFrameState, stop_request_event,              WaitForStopReplyState                                        >,
-      _row < WaitForStopReplyState,       stop_reply_received_event,       InitState                                                    >
-    //  +-------------------------------+--------------------------------+---------------------------+------------------------------------+-------+
+    //  +--------------------------------+---------------------------------+----------------------------+-----------------------------------+-------+
+      a_row < InitState,                   start_request_event,              WaitForStartReplyState,      &m::send_start_request_action   >,
+      _row < WaitForStartReplyState,       start_reply_received_event,       WaitForMonitoringFrameState                                  >,
+      _row < WaitForMonitoringFrameState,  monitoring_frame_received_event,  WaitForMonitoringFrameState                                  >,
+      a_row < WaitForMonitoringFrameState, stop_request_event,               WaitForStopReplyState,        &m::send_stop_request_action    >,
+      _row < WaitForStopReplyState,        stop_reply_received_event,        InitState                                                    >
+    //  +--------------------------------+---------------------------------+---------------------------+------------------------------------+-------+
   > {};
   // clang-format on
 

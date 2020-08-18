@@ -12,37 +12,38 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#ifndef PSEN_SCAN_STOP_REQUEST_H
+#define PSEN_SCAN_STOP_REQUEST_H
 
-#ifndef PSEN_SCAN_CONTROLLER_STATE_MACHINE_H
-#define PSEN_SCAN_CONTROLLER_STATE_MACHINE_H
+#include <array>
+#include <cstdint>
+#include <string>
 
-#include <mutex>
-#include <psen_scan/controller_msm_state_machine.h>
+#include <psen_scan/scanner_configuration.h>
 
 namespace psen_scan
 {
-class ControllerStateMachine
+/**
+ * @brief Frame containing all necessary fields for a Stop Request.
+ *
+ * Unless otherwise indicated the byte order is little endian.
+ *
+ */
+class StopRequest
 {
 public:
-  explicit ControllerStateMachine(const SendRequestCallback& start_request_cb,
-                                  const SendRequestCallback& stop_request_cb);
-  virtual ~ControllerStateMachine();
-
-  void processStartRequestEvent();
-  void processStartReplyReceivedEvent();
-  void processMonitoringFrameReceivedEvent();
-  void processStopRequestEvent();
-  void processStopReplyReceivedEvent();
+  uint32_t getCRC() const;
 
 private:
-  template <typename T>
-  void processEvent();
+  uint32_t crc_;                           /**< A CRC32 of all the following fields. */
+  const uint8_t RESERVED_[12] = { 0 };     /**< Use all zeros */
+  uint32_t const OPCODE_{ htole32(0x36) }; /**< Constant 0x36. */
 
-private:
-  controller_msm_state_machine sm_;
-  std::mutex sm_access_mutex_;
+public:
+  using RawType = std::array<char, 20>;
+  RawType toCharArray();
 };
 
 }  // namespace psen_scan
 
-#endif  // PSEN_SCAN_CONTROLLER_STATE_MACHINE_H
+#endif  // PSEN_SCAN_STOP_REQUEST_H

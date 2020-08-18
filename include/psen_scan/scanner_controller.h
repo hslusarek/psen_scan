@@ -26,6 +26,7 @@
 #include <psen_scan/udp_client.h>
 #include <psen_scan/controller_state_machine.h>
 #include <psen_scan/start_request.h>
+#include <psen_scan/stop_request.h>
 #include <psen_scan/scanner_configuration.h>
 
 namespace psen_scan
@@ -49,11 +50,13 @@ public:
 private:
   void handleError(const std::string& error_msg);
   void sendStartRequest();
+  void sendStopRequest();
 
 private:
   ScannerConfiguration scanner_config_;
 
-  ControllerStateMachine state_machine_{ std::bind(&ScannerController::sendStartRequest, this) };
+  ControllerStateMachine state_machine_{ std::bind(&ScannerController::sendStartRequest, this),
+                                         std::bind(&ScannerController::sendStopRequest, this) };
 
   // TODO should be dedicated ControlMsgDecoder
   MsgDecoder control_msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
@@ -108,6 +111,13 @@ inline void ScannerController::sendStartRequest()
   StartRequest start_request(scanner_config_, DEFAULT_SEQ_NUMBER);
   const auto start_request_as_byte_stream{ start_request.toCharArray() };
   control_udp_client_.write(start_request_as_byte_stream);
+}
+
+inline void ScannerController::sendStopRequest()
+{
+  StopRequest stop_request;
+  const auto stop_request_as_byte_stream{ stop_request.toCharArray() };
+  control_udp_client_.write(stop_request_as_byte_stream);
 }
 
 }  // namespace psen_scan

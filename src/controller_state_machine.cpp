@@ -17,7 +17,9 @@
 
 namespace psen_scan
 {
-ControllerStateMachine::ControllerStateMachine(const SendStartRequestCallback& sr) : sm_(sr)
+ControllerStateMachine::ControllerStateMachine(const SendRequestCallback& start_request_cb,
+                                               const SendRequestCallback& stop_request_cb)
+  : sm_(start_request_cb, stop_request_cb)
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.start();
@@ -27,6 +29,7 @@ ControllerStateMachine::~ControllerStateMachine()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.send_start_request_callback_ = nullptr;
+  sm_.send_stop_request_callback_ = nullptr;
   sm_.stop();
 }
 

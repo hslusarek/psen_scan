@@ -31,13 +31,15 @@ class ControllerStateMachineTest : public ::testing::Test
 {
 public:
   MOCK_METHOD0(sendStartRequestCallbackTest, void());
+  MOCK_METHOD0(sendStopRequestCallbackTest, void());
 };
 
-TEST_F(ControllerStateMachineTest, triggerSendStartRequestCallbackTest)
+TEST_F(ControllerStateMachineTest, triggerSendRequestCallbackTest)
 {
   EXPECT_CALL(*this, sendStartRequestCallbackTest()).Times(1);
 
-  ControllerStateMachine sm(std::bind(&ControllerStateMachineTest::sendStartRequestCallbackTest, this));
+  ControllerStateMachine sm(std::bind(&ControllerStateMachineTest::sendStartRequestCallbackTest, this),
+                            std::bind(&ControllerStateMachineTest::sendStopRequestCallbackTest, this));
 
   sm.processStartRequestEvent();
 }
