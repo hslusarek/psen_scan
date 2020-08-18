@@ -55,7 +55,7 @@ private:
 
   ControllerStateMachine state_machine_{ std::bind(&ScannerController::sendStartRequest, this) };
 
-//TODO should be dedicated ControlMsgDecoder
+  // TODO should be dedicated ControlMsgDecoder
   MsgDecoder control_msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
                                    std::bind(&ScannerController::handleError, this, std::placeholders::_1) };
 
@@ -67,7 +67,7 @@ private:
     CONTROL_PORT_OF_SCANNER_DEVICE
   };
 
-  //TODO should be dedicated DataMsgDecoder
+  // TODO should be dedicated DataMsgDecoder
   MsgDecoder data_msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
                                 std::bind(&ScannerController::handleError, this, std::placeholders::_1) };
 

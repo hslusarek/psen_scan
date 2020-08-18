@@ -147,7 +147,6 @@ TEST_F(ScannerConfigurationTest, testUDPPorts)
   EXPECT_EQ(host_udp_port_control_, static_cast<int>(host_udp_port_control));
 }
 
-
 TEST_F(ScannerConfigurationTest, testStartAngle)
 {
   ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
