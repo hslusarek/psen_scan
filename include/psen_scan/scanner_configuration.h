@@ -37,7 +37,7 @@ public:
   uint16_t hostUDPPortData() const;
   uint16_t hostUDPPortControl() const;
 
-  uint32_t deviceIp() const;
+  uint32_t clientIp() const;
 
   //! @brief Start angle in tenth of degrees
   uint16_t startAngle() const;
@@ -50,7 +50,7 @@ private:
   uint16_t host_udp_port_data_;
   uint16_t host_udp_port_control_;
 
-  uint32_t device_ip_;
+  uint32_t client_ip_;
 
   uint16_t start_angle_;
   uint16_t end_angle_;

@@ -63,7 +63,7 @@ private:
     std::bind(&MsgDecoder::decodeAndDispatch, &control_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
     std::bind(&ScannerController::handleError, this, std::placeholders::_1),
     scanner_config_.hostUDPPortControl(),
-    scanner_config_.deviceIp(),
+    scanner_config_.clientIp(),
     CONTROL_PORT_OF_SCANNER_DEVICE
   };
 
@@ -75,7 +75,7 @@ private:
     std::bind(&MsgDecoder::decodeAndDispatch, &data_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
     std::bind(&ScannerController::handleError, this, std::placeholders::_1),
     scanner_config_.hostUDPPortData(),
-    scanner_config_.deviceIp(),
+    scanner_config_.clientIp(),
     DATA_PORT_OF_SCANNER_DEVICE
   };
 };

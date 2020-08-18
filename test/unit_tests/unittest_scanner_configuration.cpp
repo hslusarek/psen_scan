@@ -134,6 +134,21 @@ TEST_F(ScannerConfigurationTest, testTargetIp)
   EXPECT_EQ(host_ip_, host_ip_string);
 }
 
+TEST_F(ScannerConfigurationTest, testClientIp)
+{
+  ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
+
+  const auto client_ip = sc.clientIp();
+  EXPECT_EQ(4U, sizeof(client_ip));
+
+  // convert host_ip back to string representation
+  const auto network_number = inet_makeaddr(client_ip, 0);
+  const auto network_number_ascii = inet_ntoa(network_number);
+  const std::string client_ip_string(network_number_ascii);
+
+  EXPECT_EQ(client_ip_, client_ip_string);
+}
+
 TEST_F(ScannerConfigurationTest, testUDPPorts)
 {
   ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
