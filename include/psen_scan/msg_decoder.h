@@ -48,17 +48,12 @@ inline MsgDecoder::MsgDecoder(const StartReplyCallback& start_reply_callback, co
 
 inline void MsgDecoder::decodeAndDispatch(const RawScannerData& data, const std::size_t& bytes_received)
 {
-  std::cerr << "Received " << bytes_received << "\n";
-
   if (bytes_received == sizeof(ReplyMsg))  // Check if this could be a reply
   {
     ReplyMsg frame{ ReplyMsg::fromRawData(data) };  // TODO how to handle throw?
 
-    std::cerr << "Received Reply\n";
-
     if (frame.type() == ReplyMsgType::Start)
     {
-      std::cerr << "Received Start Reply\n";
       start_reply_callback_();
     }
     else
