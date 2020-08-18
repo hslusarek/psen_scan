@@ -38,7 +38,8 @@ public:
   bool getOptionalParamFromParamServer(const std::string& key, T& param);
   std::string getPassword() const;
   std::string getHostIP() const;
-  uint32_t getHostUDPPort() const;
+  uint32_t getHostUDPPortData() const;
+  uint32_t getHostUDPPortControl() const;
   std::string getSensorIP() const;
   std::string getFrameID() const;
   float getAngleStart() const;
@@ -49,7 +50,8 @@ private:
   ros::NodeHandle const nh_; /**< Nodehandle through which parameters are fetched */
   std::string password_;     /**< Password for Laserscanner */
   std::string host_ip_;      /**< IP-Adress of host machine */
-  int host_udp_port_;        /**< UDP Port on which packets from Laserscanner should be received */
+  int host_udp_port_data_;   /**< UDP Port on which monitoring frames (scans) should be received.*/
+  int host_udp_port_control_;/**< UDP Port used to send commands (start/stop) and receive the corresponding replies. */
   std::string sensor_ip_;    /**< IP-Adress of Safety laser scanner */
   std::string frame_id_;     /**< ROS Frame ID */
   float angle_start_;        /**< Start angle of measurement */

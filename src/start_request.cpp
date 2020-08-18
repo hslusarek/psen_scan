@@ -31,7 +31,7 @@ static constexpr uint16_t MASTER_RESOLUTION{ 1 };
 StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration, const uint32_t& seq_number)
   : seq_number_(seq_number)
   , host_ip_(scanner_configuration.hostIp())
-  , host_udp_port_(scanner_configuration.hostUDPPortRead())  // Write is deduced by the scanner
+  , host_udp_port_data_(scanner_configuration.hostUDPPortData())  // Write is deduced by the scanner
   , master_(scanner_configuration.startAngle(), scanner_configuration.endAngle(), MASTER_RESOLUTION)
 {
 }
@@ -47,7 +47,7 @@ uint32_t StartRequest::getCRC() const
   uint32_t host_ip_big_endian = htobe32(host_ip_);
   result.process_bytes((char*)&host_ip_big_endian, sizeof(uint32_t));
 
-  result.process_bytes((char*)&host_udp_port_, sizeof(uint16_t));
+  result.process_bytes((char*)&host_udp_port_data_, sizeof(uint16_t));
   result.process_bytes((char*)&device_enabled_, sizeof(uint8_t));
   result.process_bytes((char*)&intensity_enabled_, sizeof(uint8_t));
   result.process_bytes((char*)&point_in_safety_enabled_, sizeof(uint8_t));
@@ -84,7 +84,7 @@ StartRequest::RawType StartRequest::toCharArray()
   uint32_t host_ip_big_endian = htobe32(host_ip_);
   os.write((char*)&host_ip_big_endian, sizeof(uint32_t));
 
-  os.write((char*)&host_udp_port_, sizeof(uint16_t));
+  os.write((char*)&host_udp_port_data_, sizeof(uint16_t));
   os.write((char*)&device_enabled_, sizeof(uint8_t));
   os.write((char*)&intensity_enabled_, sizeof(uint8_t));
   os.write((char*)&point_in_safety_enabled_, sizeof(uint8_t));

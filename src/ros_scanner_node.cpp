@@ -119,14 +119,14 @@ void ROSScannerNode::processingLoop()
   scanner_->start();
   while (ros::ok() && !terminate_)
   {
-    try
-    {
-      pub_.publish(buildRosMessage(scanner_->getCompleteScan()));
-    }
-    catch (const LaserScanBuildFailure& ex)
-    {
-      std::cout << ex.what() << std::endl;
-    }
+    // try
+    // {
+    //   pub_.publish(buildRosMessage(scanner_->getCompleteScan()));
+    // }
+    // catch (const LaserScanBuildFailure& ex)
+    // {
+    //   std::cout << ex.what() << std::endl;
+    // }
     r.sleep();
   }
   scanner_->stop();

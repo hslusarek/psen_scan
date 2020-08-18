@@ -25,7 +25,8 @@ class ScannerConfiguration
 {
 public:
   ScannerConfiguration(const std::string& host_ip,
-                       const int& host_udp_port,
+                       const int& host_udp_port_data,
+                       const int& host_udp_port_control,
                        const std::string& device_ip,
                        const float& start_angle,
                        const float& end_angle);
@@ -33,8 +34,8 @@ public:
 public:
   uint32_t hostIp() const;
 
-  uint16_t hostUDPPortRead() const;
-  uint16_t hostUDPPortWrite() const;
+  uint16_t hostUDPPortData() const;
+  uint16_t hostUDPPortControl() const;
 
   uint32_t deviceIp() const;
 
@@ -46,7 +47,8 @@ public:
 
 private:
   uint32_t host_ip_;
-  uint16_t host_udp_port_;
+  uint16_t host_udp_port_data_;
+  uint16_t host_udp_port_control_;
 
   uint32_t device_ip_;
 

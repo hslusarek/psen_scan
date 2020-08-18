@@ -61,7 +61,7 @@ private:
   psen_scan::UdpClient udp_client_{
     std::bind(&MsgDecoder::decodeAndDispatch, &msg_decoder_, std::placeholders::_1, std::placeholders::_2),
     std::bind(&ScannerController::handleError, this, std::placeholders::_1),
-    scanner_config_.hostUDPPortRead(),
+    scanner_config_.hostUDPPortData(),
     scanner_config_.deviceIp(),
     SEND_PORT_OF_SCANNER_DEVICE
   };

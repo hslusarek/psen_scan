@@ -31,7 +31,8 @@ using namespace psen_scan;
   DELETE_ROS_PARAM("password");                                                                                        \
   DELETE_ROS_PARAM("sensor_ip");                                                                                       \
   DELETE_ROS_PARAM("host_ip");                                                                                         \
-  DELETE_ROS_PARAM("host_udp_port");                                                                                   \
+  DELETE_ROS_PARAM("host_udp_port_data");                                                                              \
+  DELETE_ROS_PARAM("host_udp_port_control");                                                                           \
   DELETE_ROS_PARAM("angle_start");                                                                                     \
   DELETE_ROS_PARAM("angle_end");                                                                                       \
   DELETE_ROS_PARAM("frame_id");                                                                                        \
@@ -45,11 +46,13 @@ protected:
   ROSParameterHandlerTest()
     : password_("ac0d68d033")
     , host_ip_("1.2.3.5")
-    , host_udp_port_(12345)
+    , host_udp_port_data_(12345)
+    , host_udp_port_control_(12346)
     , sensor_ip_("1.2.3.4")
     , expected_password_("admin")
     , expected_host_ip_(htobe32(inet_network(host_ip_.c_str())))
-    , expected_host_udp_port_(htole32(host_udp_port_))
+    , expected_host_udp_port_data_(htole32(host_udp_port_data_))
+    , expected_host_udp_port_control_(htole32(host_udp_port_control_))
     , expected_frame_id_(DEFAULT_FRAME_ID)
     , expected_angle_start_(DEFAULT_ANGLE_START)
     , expected_angle_end_(DEFAULT_ANGLE_END)
@@ -63,13 +66,15 @@ protected:
   // Default values to set
   std::string password_;
   std::string host_ip_;
-  int host_udp_port_;
+  int host_udp_port_data_;
+  int host_udp_port_control_;
   std::string sensor_ip_;
 
   // Default expected values
   std::string expected_password_;
   uint32_t expected_host_ip_;
-  uint32_t expected_host_udp_port_;
+  uint32_t expected_host_udp_port_data_;
+  uint32_t expected_host_udp_port_control_;
   std::string expected_frame_id_;
   float expected_angle_start_;
   float expected_angle_end_;
@@ -84,7 +89,8 @@ protected:
     ros::param::set("password", password_);
     ros::param::set("sensor_ip", sensor_ip_);
     ros::param::set("host_ip", host_ip_);
-    ros::param::set("host_udp_port", host_udp_port_);
+    ros::param::set("host_udp_port_data", host_udp_port_data_);
+    ros::param::set("host_udp_port_control", host_udp_port_control_);
   }
 };
 
@@ -95,7 +101,8 @@ protected:
   {
     ros::param::set("password", password_);
     ros::param::set("host_ip", host_ip_);
-    ros::param::set("host_udp_port", host_udp_port_);
+    ros::param::set("host_udp_port_data", host_udp_port_data_);
+    ros::param::set("host_udp_port_control", host_udp_port_control_);
     ros::param::set("sensor_ip", sensor_ip_);
     ros::param::set("frame_id", DEFAULT_FRAME_ID);
     ros::param::set("angle_start", DEFAULT_ANGLE_START);
@@ -115,7 +122,8 @@ TEST_F(ROSRequiredParameterTest, test_required_params_only)
                   EXPECT_EQ(param_handler.getPassword(), expected_password_);
                   EXPECT_EQ(param_handler.getSensorIP(), sensor_ip_);
                   EXPECT_EQ(param_handler.getHostIP(), host_ip_);
-                  EXPECT_EQ(param_handler.getHostUDPPort(), expected_host_udp_port_);
+                  EXPECT_EQ(param_handler.getHostUDPPortData(), expected_host_udp_port_data_);
+                  EXPECT_EQ(param_handler.getHostUDPPortControl(), expected_host_udp_port_control_);
                   EXPECT_EQ(param_handler.getFrameID(), expected_frame_id_);
                   EXPECT_EQ(param_handler.getAngleStart(), expected_angle_start_);
                   EXPECT_EQ(param_handler.getAngleEnd(), expected_angle_end_);
@@ -143,9 +151,16 @@ TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_ip)
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 }
 
-TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_port)
+TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_port_data)
 {
-  DELETE_ROS_PARAM("host_udp_port");
+  DELETE_ROS_PARAM("host_udp_port_data");
+
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+}
+
+TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_port_control)
+{
+  DELETE_ROS_PARAM("host_udp_port_control");
 
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 }
@@ -167,7 +182,8 @@ TEST_F(ROSRequiredParameterTest, test_all_params)
   EXPECT_EQ(param_handler.getPassword(), expected_password_);
   EXPECT_EQ(param_handler.getSensorIP(), sensor_ip_);
   EXPECT_EQ(param_handler.getHostIP(), host_ip_);
-  EXPECT_EQ(param_handler.getHostUDPPort(), expected_host_udp_port_);
+  EXPECT_EQ(param_handler.getHostUDPPortData(), expected_host_udp_port_data_);
+  EXPECT_EQ(param_handler.getHostUDPPortControl(), expected_host_udp_port_control_);
   EXPECT_EQ(param_handler.getFrameID(), frame_id);
   EXPECT_EQ(param_handler.getAngleStart(), expected_angle_start);
   EXPECT_EQ(param_handler.getAngleEnd(), expected_angle_end);
