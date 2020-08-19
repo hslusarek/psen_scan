@@ -12,8 +12,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#ifndef PSEN_SCAN_ASYNC_UDP_READER_H
-#define PSEN_SCAN_ASYNC_UDP_READER_H
+#ifndef PSEN_SCAN_UDP_CLIENT_H
+#define PSEN_SCAN_UDP_CLIENT_H
 
 #include <stdexcept>
 #include <string>
@@ -22,69 +22,72 @@
 #include <condition_variable>
 #include <functional>
 #include <iostream>
+#include <chrono>
 
 #include <arpa/inet.h>
 
 #include <boost/asio.hpp>
+#include <boost/asio/high_resolution_timer.hpp>
 #include <boost/bind.hpp>
 
+#include "psen_scan/raw_scanner_data.h"
 #include "psen_scan/open_connection_failure.h"
 #include "psen_scan/close_connection_failure.h"
 
 namespace psen_scan
 {
-template <std::size_t NumberOfBytes>
-using NewDataHandler = std::function<void(const std::array<char, NumberOfBytes>&, const std::size_t&)>;
-
+using NewDataHandler = std::function<void(const RawScannerData&, const std::size_t&)>;
 using ErrorHandler = std::function<void(const std::string&)>;
 
-template <std::size_t NumberOfBytes>
-class AsyncUdpReader
+class UdpClient
 {
 public:
-  AsyncUdpReader(const NewDataHandler<NumberOfBytes>& data_handler,
-                 const ErrorHandler& error_handler,
-                 const unsigned short& host_port,
-                 const unsigned int& endpoint_ip,
-                 const unsigned short& endpoint_port);
-  ~AsyncUdpReader();
+  UdpClient(const NewDataHandler& data_handler,
+            const ErrorHandler& error_handler,
+            const unsigned short& host_port,
+            const unsigned int& endpoint_ip,
+            const unsigned short& endpoint_port);
+  ~UdpClient();
 
 public:
-  void startReceiving(const boost::posix_time::time_duration timeout);
+  void startReceiving(const std::chrono::high_resolution_clock::duration timeout);
+  template <std::size_t NumberOfBytesToSend>
+  void write(const std::array<char, NumberOfBytesToSend>& data);
   void close();
 
 private:
-  void asyncReceive(const boost::posix_time::time_duration timeout);
+  void asyncReceive(const std::chrono::high_resolution_clock::duration timeout);
   void handleReceive(const boost::system::error_code& error_code,
                      const std::size_t& bytes_received,
-                     const boost::posix_time::time_duration timeout);
+                     const std::chrono::high_resolution_clock::duration timeout);
+
+  void sendCompleteHandler(const boost::system::error_code& error, std::size_t bytes_transferred);
 
 private:
   boost::asio::io_service io_service_;
   // Prevent the run() method of the io_service from returning when there is no more work.
   boost::asio::io_service::work work_{ io_service_ };
-  boost::asio::deadline_timer timeout_timer_{ io_service_ };
+  boost::asio::high_resolution_timer timeout_timer_{ io_service_ };
   std::thread io_service_thread_;
 
-  std::array<char, NumberOfBytes> received_data_;
+  RawScannerData received_data_;
 
   std::atomic_bool receive_called_{ false };
   std::condition_variable receive_cv_;
   std::mutex receive_mutex_;
 
-  NewDataHandler<NumberOfBytes> data_handler_;
+  NewDataHandler data_handler_;
   ErrorHandler error_handler_;
 
   boost::asio::ip::udp::socket socket_;
   boost::asio::ip::udp::endpoint endpoint_;
 };
 
-template <std::size_t NumberOfBytes>
-inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<NumberOfBytes>& data_handler,
-                                                     const ErrorHandler& error_handler,
-                                                     const unsigned short& host_port,
-                                                     const unsigned int& endpoint_ip,
-                                                     const unsigned short& endpoint_port)
+inline UdpClient::UdpClient(const NewDataHandler& data_handler,
+                            const ErrorHandler& error_handler,
+                            const unsigned short& host_port,
+                            const unsigned int& endpoint_ip,
+                            const unsigned short& endpoint_port)
   : data_handler_(data_handler)
   , error_handler_(error_handler)
   , socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), host_port))
@@ -116,8 +119,7 @@ inline AsyncUdpReader<NumberOfBytes>::AsyncUdpReader(const NewDataHandler<Number
   io_service_thread_ = std::thread([this]() { io_service_.run(); });
 }
 
-template <std::size_t NumberOfBytes>
-inline void AsyncUdpReader<NumberOfBytes>::close()
+inline void UdpClient::close()
 {
   io_service_.stop();
   if (io_service_thread_.joinable())
@@ -142,8 +144,7 @@ inline void AsyncUdpReader<NumberOfBytes>::close()
   // LCOV_EXCL_STOP
 }
 
-template <std::size_t NumberOfBytes>
-inline AsyncUdpReader<NumberOfBytes>::~AsyncUdpReader()
+inline UdpClient::~UdpClient()
 {
   try
   {
@@ -158,10 +159,34 @@ inline AsyncUdpReader<NumberOfBytes>::~AsyncUdpReader()
   // LCOV_EXCL_STOP
 }
 
-template <std::size_t NumberOfBytes>
-inline void AsyncUdpReader<NumberOfBytes>::handleReceive(const boost::system::error_code& error_code,
-                                                         const std::size_t& bytes_received,
-                                                         const boost::posix_time::time_duration timeout)
+inline void UdpClient::sendCompleteHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
+{
+  // LCOV_EXCL_START
+  // No coverage check because testing the if-loop is extremly difficult.
+  if (error || bytes_transferred == 0)
+  {
+    std::cerr << "Failed to send data."
+              << "Error message: " << error.message() << std::endl;
+  }
+  // LCOV_EXCL_STOP
+  std::cout << "Data successfully send." << std::endl;
+}
+
+template <std::size_t NumberOfBytesToSend>
+inline void UdpClient::write(const RawDataContainer<NumberOfBytesToSend>& data)
+{
+  io_service_.post([this, data]() {
+    socket_.async_send(boost::asio::buffer(data, data.size()),
+                       boost::bind(&UdpClient::sendCompleteHandler,
+                                   this,
+                                   boost::asio::placeholders::error,
+                                   boost::asio::placeholders::bytes_transferred));
+  });
+}
+
+inline void UdpClient::handleReceive(const boost::system::error_code& error_code,
+                                     const std::size_t& bytes_received,
+                                     const std::chrono::high_resolution_clock::duration timeout)
 {
   if (error_code || bytes_received == 0)
   {
@@ -173,8 +198,7 @@ inline void AsyncUdpReader<NumberOfBytes>::handleReceive(const boost::system::er
   asyncReceive(timeout);
 }
 
-template <std::size_t NumberOfBytes>
-inline void AsyncUdpReader<NumberOfBytes>::startReceiving(const boost::posix_time::time_duration timeout)
+inline void UdpClient::startReceiving(const std::chrono::high_resolution_clock::duration timeout)
 {
   // Function is intended to be called from main thread.
   // To ensure that socket operations only happen on one strand (in this case an implicit one),
@@ -188,8 +212,7 @@ inline void AsyncUdpReader<NumberOfBytes>::startReceiving(const boost::posix_tim
   receive_cv_.wait(lock, [this]() { return receive_called_.load(); });
 }
 
-template <std::size_t NumberOfBytes>
-inline void AsyncUdpReader<NumberOfBytes>::asyncReceive(const boost::posix_time::time_duration timeout)
+inline void UdpClient::asyncReceive(const std::chrono::high_resolution_clock::duration timeout)
 {
   using std::placeholders::_1;
   using std::placeholders::_2;
@@ -206,10 +229,9 @@ inline void AsyncUdpReader<NumberOfBytes>::asyncReceive(const boost::posix_time:
     socket_.cancel();
   });
 
-  socket_.async_receive(boost::asio::buffer(received_data_, NumberOfBytes),
-                        std::bind(&AsyncUdpReader<NumberOfBytes>::handleReceive, this, _1, _2, timeout));
+  socket_.async_receive(boost::asio::buffer(received_data_, received_data_.size()),
+                        std::bind(&UdpClient::handleReceive, this, _1, _2, timeout));
 }
 
 }  // namespace psen_scan
-
-#endif  // PSEN_SCAN_ASYNC_UDP_READER_H
+#endif  // PSEN_SCAN_UDP_CLIENT_H

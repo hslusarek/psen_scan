@@ -32,7 +32,8 @@ int main(int argc, char** argv)
     psen_scan::RosParameterHandler param_handler(pnh);
 
     ScannerConfiguration scanner_configuration(param_handler.getHostIP(),
-                                               param_handler.getHostUDPPort(),
+                                               param_handler.getHostUDPPortData(),
+                                               param_handler.getHostUDPPortControl(),
                                                param_handler.getSensorIP(),
                                                param_handler.getAngleStart(),
                                                param_handler.getAngleEnd());

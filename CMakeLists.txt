@@ -221,10 +221,10 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
 
-  catkin_add_gmock(unittest_async_upd_reader
-    test/unit_tests/unittest_async_upd_reader.cpp
+  catkin_add_gmock(unittest_udp_client
+    test/unit_tests/unittest_udp_client.cpp
   )
-  target_link_libraries(unittest_async_upd_reader
+  target_link_libraries(unittest_udp_client
     ${catkin_LIBRARIES}
   )
 
@@ -242,18 +242,10 @@ if(CATKIN_ENABLE_TESTING)
   #########################
   ##  Integration-Tests  ##
   #########################
-  catkin_add_gmock(integrationtest_async_udp_reader
-    test/integration_tests/integrationtest_async_udp_reader.cpp
+  catkin_add_gmock(integrationtest_udp_client
+    test/integration_tests/integrationtest_udp_client.cpp
   )
-  target_link_libraries(integrationtest_async_udp_reader
-    ${catkin_LIBRARIES}
-    ${pilz_testutils_LIBRARIES}
-  )
-
-  catkin_add_gmock(integrationtest_sync_udp_writer
-    test/integration_tests/integrationtest_sync_udp_writer.cpp
-  )
-  target_link_libraries(integrationtest_sync_udp_writer
+  target_link_libraries(integrationtest_udp_client
     ${catkin_LIBRARIES}
     ${pilz_testutils_LIBRARIES}
   )

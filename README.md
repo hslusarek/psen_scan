@@ -64,8 +64,11 @@ Password for safety laser scanner.
 _host_ip_ (_string_, default: "192.168.0.50")<br/>
 IP-Address of host machine.
 
-_host_udp_port_ (_int_, default: 55115)<br/>
-UDP Port on which packets from safety laser scanner should be received.
+_host_udp_port_data_ (_int_, default: 55115)<br/>
+UDP Port on which monitoring frames (scans) should be received.
+
+_host_udp_port_control_ (_int_, default: 55116)<br/>
+UDP Port used to send commands (start/stop) and receive the corresponding replies.
 
 _sensor_ip_ (_string_, default: "192.168.0.10")<br/>
 IP-Address of safety laser scanner.
@@ -88,7 +91,7 @@ To start reading from the safety laser scanner and publishing complete scans exe
 If you wish to set parameters from the command line, add them to the end of the command as follows: `parameter:=value`, separated by spaces.
 
 ```bash
-roslaunch psen_scan psen_scan.launch sensor_ip:=192.168.0.10 host_ip:=192.168.0.20 host_udp_port:=3050
+roslaunch psen_scan psen_scan.launch sensor_ip:=192.168.0.10 host_ip:=192.168.0.20 host_udp_port_data:=3050
 ```
 This example configures the safety laser scanner at 192.168.0.10 to send it´s frames to 192.168.0.20:3050.
 

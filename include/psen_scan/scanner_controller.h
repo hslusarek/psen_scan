@@ -23,8 +23,7 @@
 
 #include <psen_scan/msg_decoder.h>
 #include <psen_scan/controller_state_machine.h>
-#include <psen_scan/async_udp_reader.h>
-#include <psen_scan/sync_udp_writer.h>
+#include <psen_scan/udp_client.h>
 #include <psen_scan/controller_state_machine.h>
 #include <psen_scan/start_request.h>
 #include <psen_scan/scanner_configuration.h>
@@ -32,13 +31,10 @@
 namespace psen_scan
 {
 // TODO: Move to ScannerController class and read from ScannerConfiguration
-static constexpr std::size_t DATA_SIZE_BYTES{ 65507 };
+static constexpr unsigned short DATA_PORT_OF_SCANNER_DEVICE{ 2000 };
+static constexpr unsigned short CONTROL_PORT_OF_SCANNER_DEVICE{ 3000 };
 
-// TODO: Move to ScannerController class and read from ScannerConfiguration
-static constexpr unsigned short SEND_PORT_OF_SCANNER_DEVICE{ 2000 };
-static constexpr unsigned short RECEIVE_PORT_OF_SCANNER_DEVICE{ 3000 };
-
-static const boost::posix_time::millisec RECEIVE_TIMEOUT{ 1000 };
+static constexpr std::chrono::milliseconds RECEIVE_TIMEOUT{ 1000 };
 
 static constexpr uint32_t DEFAULT_SEQ_NUMBER{ 0 };
 
@@ -59,23 +55,29 @@ private:
 
   ControllerStateMachine state_machine_{ std::bind(&ScannerController::sendStartRequest, this) };
 
-  MsgDecoder msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
-                           std::bind(&ScannerController::handleError, this, std::placeholders::_1) };
+  // TODO should be dedicated ControlMsgDecoder
+  MsgDecoder control_msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
+                                   std::bind(&ScannerController::handleError, this, std::placeholders::_1) };
 
-  psen_scan::AsyncUdpReader<DATA_SIZE_BYTES> async_udp_reader_{
-    std::bind(&MsgDecoder::decodeAndDispatch<DATA_SIZE_BYTES>,
-              &msg_decoder_,
-              std::placeholders::_1,
-              std::placeholders::_2),
+  psen_scan::UdpClient control_udp_client_{
+    std::bind(&MsgDecoder::decodeAndDispatch, &control_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
     std::bind(&ScannerController::handleError, this, std::placeholders::_1),
-    scanner_config_.hostUDPPortRead(),
-    scanner_config_.deviceIp(),
-    SEND_PORT_OF_SCANNER_DEVICE
+    scanner_config_.hostUDPPortControl(),
+    scanner_config_.clientIp(),
+    CONTROL_PORT_OF_SCANNER_DEVICE
   };
 
-  psen_scan::SyncUdpWriter sync_udp_writer_{ scanner_config_.hostUDPPortWrite(),
-                                             scanner_config_.deviceIp(),
-                                             RECEIVE_PORT_OF_SCANNER_DEVICE };
+  // TODO should be dedicated DataMsgDecoder
+  MsgDecoder data_msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
+                                std::bind(&ScannerController::handleError, this, std::placeholders::_1) };
+
+  psen_scan::UdpClient data_udp_client_{
+    std::bind(&MsgDecoder::decodeAndDispatch, &data_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
+    std::bind(&ScannerController::handleError, this, std::placeholders::_1),
+    scanner_config_.hostUDPPortData(),
+    scanner_config_.clientIp(),
+    DATA_PORT_OF_SCANNER_DEVICE
+  };
 };
 
 inline ScannerController::ScannerController(const ScannerConfiguration& config) : scanner_config_(config)
@@ -90,7 +92,8 @@ inline void ScannerController::handleError(const std::string& error_msg)
 
 inline void ScannerController::start()
 {
-  async_udp_reader_.startReceiving(RECEIVE_TIMEOUT);
+  control_udp_client_.startReceiving(RECEIVE_TIMEOUT);
+  data_udp_client_.startReceiving(RECEIVE_TIMEOUT);
   state_machine_.processStartRequestEvent();
 }
 
@@ -104,7 +107,7 @@ inline void ScannerController::sendStartRequest()
 {
   StartRequest start_request(scanner_config_, DEFAULT_SEQ_NUMBER);
   const auto start_request_as_byte_stream{ start_request.toCharArray() };
-  sync_udp_writer_.write<sizeof(start_request_as_byte_stream)>(start_request_as_byte_stream);
+  control_udp_client_.write(start_request_as_byte_stream);
 }
 
 }  // namespace psen_scan

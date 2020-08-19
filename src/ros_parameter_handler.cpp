@@ -35,7 +35,8 @@ namespace psen_scan
 RosParameterHandler::RosParameterHandler(const ros::NodeHandle& nh)
   : nh_(nh)
   , host_ip_()
-  , host_udp_port_()
+  , host_udp_port_data_()
+  , host_udp_port_control_()
   , frame_id_(DEFAULT_FRAME_ID)
   , angle_start_(DEFAULT_ANGLE_START)
   , angle_end_(DEFAULT_ANGLE_END)
@@ -82,13 +83,24 @@ void RosParameterHandler::updateAllParamsFromParamServer()
   // update parameter host_udp_port
   try
   {
-    getRequiredParamFromParamServer<int>("host_udp_port", host_udp_port_);
+    getRequiredParamFromParamServer<int>("host_udp_port_data", host_udp_port_data_);
   }
   catch (const GetROSParameterException& e)
   {
     ROS_WARN_STREAM(e.what());
     throw PSENScanFatalException("Reading of required parameter failed!");
   }  // update parameter host_udp_port
+
+  try
+  {
+    getRequiredParamFromParamServer<int>("host_udp_port_control", host_udp_port_control_);
+  }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter host_udp_port
+
   // update parameter sensor_ip
   try
   {
@@ -222,9 +234,19 @@ std::string RosParameterHandler::getHostIP() const
  *
  * @return uint32_t
  */
-uint32_t RosParameterHandler::getHostUDPPort() const
+uint32_t RosParameterHandler::getHostUDPPortData() const
 {
-  return host_udp_port_;
+  return host_udp_port_data_;
+}
+
+/**
+ * @brief Getter method for host_udp_port_
+ *
+ * @return uint32_t
+ */
+uint32_t RosParameterHandler::getHostUDPPortControl() const
+{
+  return host_udp_port_control_;
 }
 
 /**

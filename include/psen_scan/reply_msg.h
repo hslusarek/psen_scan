@@ -22,17 +22,18 @@
 
 #include <boost/crc.hpp>
 
+#include <psen_scan/raw_scanner_data.h>
 #include <psen_scan/decode_exception.h>
 
 namespace psen_scan
 {
-#pragma pack(push, 1)  // Don't allow padding
-
 enum class ReplyMsgType
 {
   Start,
   Unknown
 };
+
+static constexpr std::size_t REPLY_MSG_SIZE = 16;
 
 /**
  * @brief Represents the reply messages send from the scanner device.
@@ -40,8 +41,7 @@ enum class ReplyMsgType
 class ReplyMsg
 {
 public:
-  template <std::size_t NumberOfBytes>
-  static ReplyMsg fromRawData(const std::array<char, NumberOfBytes>& data);
+  static ReplyMsg fromRawData(const RawScannerData& data);
 
 public:
   ReplyMsg(const uint32_t op_code, const uint32_t res_code);
@@ -93,8 +93,7 @@ inline ReplyMsg::ReplyMsg(const uint32_t op_code, const uint32_t res_code) : opc
   crc_ = calcCRC(*this);
 }
 
-template <std::size_t NumberOfBytes>
-inline ReplyMsg ReplyMsg::fromRawData(const std::array<char, NumberOfBytes>& data)
+inline ReplyMsg ReplyMsg::fromRawData(const RawScannerData& data)
 {
   ReplyMsg msg{ 0, 0 };
 
@@ -102,7 +101,7 @@ inline ReplyMsg ReplyMsg::fromRawData(const std::array<char, NumberOfBytes>& dat
   // typedef boost::iostreams::basic_array_source<char> Device;
   // boost::iostreams::stream<Device> stream((char*)&data, sizeof(DataReply::MemoryFormat));
 
-  std::istringstream stream(std::string((char*)&data, sizeof(ReplyMsg)));
+  std::istringstream stream(std::string((char*)&data, REPLY_MSG_SIZE));
 
   stream.read((char*)&msg.crc_, sizeof(ReplyMsg::crc_));
   stream.read((char*)&msg.reserved_, sizeof(ReplyMsg::reserved_));
@@ -125,8 +124,6 @@ inline ReplyMsgType ReplyMsg::type() const
   }
   return ReplyMsgType::Unknown;
 }
-
-#pragma pack(pop)
 
 }  // namespace psen_scan
 

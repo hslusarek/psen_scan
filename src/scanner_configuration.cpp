@@ -28,8 +28,9 @@ static constexpr float MIN_SCAN_ANGLE{ 0.0 };
 static constexpr float MAX_SCAN_ANGLE{ 275.0 };
 
 ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
-                                           const int& host_udp_port,
-                                           const std::string& device_ip,
+                                           const int& host_udp_port_data,
+                                           const int& host_udp_port_control,
+                                           const std::string& client_ip,
                                            const float& start_angle,
                                            const float& end_angle)
 {
@@ -41,19 +42,27 @@ ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
   assert(sizeof(host_ip_number) == 4);
   host_ip_ = static_cast<uint32_t>(host_ip_number);
 
-  if (host_udp_port < std::numeric_limits<uint16_t>::min() || host_udp_port > std::numeric_limits<uint16_t>::max())
+  if (host_udp_port_data < std::numeric_limits<uint16_t>::min() ||
+      host_udp_port_data > std::numeric_limits<uint16_t>::max())
   {
     throw std::invalid_argument("Host UDP port out of range");
   }
-  host_udp_port_ = htole16(static_cast<uint16_t>(host_udp_port));
+  host_udp_port_data_ = htole16(static_cast<uint16_t>(host_udp_port_data));
 
-  const auto device_ip_number = inet_network(device_ip.c_str());
-  if (static_cast<in_addr_t>(-1) == device_ip_number)
+  if (host_udp_port_control < std::numeric_limits<uint16_t>::min() ||
+      host_udp_port_control > std::numeric_limits<uint16_t>::max())
   {
-    throw std::invalid_argument("Device IP invalid");
+    throw std::invalid_argument("Host UDP port out of range");
   }
-  assert(sizeof(device_ip_number) == 4);
-  device_ip_ = static_cast<uint32_t>(device_ip_number);
+  host_udp_port_control_ = htole16(static_cast<uint16_t>(host_udp_port_control));
+
+  const auto client_ip_number = inet_network(client_ip.c_str());
+  if (static_cast<in_addr_t>(-1) == client_ip_number)
+  {
+    throw std::invalid_argument("client IP invalid");
+  }
+  assert(sizeof(client_ip_number) == 4);
+  client_ip_ = static_cast<uint32_t>(client_ip_number);
 
   if (start_angle < MIN_SCAN_ANGLE || start_angle > MAX_SCAN_ANGLE)
   {
@@ -73,19 +82,19 @@ uint32_t ScannerConfiguration::hostIp() const
   return host_ip_;
 }
 
-uint16_t ScannerConfiguration::hostUDPPortRead() const
+uint16_t ScannerConfiguration::hostUDPPortData() const
 {
-  return host_udp_port_;
+  return host_udp_port_data_;
 }
 
-uint16_t ScannerConfiguration::hostUDPPortWrite() const
+uint16_t ScannerConfiguration::hostUDPPortControl() const
 {
-  return host_udp_port_ + 1;
+  return host_udp_port_control_;
 }
 
-uint32_t ScannerConfiguration::deviceIp() const
+uint32_t ScannerConfiguration::clientIp() const
 {
-  return device_ip_;
+  return client_ip_;
 }
 
 uint16_t ScannerConfiguration::startAngle() const
