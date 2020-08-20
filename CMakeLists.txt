@@ -23,6 +23,7 @@ add_compile_options(-Wno-unused-parameter)
 add_compile_options(-Werror)
 
 find_package(catkin REQUIRED COMPONENTS
+  rosconsole_bridge
   roscpp
   sensor_msgs
 )
@@ -30,9 +31,17 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
 
+find_package(console_bridge REQUIRED)
+
 catkin_package(
-  CATKIN_DEPENDS roscpp sensor_msgs
+  CATKIN_DEPENDS
+    rosconsole_bridge
+    roscpp
+    sensor_msgs
+  DEPENDS
+    console_bridge
 )
+
 
 ###############
 ## Sanitizer ##
@@ -83,6 +92,7 @@ endif()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${console_bridge_INCLUDE_DIRS}
 )
 
 set(${PROJECT_NAME}_sources
@@ -102,7 +112,7 @@ set(${PROJECT_NAME}_node_sources
 
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_sources})
 target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
+  ${console_bridge_LIBRARIES}
 )
 
 add_executable(${PROJECT_NAME}_node ${${PROJECT_NAME}_node_sources})
