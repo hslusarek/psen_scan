@@ -21,8 +21,6 @@
 
 #include <psen_scan/scanner_configuration.h>
 
-#pragma pack(push, 1)
-
 namespace psen_scan
 {
 /**
@@ -85,7 +83,5 @@ public:
 };
 
 }  // namespace psen_scan
-
-#pragma pack(pop)
 
 #endif  // PSEN_SCAN_START_REQUEST_H
