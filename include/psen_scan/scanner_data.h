@@ -19,8 +19,6 @@
 #include <endian.h>
 #include <cstdint>
 
-#include <psen_scan/psen_scan_internal_angle.h>
-
 namespace psen_scan
 {
 /**

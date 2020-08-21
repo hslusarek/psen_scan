@@ -16,12 +16,13 @@
 #ifndef PSEN_SCAN_ROS_SCANNER_NODE_H
 #define PSEN_SCAN_ROS_SCANNER_NODE_H
 
+#include <string>
 #include <atomic>
 
-#include "psen_scan/scanner.h"
-#include <sensor_msgs/LaserScan.h>
-#include <string>
 #include <ros/ros.h>
+#include <sensor_msgs/LaserScan.h>
+
+#include "psen_scan/scanner.h"
 
 namespace psen_scan
 {
@@ -35,7 +36,7 @@ public:
   ROSScannerNode(ros::NodeHandle& nh,
                  const std::string& topic,
                  const std::string& frame_id,
-                 const Degree& x_axis_rotation,
+                 const double& x_axis_rotation,
                  std::unique_ptr<vScanner> scanner);
   sensor_msgs::LaserScan buildRosMessage(const LaserScan& laserscan);
   void processingLoop();
@@ -46,7 +47,7 @@ private:
   ros::Publisher pub_;                /**< ROS message publisher*/
   std::string frame_id_;              /**< Defines the name of the frame_id. Default is scanner.*/
   std::unique_ptr<vScanner> scanner_; /**< Points to an instance of the Scanner class.*/
-  Degree x_axis_rotation_;            /**< X-axis rotation.*/
+  double x_axis_rotation_;
   std::atomic_bool terminate_{ false };
 };
 }  // namespace psen_scan

@@ -98,7 +98,6 @@ include_directories(
 set(${PROJECT_NAME}_sources
   src/scanner.cpp
   src/laserscan.cpp
-  src/psen_scan_internal_angle.cpp
   src/controller_state_machine.cpp
   src/start_request.cpp
 )
@@ -167,19 +166,9 @@ if(CATKIN_ENABLE_TESTING)
   ##################
   ##  Unit-Tests  ##
   ##################
-  catkin_add_gtest(unittest_psen_scan_internal_angle
-    test/unit_tests/unittest_psen_scan_internal_angle.cpp
-    src/psen_scan_internal_angle.cpp
-  )
-  target_link_libraries(unittest_psen_scan_internal_angle
-    ${catkin_LIBRARIES}
-    gtest_main
-  )
-
   catkin_add_gtest(unittest_decrypt_password
     test/unit_tests/unittest_decrypt_password.cpp
     src/ros_parameter_handler.cpp
-    src/psen_scan_internal_angle.cpp
   )
   target_link_libraries(unittest_decrypt_password
     ${catkin_LIBRARIES}
@@ -207,7 +196,6 @@ if(CATKIN_ENABLE_TESTING)
 
   catkin_add_gtest(unittest_start_request
     test/unit_tests/unittest_start_request.cpp
-    src/psen_scan_internal_angle.cpp
     src/start_request.cpp
     src/scanner_configuration.cpp
   )
@@ -238,14 +226,18 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
 
-  add_rostest_gmock(unittest_build_ros_msg
-    test/unit_tests/unittest_build_ros_msg.test
-    test/unit_tests/unittest_build_ros_msg.cpp
-    src/ros_scanner_node.cpp
-    src/laserscan.cpp
-    src/psen_scan_internal_angle.cpp
+  catkin_add_gtest(unittest_tenth_degree_conversion
+    test/unit_tests/unittest_tenth_degree_conversion.cpp
   )
-  target_link_libraries(unittest_build_ros_msg
+  target_link_libraries(unittest_tenth_degree_conversion
+    ${catkin_LIBRARIES}
+  )
+
+  catkin_add_gtest(unittest_laserscan
+    test/unit_tests/unittest_laserscan.cpp
+    src/laserscan.cpp
+  )
+  target_link_libraries(unittest_laserscan
     ${catkin_LIBRARIES}
   )
 
@@ -264,7 +256,6 @@ if(CATKIN_ENABLE_TESTING)
     test/integration_tests/integrationtest_ros_scanner_node.test
     test/integration_tests/integrationtest_ros_scanner_node.cpp
     src/laserscan.cpp
-    src/psen_scan_internal_angle.cpp
     src/ros_scanner_node.cpp
   )
   target_link_libraries(integrationtest_ros_scanner_node
@@ -276,7 +267,6 @@ if(CATKIN_ENABLE_TESTING)
     test/integration_tests/integrationtest_ros_parameter_handler.test
     test/integration_tests/integrationtest_ros_parameter_handler.cpp
     src/ros_parameter_handler.cpp
-    src/psen_scan_internal_angle.cpp
   )
   target_link_libraries(integrationtest_ros_parameter_handler
     ${catkin_LIBRARIES}

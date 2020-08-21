@@ -20,19 +20,21 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
+#include <iostream>
 
-#include <psen_scan/psen_scan_internal_angle.h>
+#include <psen_scan/tenth_degree_conversion.h>
 #include <psen_scan/start_request.h>
+#include <psen_scan/degree_to_rad.h>
 
 namespace psen_scan
 {
-static constexpr uint16_t MASTER_RESOLUTION{ 1 };
+static constexpr double MASTER_RESOLUTION_RAD{ degreeToRad(1.) };
 
 StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration, const uint32_t& seq_number)
   : seq_number_(seq_number)
   , host_ip_(scanner_configuration.hostIp())
   , host_udp_port_data_(scanner_configuration.hostUDPPortData())  // Write is deduced by the scanner
-  , master_(scanner_configuration.startAngle(), scanner_configuration.endAngle(), MASTER_RESOLUTION)
+  , master_(scanner_configuration.startAngle(), scanner_configuration.endAngle(), MASTER_RESOLUTION_RAD)
 {
 }
 
@@ -57,15 +59,21 @@ uint32_t StartRequest::getCRC() const
   result.process_bytes((char*)&speed_encoder_enabled_, sizeof(uint8_t));
   result.process_bytes((char*)&diagnostics_enabled_, sizeof(uint8_t));
 
-  result.process_bytes((char*)&master_.start_angle_, sizeof(uint16_t));
-  result.process_bytes((char*)&master_.end_angle_, sizeof(uint16_t));
-  result.process_bytes((char*)&master_.resolution_, sizeof(uint16_t));
+  uint16_t start_angle{ radToTenthDegree(master_.getStartAngle()) };
+  uint16_t end_angle{ radToTenthDegree(master_.getEndAngle()) };
+  uint16_t resolution{ radToTenthDegree(master_.getResolution()) };
+  result.process_bytes((char*)&start_angle, sizeof(uint16_t));
+  result.process_bytes((char*)&end_angle, sizeof(uint16_t));
+  result.process_bytes((char*)&resolution, sizeof(uint16_t));
 
   for (const auto& slave : slaves_)
   {
-    result.process_bytes((char*)&(slave.start_angle_), sizeof(uint16_t));
-    result.process_bytes((char*)&(slave.end_angle_), sizeof(uint16_t));
-    result.process_bytes((char*)&(slave.resolution_), sizeof(uint16_t));
+    uint16_t slave_start_angle{ radToTenthDegree(slave.getStartAngle()) };
+    uint16_t slave_end_angle{ radToTenthDegree(slave.getEndAngle()) };
+    uint16_t slave_resolution{ radToTenthDegree(slave.getResolution()) };
+    result.process_bytes((char*)&(slave_start_angle), sizeof(uint16_t));
+    result.process_bytes((char*)&(slave_end_angle), sizeof(uint16_t));
+    result.process_bytes((char*)&(slave_resolution), sizeof(uint16_t));
   }
 
   return result.checksum();
@@ -94,15 +102,21 @@ StartRequest::RawType StartRequest::toCharArray()
   os.write((char*)&speed_encoder_enabled_, sizeof(uint8_t));
   os.write((char*)&diagnostics_enabled_, sizeof(uint8_t));
 
-  os.write((char*)&master_.start_angle_, sizeof(uint16_t));
-  os.write((char*)&master_.end_angle_, sizeof(uint16_t));
-  os.write((char*)&master_.resolution_, sizeof(uint16_t));
+  uint16_t start_angle{ radToTenthDegree(master_.getStartAngle()) };
+  uint16_t end_angle{ radToTenthDegree(master_.getEndAngle()) };
+  uint16_t resolution{ radToTenthDegree(master_.getResolution()) };
+  os.write((char*)&start_angle, sizeof(uint16_t));
+  os.write((char*)&end_angle, sizeof(uint16_t));
+  os.write((char*)&resolution, sizeof(uint16_t));
 
   for (const auto& slave : slaves_)
   {
-    os.write((char*)&(slave.start_angle_), sizeof(uint16_t));
-    os.write((char*)&(slave.end_angle_), sizeof(uint16_t));
-    os.write((char*)&(slave.resolution_), sizeof(uint16_t));
+    uint16_t slave_start_angle{ radToTenthDegree(slave.getStartAngle()) };
+    uint16_t slave_end_angle{ radToTenthDegree(slave.getEndAngle()) };
+    uint16_t slave_resolution{ radToTenthDegree(slave.getResolution()) };
+    os.write((char*)&slave_start_angle, sizeof(uint16_t));
+    os.write((char*)&slave_end_angle, sizeof(uint16_t));
+    os.write((char*)&slave_resolution, sizeof(uint16_t));
   }
 
   StartRequest::RawType ret_val{};

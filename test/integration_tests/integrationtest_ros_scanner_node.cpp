@@ -71,11 +71,11 @@ TEST_F(RosScannerNodeTests, testScanTopicReceived)
   SubscriberMock subscriber;
   EXPECT_CALL(subscriber, callback(::testing::_)).WillOnce(ACTION_OPEN_BARRIER_VOID(LASER_SCAN_RECEIVED));
 
-  LaserScan laser_scan_fake(PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
-  laser_scan_fake.measures_.push_back(1);
+  LaserScan laser_scan_fake(0.02, 0.03, 0.05);
+  laser_scan_fake.getMeasurements().push_back(1);
   std::unique_ptr<MockScanner> mock_scanner{ new MockScanner() };
   EXPECT_CALL(*(mock_scanner), getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
-  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", Degree(137.5), std::move(mock_scanner));
+  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", 2.4, std::move(mock_scanner));
 
   subscriber.initialize(nh_priv_);
   std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
@@ -94,8 +94,8 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
   SubscriberMock subscriber;
   EXPECT_CALL(subscriber, callback(::testing::_)).Times(1).WillOnce(ACTION_OPEN_BARRIER_VOID(LASER_SCAN_RECEIVED));
 
-  LaserScan laser_scan_fake(PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
-  laser_scan_fake.measures_.push_back(1);
+  LaserScan laser_scan_fake(0.02, 0.03, 0.05);
+  laser_scan_fake.getMeasurements().push_back(1);
   std::unique_ptr<MockScanner> mock_scanner{ new MockScanner() };
   {
     ::testing::InSequence s;
@@ -104,7 +104,7 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
         .WillRepeatedly(DoAll(ThrowScanBuildFailure(), Return(laser_scan_fake)));
     EXPECT_CALL(*(mock_scanner), getCompleteScan()).Times(1).WillRepeatedly(Return(laser_scan_fake));
   }
-  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", Degree(137.5), std::move(mock_scanner));
+  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", 2.4, std::move(mock_scanner));
 
   subscriber.initialize(nh_priv_);
   std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
@@ -118,7 +118,7 @@ TEST_F(RosScannerNodeTests, testMissingScannerObject)
   EXPECT_THROW(ROSScannerNode scanner_node(nh_priv_,
                                            "scan",
                                            "scanner",
-                                           Degree(137.5),
+                                           2.3998277,
                                            nullptr  // This throws exception
                                            ),
                psen_scan::PSENScanFatalException);

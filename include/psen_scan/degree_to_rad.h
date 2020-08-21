@@ -13,19 +13,18 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef PSEN_SCAN_DEFAULT_PARAMETERS_H
-#define PSEN_SCAN_DEFAULT_PARAMETERS_H
+#ifndef PSEN_SCAN_RAD_TO_DEGREE_H
+#define PSEN_SCAN_RAD_TO_DEGREE_H
 
-#include <string>
-
-#include <psen_scan/degree_to_rad.h>
+#include <boost/math/constants/constants.hpp>
 
 namespace psen_scan
 {
-static const std::string DEFAULT_FRAME_ID = "scanner";               /**< ROS Frame ID */
-static constexpr double DEFAULT_ANGLE_START(0.0);                    /**< Start angle of measurement */
-static constexpr double DEFAULT_ANGLE_END(degreeToRad(275.));        /**< End angle of measurement */
-static constexpr double DEFAULT_X_AXIS_ROTATION(degreeToRad(137.5)); /**< Rotation of x-axis around the center */
-static const std::string DEFAULT_PUBLISH_TOPIC = "scan";             /**< Topic to publish LaserScan data on */
+static constexpr double degreeToRad(const double& angle_in_degree)
+{
+  return (angle_in_degree / 180.) * boost::math::double_constants::pi;
+}
+
 }  // namespace psen_scan
-#endif  // PSEN_SCAN_DEFAULT_PARAMETERS_H
+
+#endif  // PSEN_SCAN_RAD_TO_DEGREE_H

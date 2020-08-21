@@ -76,14 +76,14 @@ IP-Address of safety laser scanner.
 _frame_id_ (_string_, default: "scanner")<br/>
 Identifier used for transformations within ROS environment.
 
-_angle_start_ (_float_, default: 0)<br/>
-Start angle of measurement.
+_angle_start_ (_double_, default: 0)<br/>
+Start angle of measurement. (Degree)
 
-_angle_end_ (_float_, default: 275)<br/>
-End angle of measurement.
+_angle_end_ (_double_, default: 275.0)<br/>
+End angle of measurement. (Degree)
 
-_x_axis_rotation_ (_float_, default: 137.5)<br/>
-Clockwise rotation of the x-axis around the center in degrees.
+_x_axis_rotation_ (_double_, default: 137.5)<br/>
+Clockwise rotation of the x-axis around the center in degree.
 
 ## Usage
 To start reading from the safety laser scanner and publishing complete scans execute `roslaunch psen_scan psen_scan.launch` in a command line. This will launch the ROS Node with the default configuration.

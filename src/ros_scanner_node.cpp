@@ -33,7 +33,7 @@ namespace psen_scan
 ROSScannerNode::ROSScannerNode(ros::NodeHandle& nh,
                                const std::string& topic,
                                const std::string& frame_id,
-                               const Degree& x_axis_rotation,
+                               const double& x_axis_rotation,
                                std::unique_ptr<vScanner> scanner)
   : nh_(nh), frame_id_(frame_id), scanner_(std::move(scanner)), x_axis_rotation_(x_axis_rotation)
 {
@@ -42,19 +42,6 @@ ROSScannerNode::ROSScannerNode(ros::NodeHandle& nh,
     throw PSENScanFatalException("Nullpointer isn't a valid argument!");
   }
   pub_ = nh_.advertise<sensor_msgs::LaserScan>(topic, 1);
-}
-
-/**
- * @brief Convert angle in deg to rad
- *
- * @param deg angle in degree
- *
- * @return double, angle in rad
- *
- */
-double degToRad(const Degree& deg)
-{
-  return static_cast<double>(deg) * M_PI / 180.0;
 }
 
 /**
@@ -69,17 +56,7 @@ double degToRad(const Degree& deg)
  */
 sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& laserscan)
 {
-  if (laserscan.resolution_ == PSENscanInternalAngle(0))
-  {
-    throw BuildROSMessageException("Resolution cannot be 0!");
-  }
-  if (laserscan.min_scan_angle_ >= laserscan.max_scan_angle_)
-  {
-    throw BuildROSMessageException("Attention: Start angle has to be smaller than end angle!");
-  }
-  uint16_t expected_size =
-      static_cast<int>(laserscan.max_scan_angle_ - laserscan.min_scan_angle_) / static_cast<int>(laserscan.resolution_);
-  if (expected_size != laserscan.measures_.size())
+  if (!laserscan.isNumberOfScansValid())
   {
     throw BuildROSMessageException("Calculated number of scans doesn't match actual number of scans!");
   }
@@ -87,16 +64,16 @@ sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& lasersca
   sensor_msgs::LaserScan ros_message;
   ros_message.header.stamp = ros::Time::now();
   ros_message.header.frame_id = frame_id_;
-  ros_message.angle_min = degToRad(Degree(laserscan.min_scan_angle_) - x_axis_rotation_);
-  ros_message.angle_max = degToRad(Degree(laserscan.max_scan_angle_) - x_axis_rotation_);
-  ros_message.angle_increment = degToRad(Degree(laserscan.resolution_));
+  ros_message.angle_min = laserscan.getMinScanAngle() - x_axis_rotation_;
+  ros_message.angle_max = laserscan.getMaxScanAngle() - x_axis_rotation_;
+  ros_message.angle_increment = laserscan.getScanResolution();
   ros_message.time_increment = SCAN_TIME / NUMBER_OF_SAMPLES_FULL_SCAN_MASTER;
   ros_message.scan_time = SCAN_TIME;
   ros_message.range_min = 0;
   ros_message.range_max = 10;
   ros_message.ranges.insert(ros_message.ranges.end(),
-                            laserscan.measures_.rbegin(),
-                            laserscan.measures_.rend());  // reverse order
+                            laserscan.getMeasurements().crbegin(),
+                            laserscan.getMeasurements().crend());  // reverse order
   std::transform(ros_message.ranges.begin(), ros_message.ranges.end(), ros_message.ranges.begin(), [](float f) {
     return f * 0.001;
   });

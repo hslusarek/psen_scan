@@ -21,14 +21,15 @@
 #include <gtest/gtest.h>
 
 #include <psen_scan/scanner_configuration.h>
+#include <psen_scan/degree_to_rad.h>
 
 using namespace psen_scan;
 
 namespace psen_scan_test
 {
 static constexpr int MAXIMAL_PORT_NUMBER{ std::numeric_limits<uint16_t>::max() };
-static constexpr float MINIMAL_SCAN_ANGLE{ 0.0 };
-static constexpr float MAXIMAL_SCAN_ANGLE{ 275.0 };
+static constexpr double MINIMAL_SCAN_ANGLE{ 0.0 };
+static constexpr double MAXIMAL_SCAN_ANGLE{ degreeToRad(275.) };
 static const std::string VALID_IP{ "127.0.0.1" };
 static const std::string INVALID_IP{ "invalid_ip" };
 
@@ -39,8 +40,8 @@ protected:
   std::string client_ip_{ VALID_IP };
   int host_udp_port_data_{ MAXIMAL_PORT_NUMBER - 1 };
   int host_udp_port_control_{ MAXIMAL_PORT_NUMBER };
-  float start_angle_{ MINIMAL_SCAN_ANGLE };
-  float end_angle_{ MAXIMAL_SCAN_ANGLE };
+  double start_angle_{ MINIMAL_SCAN_ANGLE };
+  double end_angle_{ MAXIMAL_SCAN_ANGLE };
 };
 
 TEST_F(ScannerConfigurationTest, testConstructorSuccess)
@@ -99,20 +100,8 @@ TEST_F(ScannerConfigurationTest, testConstructorInvalidControlPort)
 
 TEST_F(ScannerConfigurationTest, testConstructorInvalidAngles)
 {
-  start_angle_ = MINIMAL_SCAN_ANGLE - 0.1;
-
-  EXPECT_THROW(ScannerConfiguration sc(
-                   host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
-               std::invalid_argument);
-
   start_angle_ = MAXIMAL_SCAN_ANGLE;
   end_angle_ = MAXIMAL_SCAN_ANGLE - 0.1;
-
-  EXPECT_THROW(ScannerConfiguration sc(
-                   host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
-               std::invalid_argument);
-
-  end_angle_ = MAXIMAL_SCAN_ANGLE + 0.1;
 
   EXPECT_THROW(ScannerConfiguration sc(
                    host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
@@ -166,18 +155,14 @@ TEST_F(ScannerConfigurationTest, testStartAngle)
 {
   ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
 
-  const auto start_angle = sc.startAngle();
-  EXPECT_EQ(2U, sizeof(start_angle));
-  EXPECT_FLOAT_EQ(start_angle_, start_angle * 0.1F);
+  EXPECT_EQ(start_angle_, sc.startAngle());
 }
 
 TEST_F(ScannerConfigurationTest, testEndAngle)
 {
   ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
 
-  const auto end_angle = sc.endAngle();
-  EXPECT_EQ(2U, sizeof(end_angle));
-  EXPECT_FLOAT_EQ(end_angle_, end_angle * 0.1F);
+  EXPECT_EQ(end_angle_, sc.endAngle());
 }
 
 }  // namespace psen_scan_test

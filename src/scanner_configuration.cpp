@@ -21,18 +21,20 @@
 #include <arpa/inet.h>
 
 #include <psen_scan/scanner_configuration.h>
+#include <psen_scan/degree_to_rad.h>
 
 namespace psen_scan
 {
-static constexpr float MIN_SCAN_ANGLE{ 0.0 };
-static constexpr float MAX_SCAN_ANGLE{ 275.0 };
+static constexpr double MIN_SCAN_ANGLE{ 0. };
+static constexpr double MAX_SCAN_ANGLE{ degreeToRad(275.) };
 
 ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
                                            const int& host_udp_port_data,
                                            const int& host_udp_port_control,
                                            const std::string& client_ip,
-                                           const float& start_angle,
-                                           const float& end_angle)
+                                           const double& start_angle,
+                                           const double& end_angle)
+  : start_angle_(start_angle), end_angle_(end_angle)
 {
   const auto host_ip_number = inet_network(host_ip.c_str());
   if (static_cast<in_addr_t>(-1) == host_ip_number)
@@ -66,15 +68,18 @@ ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
 
   if (start_angle < MIN_SCAN_ANGLE || start_angle > MAX_SCAN_ANGLE)
   {
-    throw std::invalid_argument("Start angle out of supported range");
-  }
-  if (end_angle < start_angle || end_angle > MAX_SCAN_ANGLE)
-  {
-    throw std::invalid_argument("End angle out of supported range");
+    throw std::invalid_argument("Start angle out of range");
   }
 
-  start_angle_ = static_cast<uint16_t>(round(start_angle * 10.0));
-  end_angle_ = static_cast<uint16_t>(round(end_angle * 10.0));
+  if (end_angle < MIN_SCAN_ANGLE || end_angle > MAX_SCAN_ANGLE)
+  {
+    throw std::invalid_argument("End angle out of range");
+  }
+
+  if (start_angle > end_angle)
+  {
+    throw std::invalid_argument("End angle must not be smaller than start angle");
+  }
 }
 
 uint32_t ScannerConfiguration::hostIp() const
@@ -97,12 +102,12 @@ uint32_t ScannerConfiguration::clientIp() const
   return client_ip_;
 }
 
-uint16_t ScannerConfiguration::startAngle() const
+double ScannerConfiguration::startAngle() const
 {
   return start_angle_;
 }
 
-uint16_t ScannerConfiguration::endAngle() const
+double ScannerConfiguration::endAngle() const
 {
   return end_angle_;
 }

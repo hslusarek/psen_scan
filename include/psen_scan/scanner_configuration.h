@@ -28,8 +28,8 @@ public:
                        const int& host_udp_port_data,
                        const int& host_udp_port_control,
                        const std::string& device_ip,
-                       const float& start_angle,
-                       const float& end_angle);
+                       const double& start_angle,
+                       const double& end_angle);
 
 public:
   uint32_t hostIp() const;
@@ -39,11 +39,8 @@ public:
 
   uint32_t clientIp() const;
 
-  //! @brief Start angle in tenth of degrees
-  uint16_t startAngle() const;
-
-  //! @brief End angle in tenth of degrees
-  uint16_t endAngle() const;
+  double startAngle() const;
+  double endAngle() const;
 
 private:
   uint32_t host_ip_;
@@ -52,8 +49,10 @@ private:
 
   uint32_t client_ip_;
 
-  uint16_t start_angle_;
-  uint16_t end_angle_;
+  //! Angle in rad.
+  double start_angle_;
+  //! Angle in rad.
+  double end_angle_;
 };
 
 }  // namespace psen_scan

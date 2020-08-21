@@ -19,6 +19,7 @@
 #include <gtest/gtest.h>
 #include <psen_scan/scanner_configuration.h>
 #include <psen_scan/start_request.h>
+#include <psen_scan/tenth_degree_conversion.h>
 
 using namespace psen_scan;
 
@@ -61,10 +62,9 @@ TEST_F(StartRequestTest, constructorTest)
   const std::string& host_ip = "192.168.0.1";
   const uint16_t& host_udp_port_data = 65535;
 
-  const float start_angle = 0.0;
-  const uint16_t start_angle_code = 0;
-  const float end_angle = 270.0;
-  const uint16_t end_angle_code = 2700;
+  const double start_angle{ 0.0 };
+  const double end_angle{ 4.71 };
+
   ScannerConfiguration sc(host_ip, host_udp_port_data, 0 /* irrelevant */, "192.168.0.50", start_angle, end_angle);
 
   uint32_t sequence_number{ 123 };
@@ -86,29 +86,31 @@ TEST_F(StartRequestTest, constructorTest)
 
   EXPECT_TRUE(DecodingEquals(data, 0x1A, (uint8_t)0b00001000));  // Device enabled
 
-  EXPECT_TRUE(DecodingEquals(data, 0x1B, (uint8_t)0));  // Intensities enabled
-  EXPECT_TRUE(DecodingEquals(data, 0x1C, (uint8_t)0));  // Point in safety enabled
-  EXPECT_TRUE(DecodingEquals(data, 0x1D, (uint8_t)0));  // Active zone set enabled
-  EXPECT_TRUE(DecodingEquals(data, 0x1E, (uint8_t)0));  // IO Pin enabled
-  EXPECT_TRUE(DecodingEquals(data, 0x1F, (uint8_t)0));  // Scan counter enabled
-  EXPECT_TRUE(DecodingEquals(data, 0x20, (uint8_t)0));  // Speed encoder enabled
-  EXPECT_TRUE(DecodingEquals(data, 0x21, (uint8_t)0));  // Diagnostics enabled
+  const uint8_t DEFAULT_VALUE_U8{ 0 };
+  EXPECT_TRUE(DecodingEquals(data, 0x1B, DEFAULT_VALUE_U8));  // Intensities enabled
+  EXPECT_TRUE(DecodingEquals(data, 0x1C, DEFAULT_VALUE_U8));  // Point in safety enabled
+  EXPECT_TRUE(DecodingEquals(data, 0x1D, DEFAULT_VALUE_U8));  // Active zone set enabled
+  EXPECT_TRUE(DecodingEquals(data, 0x1E, DEFAULT_VALUE_U8));  // IO Pin enabled
+  EXPECT_TRUE(DecodingEquals(data, 0x1F, DEFAULT_VALUE_U8));  // Scan counter enabled
+  EXPECT_TRUE(DecodingEquals(data, 0x20, DEFAULT_VALUE_U8));  // Speed encoder enabled
+  EXPECT_TRUE(DecodingEquals(data, 0x21, DEFAULT_VALUE_U8));  // Diagnostics enabled
 
-  EXPECT_TRUE(DecodingEquals(data, 0x22, start_angle_code));  // Master Start Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x24, end_angle_code));    // Master End Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x26, (uint16_t)1));       // Master Angle Resolution
+  EXPECT_TRUE(DecodingEquals(data, 0x22, radToTenthDegree(start_angle)));  // Master Start Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x24, radToTenthDegree(end_angle)));    // Master End Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x26, radToTenthDegree(0.0174533)));    // Master Angle Resolution
 
-  EXPECT_TRUE(DecodingEquals(data, 0x28, (uint16_t)0));  // Slave 1 Start Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x2A, (uint16_t)0));  // Slave 1 End Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x2C, (uint16_t)0));  // Slave 1 Angle Resolution
+  const uint16_t DEFAULT_VALUE_U16{ 0 };
+  EXPECT_TRUE(DecodingEquals(data, 0x28, DEFAULT_VALUE_U16));  // Slave 1 Start Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x2A, DEFAULT_VALUE_U16));  // Slave 1 End Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x2C, DEFAULT_VALUE_U16));  // Slave 1 Angle Resolution
 
-  EXPECT_TRUE(DecodingEquals(data, 0x2E, (uint16_t)0));  // Slave 2 Start Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x30, (uint16_t)0));  // Slave 2 End Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x32, (uint16_t)0));  // Slave 2 Angle Resolution
+  EXPECT_TRUE(DecodingEquals(data, 0x2E, DEFAULT_VALUE_U16));  // Slave 2 Start Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x30, DEFAULT_VALUE_U16));  // Slave 2 End Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x32, DEFAULT_VALUE_U16));  // Slave 2 Angle Resolution
 
-  EXPECT_TRUE(DecodingEquals(data, 0x34, (uint16_t)0));  // Slave 3 Start Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x36, (uint16_t)0));  // Slave 3 End Angle
-  EXPECT_TRUE(DecodingEquals(data, 0x38, (uint16_t)0));  // Slave 3 Angle Resolution
+  EXPECT_TRUE(DecodingEquals(data, 0x34, DEFAULT_VALUE_U16));  // Slave 3 Start Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x36, DEFAULT_VALUE_U16));  // Slave 3 End Angle
+  EXPECT_TRUE(DecodingEquals(data, 0x38, DEFAULT_VALUE_U16));  // Slave 3 Angle Resolution
 }
 
 }  // namespace psen_scan_test

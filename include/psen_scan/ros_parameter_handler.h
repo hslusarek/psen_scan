@@ -19,7 +19,6 @@
 #include <string>
 
 #include <ros/ros.h>
-#include <psen_scan/psen_scan_internal_angle.h>
 
 namespace psen_scan
 {
@@ -42,9 +41,9 @@ public:
   uint32_t getHostUDPPortControl() const;
   std::string getSensorIP() const;
   std::string getFrameID() const;
-  float getAngleStart() const;
-  float getAngleEnd() const;
-  Degree getXAxisRotation() const;
+  double getAngleStart() const;
+  double getAngleEnd() const;
+  double getXAxisRotation() const;
 
 private:
   ros::NodeHandle const nh_;  /**< Nodehandle through which parameters are fetched */
@@ -54,9 +53,9 @@ private:
   int host_udp_port_control_; /**< UDP Port used to send commands (start/stop) and receive the corresponding replies. */
   std::string sensor_ip_;     /**< IP-Adress of Safety laser scanner */
   std::string frame_id_;      /**< ROS Frame ID */
-  float angle_start_;         /**< Start angle of measurement */
-  float angle_end_;           /**< End angle of measurement */
-  Degree x_axis_rotation_;    /**< Rotation of x-axis arround the center */
+  double angle_start_;        /**< Start angle of measurement in radian */
+  double angle_end_;          /**< End angle of measurement in radian */
+  double x_axis_rotation_;    /**< Rotation of x-axis arround the center in radian */
 
 public:
   static std::string decryptPassword(const std::string& encrypted_password);

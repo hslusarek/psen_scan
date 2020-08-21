@@ -60,18 +60,31 @@ private:
   class DeviceField
   {
   public:
-    DeviceField() : start_angle_(0), end_angle_(0), resolution_(0)
-    {
-    }
-    DeviceField(const uint16_t& start_angle, const uint16_t& end_angle, const uint16_t& resolution)
+    DeviceField() = default;
+
+    DeviceField(const double& start_angle, const double& end_angle, const double resolution)
       : start_angle_(start_angle), end_angle_(end_angle), resolution_(resolution)
     {
     }
 
-    /**< The following 'angle' and 'resolution' fields are all in tenth of degrees */
-    uint16_t start_angle_{ 0 };
-    uint16_t end_angle_{ 0 };
-    uint16_t resolution_{ 0 };
+  public:
+    double getStartAngle() const
+    {
+      return start_angle_;
+    };
+    double getEndAngle() const
+    {
+      return end_angle_;
+    };
+    double getResolution() const
+    {
+      return resolution_;
+    };
+
+  private:
+    double start_angle_{ 0. };
+    double end_angle_{ 0. };
+    double resolution_{ 0. };
   };
 
   DeviceField master_;

@@ -13,13 +13,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <algorithm>
+
 #include <psen_scan/ros_parameter_handler.h>
 #include "psen_scan/get_ros_parameter_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/decrypt_password_exception.h"
 #include <psen_scan/default_parameters.h>
 #include <psen_scan/scanner_data.h>
-#include <algorithm>
 
 namespace psen_scan
 {
@@ -127,7 +128,11 @@ void RosParameterHandler::updateAllParamsFromParamServer()
   // update parameter angle_start
   try
   {
-    getOptionalParamFromParamServer<float>("angle_start", angle_start_);
+    double angle_start;
+    if (getOptionalParamFromParamServer<double>("angle_start", angle_start))
+    {
+      angle_start_ = degreeToRad(angle_start);
+    }
   }
   catch (const GetROSParameterException& e)
   {
@@ -137,7 +142,11 @@ void RosParameterHandler::updateAllParamsFromParamServer()
   // update parameter angle_end
   try
   {
-    getOptionalParamFromParamServer<float>("angle_end", angle_end_);
+    double angle_end;
+    if (getOptionalParamFromParamServer<double>("angle_end", angle_end))
+    {
+      angle_end_ = degreeToRad(angle_end);
+    }
   }
   catch (const GetROSParameterException& e)
   {
@@ -150,11 +159,7 @@ void RosParameterHandler::updateAllParamsFromParamServer()
     double x_axis_rotation;
     if (getOptionalParamFromParamServer<double>("x_axis_rotation", x_axis_rotation))
     {
-      x_axis_rotation_ = Degree(x_axis_rotation);
-      if ((x_axis_rotation_ > MAX_X_AXIS_ROTATION) || (x_axis_rotation_ < MIN_X_AXIS_ROTATION))
-      {
-        throw PSENScanFatalException("Parameter x_axis_rotation is out of range. [-360.0 .. 360.0]");
-      }
+      x_axis_rotation_ = degreeToRad(x_axis_rotation);
     }
   }
   catch (const GetROSParameterException& e)
@@ -269,22 +274,17 @@ std::string RosParameterHandler::getFrameID() const
   return frame_id_;
 }
 
-float RosParameterHandler::getAngleStart() const
+double RosParameterHandler::getAngleStart() const
 {
   return angle_start_;
 }
 
-float RosParameterHandler::getAngleEnd() const
+double RosParameterHandler::getAngleEnd() const
 {
   return angle_end_;
 }
 
-/**
- * @brief Getter Method for x_axis_rotation_
- *
- * @return double
- */
-Degree RosParameterHandler::getXAxisRotation() const
+double RosParameterHandler::getXAxisRotation() const
 {
   return x_axis_rotation_;
 }

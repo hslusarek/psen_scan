@@ -18,26 +18,48 @@
 
 #include <vector>
 #include <cstdint>
-#include <psen_scan/psen_scan_internal_angle.h>
 
 namespace psen_scan
 {
+using MeasurementData = std::vector<uint16_t>;
+
 /**
  * @brief Class to hold the data for one laserscan without depencies to ROS.
  *
  */
-typedef struct LaserScan
+class LaserScan
 {
 public:
-  LaserScan(const PSENscanInternalAngle& resolution,
-            const PSENscanInternalAngle& min_scan_angle,
-            const PSENscanInternalAngle& max_scan_angle);
+  /**
+   * @brief Construct a new Laser Scan object
+   *
+   * @param resolution Distance of angle between the measurements in radian.
+   * @param min_scan_angle Lowest  Angle the Scanner is scanning in radian.
+   * @param max_scan_angle Highest Angle the Scanner is scanning in radian.
+   */
+  LaserScan(const double& resolution, const double& min_scan_angle, const double& max_scan_angle);
 
-  std::vector<uint16_t> measures_;             /**< Measurement data of the laserscan in Millimeters. */
-  PSENscanInternalAngle resolution_;           /**< Distance of angle between the measurements in tenths of degree. */
-  PSENscanInternalAngle const min_scan_angle_; /**< Lowest  Angle the Scanner is scanning in tenths of degree.*/
-  PSENscanInternalAngle const max_scan_angle_; /**< Highest Angle the Scanner is scanning in tenths of degree.*/
-} LaserScan;
+public:
+  const double& getScanResolution() const;
+  const double& getMinScanAngle() const;
+  const double& getMaxScanAngle() const;
+
+  const MeasurementData& getMeasurements() const;
+  MeasurementData& getMeasurements();
+
+  bool isNumberOfScansValid() const;
+
+private:
+  //! Measurement data of the laserscan in Millimeters.
+  MeasurementData measures_;
+  //! Distance of angle between the measurements in radian.
+  double resolution_;
+  //! Lowest  Angle the Scanner is scanning in radian.
+  const double min_scan_angle_;
+  //! Highest Angle the Scanner is scanning in radian.
+  const double max_scan_angle_;
+};
+
 }  // namespace psen_scan
 
 #endif  // PSEN_SCAN_LASERSCAN_H

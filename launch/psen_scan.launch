@@ -35,13 +35,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <!-- ROS Frame ID -->
   <arg name="frame_id" default="scanner" />
 
-  <!-- Start angle of measurement -->
+  <!-- Start angle of measurement in degree -->
   <arg name="angle_start" default="0" />
 
-  <!-- End angle of measurement -->
-  <arg name="angle_end" default="275" />
+  <!-- End angle of measurement in degree -->
+  <arg name="angle_end" default="275.0" />
 
-  <!-- Rotation of x-axis around the center. -->
+  <!-- Rotation of x-axis around the center in degree. -->
   <arg name="x_axis_rotation" default="137.5" />
 
   <node name="laser_scanner" type="psen_scan_node" pkg="psen_scan" output="screen" required="true">

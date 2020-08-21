@@ -13,23 +13,71 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <stdexcept>
+#include <cassert>
+#include <limits>
+#include <cmath>
+
 #include <psen_scan/laserscan.h>
+#include <psen_scan/degree_to_rad.h>
 
 namespace psen_scan
 {
-/**
- * @brief Construct a new Laser Scan object
- *
- * @param resolution Distance of angle between the measurements in tenths of degree.
- * @param min_scan_angle Lowest  Angle the Scanner is scanning in tenths of degree.
- * @param max_scan_angle Highest Angle the Scanner is scanning in tenths of degree.
- */
-LaserScan::LaserScan(const PSENscanInternalAngle& resolution,
-                     const PSENscanInternalAngle& min_scan_angle,
-                     const PSENscanInternalAngle& max_scan_angle)
+static constexpr double MAX_X_AXIS_ROTATION(degreeToRad(360.));
+static constexpr double MIN_X_AXIS_ROTATION(degreeToRad(-360.));
+
+LaserScan::LaserScan(const double& resolution, const double& min_scan_angle, const double& max_scan_angle)
   : resolution_(resolution), min_scan_angle_(min_scan_angle), max_scan_angle_(max_scan_angle)
 {
-  measures_.clear();
+  if (getScanResolution() == 0.)
+  {
+    throw std::invalid_argument("Resolution must not be 0");
+  }
+
+  if (getScanResolution() < MIN_X_AXIS_ROTATION || getScanResolution() > MAX_X_AXIS_ROTATION)
+  {
+    throw std::invalid_argument("Resolution out of possible angle range");
+  }
+
+  if (getMinScanAngle() >= getMaxScanAngle())
+  {
+    throw std::invalid_argument("Attention: Start angle has to be smaller than end angle!");
+  }
+}
+
+const double& LaserScan::getScanResolution() const
+{
+  return resolution_;
+}
+
+const double& LaserScan::getMinScanAngle() const
+{
+  return min_scan_angle_;
+}
+
+const double& LaserScan::getMaxScanAngle() const
+{
+  return max_scan_angle_;
+}
+
+bool LaserScan::isNumberOfScansValid() const
+{
+  assert(getMinScanAngle() < getMaxScanAngle());
+
+  using size_type = MeasurementData::size_type;
+  const auto angle_range{ getMaxScanAngle() - getMinScanAngle() };
+  const size_type expected_size{ static_cast<size_type>(std::floor(angle_range / getScanResolution())) };
+  return measures_.size() == expected_size;
+}
+
+const MeasurementData& LaserScan::getMeasurements() const
+{
+  return measures_;
+}
+
+MeasurementData& LaserScan::getMeasurements()
+{
+  return measures_;
 }
 
 }  // namespace psen_scan

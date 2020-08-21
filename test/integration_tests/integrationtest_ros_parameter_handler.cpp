@@ -13,11 +13,13 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <arpa/inet.h>
+#include <gtest/gtest.h>
+
 #include <psen_scan/ros_parameter_handler.h>
 #include <psen_scan/default_parameters.h>
 #include <psen_scan/psen_scan_fatal_exception.h>
-#include <arpa/inet.h>
-#include <gtest/gtest.h>
+#include <psen_scan/degree_to_rad.h>
 
 using namespace psen_scan;
 
@@ -44,19 +46,6 @@ class ROSParameterHandlerTest : public ::testing::Test
 {
 protected:
   ROSParameterHandlerTest()
-    : password_("ac0d68d033")
-    , host_ip_("1.2.3.5")
-    , host_udp_port_data_(12345)
-    , host_udp_port_control_(12346)
-    , sensor_ip_("1.2.3.4")
-    , expected_password_("admin")
-    , expected_host_ip_(htobe32(inet_network(host_ip_.c_str())))
-    , expected_host_udp_port_data_(htole32(host_udp_port_data_))
-    , expected_host_udp_port_control_(htole32(host_udp_port_control_))
-    , expected_frame_id_(DEFAULT_FRAME_ID)
-    , expected_angle_start_(DEFAULT_ANGLE_START)
-    , expected_angle_end_(DEFAULT_ANGLE_END)
-    , expected_x_axis_rotation_(DEFAULT_X_AXIS_ROTATION)
   {
     DELETE_ALL_ROS_PARAMS();
   }
@@ -64,21 +53,21 @@ protected:
   ros::NodeHandle node_handle_;
 
   // Default values to set
-  std::string password_;
-  std::string host_ip_;
-  int host_udp_port_data_;
-  int host_udp_port_control_;
-  std::string sensor_ip_;
+  std::string password_{ "ac0d68d033" };
+  std::string host_ip_{ "1.2.3.5" };
+  int host_udp_port_data_{ 12345 };
+  int host_udp_port_control_{ 12346 };
+  std::string sensor_ip_{ "1.2.3.4" };
 
   // Default expected values
-  std::string expected_password_;
-  uint32_t expected_host_ip_;
-  uint32_t expected_host_udp_port_data_;
-  uint32_t expected_host_udp_port_control_;
-  std::string expected_frame_id_;
-  float expected_angle_start_;
-  float expected_angle_end_;
-  Degree expected_x_axis_rotation_;
+  std::string expected_password_{ "admin" };
+  uint32_t expected_host_ip_{ htobe32(inet_network(host_ip_.c_str())) };
+  uint32_t expected_host_udp_port_data_{ htole32(host_udp_port_data_) };
+  uint32_t expected_host_udp_port_control_{ htole32(host_udp_port_control_) };
+  std::string expected_frame_id_{ DEFAULT_FRAME_ID };
+  double expected_angle_start_degree_{ 70. };
+  double expected_angle_end_degree_{ 100. };
+  double expected_x_axis_rotation_degree_{ 50 };
 };
 
 class ROSRequiredParameterTest : public ROSParameterHandlerTest
@@ -105,9 +94,10 @@ protected:
     ros::param::set("host_udp_port_control", host_udp_port_control_);
     ros::param::set("sensor_ip", sensor_ip_);
     ros::param::set("frame_id", DEFAULT_FRAME_ID);
-    ros::param::set("angle_start", DEFAULT_ANGLE_START);
-    ros::param::set("angle_end", DEFAULT_ANGLE_END);
-    ros::param::set("x_axis_rotation", static_cast<double>(DEFAULT_X_AXIS_ROTATION));
+
+    ros::param::set("angle_start", expected_angle_start_degree_);
+    ros::param::set("angle_end", expected_angle_end_degree_);
+    ros::param::set("x_axis_rotation", expected_x_axis_rotation_degree_);
   }
 };
 
@@ -125,9 +115,9 @@ TEST_F(ROSRequiredParameterTest, test_required_params_only)
                   EXPECT_EQ(param_handler.getHostUDPPortData(), expected_host_udp_port_data_);
                   EXPECT_EQ(param_handler.getHostUDPPortControl(), expected_host_udp_port_control_);
                   EXPECT_EQ(param_handler.getFrameID(), expected_frame_id_);
-                  EXPECT_EQ(param_handler.getAngleStart(), expected_angle_start_);
-                  EXPECT_EQ(param_handler.getAngleEnd(), expected_angle_end_);
-                  EXPECT_EQ(param_handler.getXAxisRotation(), expected_x_axis_rotation_););
+                  EXPECT_EQ(param_handler.getAngleStart(), DEFAULT_ANGLE_START);
+                  EXPECT_EQ(param_handler.getAngleEnd(), DEFAULT_ANGLE_END);
+                  EXPECT_EQ(param_handler.getXAxisRotation(), DEFAULT_X_AXIS_ROTATION););
 }
 
 TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_password)
@@ -168,15 +158,13 @@ TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_po
 TEST_F(ROSRequiredParameterTest, test_all_params)
 {
   std::string frame_id = "abcdefg";
-  float expected_angle_start = 10.5;
-  float expected_angle_end = 204.7;
-  double x_axis_rotation = 100.3;
-  ros::param::set("angle_start", expected_angle_start);
-  ros::param::set("angle_end", expected_angle_end);
-  ros::param::set("x_axis_rotation", x_axis_rotation);
+  const double expected_angle_start_degree{ 70. };
+  const double expected_angle_end_degree{ 240. };
+  const double expected_x_axis_rotation_degree{ 100. };
+  ros::param::set("angle_start", expected_angle_start_degree);
+  ros::param::set("angle_end", expected_angle_end_degree);
+  ros::param::set("x_axis_rotation", expected_x_axis_rotation_degree);
   ros::param::set("frame_id", frame_id);
-
-  Degree expected_x_axis_rotation(x_axis_rotation);
 
   RosParameterHandler param_handler(node_handle_);
   EXPECT_EQ(param_handler.getPassword(), expected_password_);
@@ -185,9 +173,9 @@ TEST_F(ROSRequiredParameterTest, test_all_params)
   EXPECT_EQ(param_handler.getHostUDPPortData(), expected_host_udp_port_data_);
   EXPECT_EQ(param_handler.getHostUDPPortControl(), expected_host_udp_port_control_);
   EXPECT_EQ(param_handler.getFrameID(), frame_id);
-  EXPECT_EQ(param_handler.getAngleStart(), expected_angle_start);
-  EXPECT_EQ(param_handler.getAngleEnd(), expected_angle_end);
-  EXPECT_EQ(param_handler.getXAxisRotation(), expected_x_axis_rotation);
+  EXPECT_DOUBLE_EQ(param_handler.getAngleStart(), degreeToRad(expected_angle_start_degree));
+  EXPECT_DOUBLE_EQ(param_handler.getAngleEnd(), degreeToRad(expected_angle_end_degree));
+  EXPECT_DOUBLE_EQ(param_handler.getXAxisRotation(), degreeToRad(expected_x_axis_rotation_degree));
 }
 
 TEST_F(ROSInvalidParameterTest, test_invalid_params_password)
@@ -233,11 +221,11 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_start)
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 
   // Wrong Datatype, but can be interpreted as int
-  ros::param::set("angle_start", "12");
+  ros::param::set("angle_start", "0.21");
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 
   // valid test
-  ros::param::set("angle_start", 20.);
+  ros::param::set("angle_start", 0.35);
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 
@@ -251,11 +239,11 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_end)
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 
   // Wrong Datatype, but can be converted to int
-  ros::param::set("angle_end", "250");
+  ros::param::set("angle_end", "4.36");
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 
   // valid test
-  ros::param::set("angle_end", 90.);
+  ros::param::set("angle_end", 1.57);
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 
@@ -269,19 +257,11 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_x_axis_rotation)
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 
   // Wrong Datatype, but can be converted to float
-  ros::param::set("x_axis_rotation", "137.5");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Set x_axis_rotation back to valid data type, but too large
-  ros::param::set("x_axis_rotation", 361);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-
-  // Set x_axis_rotation back to valid data type, but too small
-  ros::param::set("x_axis_rotation", -361);
+  ros::param::set("x_axis_rotation", "2.4");
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
 
   // valid test
-  ros::param::set("x_axis_rotation", 90.);
+  ros::param::set("x_axis_rotation", 1.57);
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 }  // namespace psen_scan_test
