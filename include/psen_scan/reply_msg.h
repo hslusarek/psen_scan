@@ -53,6 +53,9 @@ public:
   static uint32_t getStartOpCode();
   static uint32_t calcCRC(const ReplyMsg& msg);
 
+  using RawType = std::array<char, REPLY_MSG_SIZE>;
+  RawType toCharArray();
+
 private:
   ReplyMsg() = delete;
 
@@ -123,6 +126,26 @@ inline ReplyMsgType ReplyMsg::type() const
     return ReplyMsgType::Start;
   }
   return ReplyMsgType::Unknown;
+}
+
+inline ReplyMsg::RawType ReplyMsg::toCharArray()
+{
+  std::ostringstream os;
+
+  uint32_t crc{ calcCRC(*this) };
+  os.write((char*)&crc, sizeof(uint32_t));
+  os.write((char*)&reserved_, sizeof(uint32_t));
+  os.write((char*)&opcode_, sizeof(uint32_t));
+  os.write((char*)&res_code_, sizeof(uint32_t));
+
+  ReplyMsg::RawType ret_val{};
+
+  // TODO check limits
+  std::string data_str(os.str());
+  // TODO check if lengths match
+  std::copy(data_str.begin(), data_str.end(), ret_val.begin());
+
+  return ret_val;
 }
 
 }  // namespace psen_scan

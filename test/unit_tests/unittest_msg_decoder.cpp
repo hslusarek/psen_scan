@@ -46,12 +46,13 @@ TEST(MsgDecoderTest, decodeStartReply)
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
 
-  RawScannerData data{};
-  std::memcpy(&data, &reply, REPLY_MSG_SIZE);
+  ReplyMsg::RawType reply_raw{ reply.toCharArray() };
+  RawScannerData raw_data{};
+  std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
 
   EXPECT_CALL(mock, start_reply_callback()).Times(1);
 
-  decoder.decodeAndDispatch(data, REPLY_MSG_SIZE);  // TODO get correct size
+  decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE);  // TODO get correct size
 }
 
 TEST(MsgDecoderTest, decodeStartReplyCrcFail)
@@ -62,13 +63,15 @@ TEST(MsgDecoderTest, decodeStartReplyCrcFail)
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
 
-  RawScannerData data{};
-  std::memcpy(&data, &reply, REPLY_MSG_SIZE);
-  data[0] = 'a';
+  ReplyMsg::RawType reply_raw{ reply.toCharArray() };
+  RawScannerData raw_data{};
+  std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
+  raw_data[0] = 'a';
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
 
-  EXPECT_THROW(decoder.decodeAndDispatch(data, REPLY_MSG_SIZE), DecodeCRCMismatchException);  // TODO get correct size
+  EXPECT_THROW(decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE),
+               DecodeCRCMismatchException);  // TODO get correct size
 }
 
 /**
@@ -83,13 +86,14 @@ TEST(MsgDecoderTest, decodeStartReplyWrongSizeNotImplemented)
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
 
-  RawScannerData data{};
-  std::memcpy(&data, &reply, REPLY_MSG_SIZE);
+  ReplyMsg::RawType reply_raw{ reply.toCharArray() };
+  RawScannerData raw_data{};
+  std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
   EXPECT_CALL(mock, errorCallback(::testing::_)).Times(1);
 
-  decoder.decodeAndDispatch(data, REPLY_MSG_SIZE + 1);  // TODO get correct size
+  decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE + 1);  // TODO get correct size
 }
 
 /**
@@ -104,13 +108,14 @@ TEST(MsgDecoderTest, decodeWrongOpCodeNotImplemented)
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode() + 1, DEFAULT_RESULT_CODE };
 
-  RawScannerData data{};
-  std::memcpy(&data, &reply, REPLY_MSG_SIZE);
+  ReplyMsg::RawType reply_raw{ reply.toCharArray() };
+  RawScannerData raw_data{};
+  std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
   EXPECT_CALL(mock, errorCallback(::testing::_)).Times(1);
 
-  decoder.decodeAndDispatch(data, REPLY_MSG_SIZE);  // TODO get correct size
+  decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE);  // TODO get correct size
 }
 
 TEST(MsgDecoderTest, testDecodeExceptionForCompleteCoverage)
