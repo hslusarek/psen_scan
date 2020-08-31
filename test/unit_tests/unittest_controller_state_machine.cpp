@@ -37,7 +37,7 @@ TEST_F(ControllerStateMachineTest, triggerSendStartRequestCallbackTest)
 {
   EXPECT_CALL(*this, sendStartRequestCallbackTest()).Times(1);
 
-  ControllerStateMachine sm(std::bind(&ControllerStateMachineTest::sendStartRequestCallbackTest, this));
+  ControllerStateMachineImpl sm(std::bind(&ControllerStateMachineTest::sendStartRequestCallbackTest, this));
 
   sm.processStartRequestEvent();
 }

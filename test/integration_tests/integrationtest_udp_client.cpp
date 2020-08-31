@@ -61,7 +61,7 @@ public:
 protected:
   MockUDPServer mock_udp_server_{ UDP_MOCK_PORT };
 
-  psen_scan::UdpClient udp_client_{
+  psen_scan::UdpClientImpl udp_client_{
     std::bind(&UdpClientTests::handleNewData, this, std::placeholders::_1, std::placeholders::_2),
     std::bind(&UdpClientTests::handleError, this, std::placeholders::_1),
     HOST_UDP_PORT,
@@ -127,7 +127,8 @@ TEST_F(UdpClientTests, testWriteOperation)
 
   mock_udp_server_.asyncReceive();
   RawDataContainer<DATA_SIZE_BYTES> write_buf = { "Hello!" };
-  udp_client_.write(write_buf);
+  std::shared_ptr<char> write_buf_ptr{ std::make_shared<char>(write_buf.at(0)) };
+  udp_client_.write(write_buf_ptr, write_buf.size());
 
   BARRIER(CLIENT_RECEIVED_DATA);
 }
@@ -144,7 +145,8 @@ TEST_F(UdpClientTests, testWritingWhileReceiving)
   udp_client_.startReceiving(RECEIVE_TIMEOUT);
 
   RawDataContainer<DATA_SIZE_BYTES> write_buf = { "Hello!" };
-  udp_client_.write(write_buf);
+  std::shared_ptr<char> write_buf_ptr{ std::make_shared<char>(write_buf.at(0)) };
+  udp_client_.write(write_buf_ptr, write_buf.size());
 
   BARRIER(MOCK_RECEIVED_DATA);
   BARRIER(CLIENT_RECEIVED_DATA);

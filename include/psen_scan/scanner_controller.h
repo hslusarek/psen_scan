@@ -15,11 +15,12 @@
 #ifndef PSEN_SCAN_SCANNER_CONTROLLER_H
 #define PSEN_SCAN_SCANNER_CONTROLLER_H
 
-#include <functional>
-#include <chrono>
 #include <array>
-#include <string>
+#include <chrono>
+#include <functional>
 #include <iostream>
+#include <memory>
+#include <string>
 
 #include <psen_scan/msg_decoder.h>
 #include <psen_scan/controller_state_machine.h>
@@ -41,46 +42,34 @@ static constexpr uint32_t DEFAULT_SEQ_NUMBER{ 0 };
 class ScannerController
 {
 public:
-  ScannerController(const ScannerConfiguration& config);
+  ScannerController(const ScannerConfiguration& scanner_config,
+                    std::shared_ptr<ControllerStateMachine> state_machine,
+                    std::shared_ptr<UdpClient> control_udp_client,
+                    std::shared_ptr<UdpClient> data_udp_client);
 
   void start();
   void stop();
 
-private:
   void handleError(const std::string& error_msg);
   void sendStartRequest();
 
 private:
   ScannerConfiguration scanner_config_;
 
-  ControllerStateMachine state_machine_{ std::bind(&ScannerController::sendStartRequest, this) };
+  std::shared_ptr<ControllerStateMachine> state_machine_;
 
-  // TODO should be dedicated ControlMsgDecoder
-  MsgDecoder control_msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
-                                   std::bind(&ScannerController::handleError, this, std::placeholders::_1) };
-
-  psen_scan::UdpClient control_udp_client_{
-    std::bind(&MsgDecoder::decodeAndDispatch, &control_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
-    std::bind(&ScannerController::handleError, this, std::placeholders::_1),
-    scanner_config_.hostUDPPortControl(),
-    scanner_config_.clientIp(),
-    CONTROL_PORT_OF_SCANNER_DEVICE
-  };
-
-  // TODO should be dedicated DataMsgDecoder
-  MsgDecoder data_msg_decoder_{ std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
-                                std::bind(&ScannerController::handleError, this, std::placeholders::_1) };
-
-  psen_scan::UdpClient data_udp_client_{
-    std::bind(&MsgDecoder::decodeAndDispatch, &data_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
-    std::bind(&ScannerController::handleError, this, std::placeholders::_1),
-    scanner_config_.hostUDPPortData(),
-    scanner_config_.clientIp(),
-    DATA_PORT_OF_SCANNER_DEVICE
-  };
+  std::shared_ptr<UdpClient> control_udp_client_;
+  std::shared_ptr<UdpClient> data_udp_client_;
 };
 
-inline ScannerController::ScannerController(const ScannerConfiguration& config) : scanner_config_(config)
+inline ScannerController::ScannerController(const ScannerConfiguration& scanner_config,
+                                            std::shared_ptr<ControllerStateMachine> state_machine,
+                                            std::shared_ptr<UdpClient> control_udp_client,
+                                            std::shared_ptr<UdpClient> data_udp_client)
+  : scanner_config_(scanner_config)
+  , state_machine_(state_machine)
+  , control_udp_client_(control_udp_client)
+  , data_udp_client_(data_udp_client)
 {
 }
 
@@ -92,22 +81,23 @@ inline void ScannerController::handleError(const std::string& error_msg)
 
 inline void ScannerController::start()
 {
-  control_udp_client_.startReceiving(RECEIVE_TIMEOUT);
-  data_udp_client_.startReceiving(RECEIVE_TIMEOUT);
-  state_machine_.processStartRequestEvent();
+  state_machine_->processStartRequestEvent();
 }
 
 inline void ScannerController::stop()
 {
   // TODO: Impl. sending of StopRequest
-  state_machine_.processStopRequestEvent();
+  state_machine_->processStopRequestEvent();
 }
 
 inline void ScannerController::sendStartRequest()
 {
+  control_udp_client_->startReceiving(RECEIVE_TIMEOUT);
+  data_udp_client_->startReceiving(RECEIVE_TIMEOUT);
   StartRequest start_request(scanner_config_, DEFAULT_SEQ_NUMBER);
   const auto start_request_as_byte_stream{ start_request.toCharArray() };
-  control_udp_client_.write(start_request_as_byte_stream);
+  std::shared_ptr<char> byte_stream_ptr{ std::make_shared<char>(start_request_as_byte_stream.at(0)) };
+  control_udp_client_->write(byte_stream_ptr, start_request_as_byte_stream.size());
 }
 
 }  // namespace psen_scan

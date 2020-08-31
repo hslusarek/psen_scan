@@ -15,14 +15,15 @@
 #ifndef PSEN_SCAN_UDP_CLIENT_H
 #define PSEN_SCAN_UDP_CLIENT_H
 
-#include <stdexcept>
-#include <string>
-#include <thread>
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <functional>
 #include <iostream>
-#include <chrono>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <thread>
 
 #include <arpa/inet.h>
 
@@ -42,17 +43,26 @@ using ErrorHandler = std::function<void(const std::string&)>;
 class UdpClient
 {
 public:
-  UdpClient(const NewDataHandler& data_handler,
-            const ErrorHandler& error_handler,
-            const unsigned short& host_port,
-            const unsigned int& endpoint_ip,
-            const unsigned short& endpoint_port);
-  ~UdpClient();
+  virtual ~UdpClient() = default;
+
+  virtual void startReceiving(const std::chrono::high_resolution_clock::duration timeout) = 0;
+  virtual void write(std::shared_ptr<char> data, const std::size_t& number_of_bytes) = 0;
+  virtual void close() = 0;
+};
+
+class UdpClientImpl : public UdpClient
+{
+public:
+  UdpClientImpl(const NewDataHandler& data_handler,
+                const ErrorHandler& error_handler,
+                const unsigned short& host_port,
+                const unsigned int& endpoint_ip,
+                const unsigned short& endpoint_port);
+  ~UdpClientImpl();
 
 public:
   void startReceiving(const std::chrono::high_resolution_clock::duration timeout);
-  template <std::size_t NumberOfBytesToSend>
-  void write(const std::array<char, NumberOfBytesToSend>& data);
+  void write(std::shared_ptr<char> data, const std::size_t& number_of_bytes);
   void close();
 
 private:
@@ -83,11 +93,11 @@ private:
   boost::asio::ip::udp::endpoint endpoint_;
 };
 
-inline UdpClient::UdpClient(const NewDataHandler& data_handler,
-                            const ErrorHandler& error_handler,
-                            const unsigned short& host_port,
-                            const unsigned int& endpoint_ip,
-                            const unsigned short& endpoint_port)
+inline UdpClientImpl::UdpClientImpl(const NewDataHandler& data_handler,
+                                    const ErrorHandler& error_handler,
+                                    const unsigned short& host_port,
+                                    const unsigned int& endpoint_ip,
+                                    const unsigned short& endpoint_port)
   : data_handler_(data_handler)
   , error_handler_(error_handler)
   , socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), host_port))
@@ -119,7 +129,7 @@ inline UdpClient::UdpClient(const NewDataHandler& data_handler,
   io_service_thread_ = std::thread([this]() { io_service_.run(); });
 }
 
-inline void UdpClient::close()
+inline void UdpClientImpl::close()
 {
   io_service_.stop();
   if (io_service_thread_.joinable())
@@ -144,7 +154,7 @@ inline void UdpClient::close()
   // LCOV_EXCL_STOP
 }
 
-inline UdpClient::~UdpClient()
+inline UdpClientImpl::~UdpClientImpl()
 {
   try
   {
@@ -159,7 +169,7 @@ inline UdpClient::~UdpClient()
   // LCOV_EXCL_STOP
 }
 
-inline void UdpClient::sendCompleteHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
+inline void UdpClientImpl::sendCompleteHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
 {
   // LCOV_EXCL_START
   // No coverage check because testing the if-loop is extremly difficult.
@@ -172,21 +182,20 @@ inline void UdpClient::sendCompleteHandler(const boost::system::error_code& erro
   std::cout << "Data successfully send." << std::endl;
 }
 
-template <std::size_t NumberOfBytesToSend>
-inline void UdpClient::write(const RawDataContainer<NumberOfBytesToSend>& data)
+inline void UdpClientImpl::write(std::shared_ptr<char> data, const std::size_t& number_of_bytes)
 {
-  io_service_.post([this, data]() {
-    socket_.async_send(boost::asio::buffer(data, data.size()),
-                       boost::bind(&UdpClient::sendCompleteHandler,
+  io_service_.post([this, data, number_of_bytes]() {
+    socket_.async_send(boost::asio::buffer(data.get(), number_of_bytes),
+                       boost::bind(&UdpClientImpl::sendCompleteHandler,
                                    this,
                                    boost::asio::placeholders::error,
                                    boost::asio::placeholders::bytes_transferred));
   });
 }
 
-inline void UdpClient::handleReceive(const boost::system::error_code& error_code,
-                                     const std::size_t& bytes_received,
-                                     const std::chrono::high_resolution_clock::duration timeout)
+inline void UdpClientImpl::handleReceive(const boost::system::error_code& error_code,
+                                         const std::size_t& bytes_received,
+                                         const std::chrono::high_resolution_clock::duration timeout)
 {
   if (error_code || bytes_received == 0)
   {
@@ -198,7 +207,7 @@ inline void UdpClient::handleReceive(const boost::system::error_code& error_code
   asyncReceive(timeout);
 }
 
-inline void UdpClient::startReceiving(const std::chrono::high_resolution_clock::duration timeout)
+inline void UdpClientImpl::startReceiving(const std::chrono::high_resolution_clock::duration timeout)
 {
   // Function is intended to be called from main thread.
   // To ensure that socket operations only happen on one strand (in this case an implicit one),
@@ -212,7 +221,7 @@ inline void UdpClient::startReceiving(const std::chrono::high_resolution_clock::
   receive_cv_.wait(lock, [this]() { return receive_called_.load(); });
 }
 
-inline void UdpClient::asyncReceive(const std::chrono::high_resolution_clock::duration timeout)
+inline void UdpClientImpl::asyncReceive(const std::chrono::high_resolution_clock::duration timeout)
 {
   using std::placeholders::_1;
   using std::placeholders::_2;
@@ -230,7 +239,7 @@ inline void UdpClient::asyncReceive(const std::chrono::high_resolution_clock::du
   });
 
   socket_.async_receive(boost::asio::buffer(received_data_, received_data_.size()),
-                        std::bind(&UdpClient::handleReceive, this, _1, _2, timeout));
+                        std::bind(&UdpClientImpl::handleReceive, this, _1, _2, timeout));
 }
 
 }  // namespace psen_scan

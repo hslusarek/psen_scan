@@ -16,11 +16,16 @@
 #ifndef PSEN_SCAN_SCANNER_H
 #define PSEN_SCAN_SCANNER_H
 
+#include <functional>
+#include <memory>
 #include <stdexcept>
 
+#include "psen_scan/controller_state_machine.h"
 #include "psen_scan/laserscan.h"
+#include "psen_scan/msg_decoder.h"
 #include "psen_scan/scanner_configuration.h"
 #include "psen_scan/scanner_controller.h"
+#include "psen_scan/udp_client.h"
 
 namespace psen_scan
 {
@@ -51,6 +56,13 @@ public:
   LaserScan getCompleteScan();
 
 private:
+  std::shared_ptr<ControllerStateMachineImpl> state_machine_;
+  // TODO should be dedicated ControlMsgDecoder
+  MsgDecoder control_msg_decoder_;
+  std::shared_ptr<UdpClientImpl> control_udp_client_;
+  // TODO should be dedicated DataMsgDecoder
+  MsgDecoder data_msg_decoder_;
+  std::shared_ptr<UdpClientImpl> data_udp_client_;
   ScannerController scanner_controller_;
 };
 

@@ -19,7 +19,26 @@
 
 namespace psen_scan
 {
-Scanner::Scanner(const ScannerConfiguration& scanner_configuration) : scanner_controller_(scanner_configuration)
+Scanner::Scanner(const ScannerConfiguration& scanner_configuration)
+  : state_machine_(std::make_shared<ControllerStateMachineImpl>(
+        std::bind(&ScannerController::sendStartRequest, &scanner_controller_)))
+  , control_msg_decoder_(std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, state_machine_),
+                         std::bind(&ScannerController::handleError, &scanner_controller_, std::placeholders::_1))
+  , control_udp_client_(std::make_shared<UdpClientImpl>(
+        std::bind(&MsgDecoder::decodeAndDispatch, &control_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
+        std::bind(&ScannerController::handleError, &scanner_controller_, std::placeholders::_1),
+        scanner_configuration.hostUDPPortControl(),
+        scanner_configuration.clientIp(),
+        CONTROL_PORT_OF_SCANNER_DEVICE))
+  , data_msg_decoder_(std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, state_machine_),
+                      std::bind(&ScannerController::handleError, &scanner_controller_, std::placeholders::_1))
+  , data_udp_client_(std::make_shared<UdpClientImpl>(
+        std::bind(&MsgDecoder::decodeAndDispatch, &data_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
+        std::bind(&ScannerController::handleError, &scanner_controller_, std::placeholders::_1),
+        scanner_configuration.hostUDPPortData(),
+        scanner_configuration.clientIp(),
+        DATA_PORT_OF_SCANNER_DEVICE))
+  , scanner_controller_(scanner_configuration, state_machine_, control_udp_client_, data_udp_client_)
 {
 }
 

@@ -17,20 +17,20 @@
 
 namespace psen_scan
 {
-ControllerStateMachine::ControllerStateMachine(const SendStartRequestCallback& sr) : sm_(sr)
+ControllerStateMachineImpl::ControllerStateMachineImpl(const SendStartRequestCallback& sr) : sm_(sr)
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.start();
 }
 
-ControllerStateMachine::~ControllerStateMachine()
+ControllerStateMachineImpl::~ControllerStateMachineImpl()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.send_start_request_callback_ = nullptr;
   sm_.stop();
 }
 
-void ControllerStateMachine::processStartRequestEvent()
+void ControllerStateMachineImpl::processStartRequestEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(start_request_event());
@@ -38,25 +38,25 @@ void ControllerStateMachine::processStartRequestEvent()
 
 // LCOV_EXCL_START
 // TODO: Add again to coverage when function are actually used.
-void ControllerStateMachine::processStartReplyReceivedEvent()
+void ControllerStateMachineImpl::processStartReplyReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(start_reply_received_event());
 }
 
-void ControllerStateMachine::processMonitoringFrameReceivedEvent()
+void ControllerStateMachineImpl::processMonitoringFrameReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(monitoring_frame_received_event());
 }
 
-void ControllerStateMachine::processStopRequestEvent()
+void ControllerStateMachineImpl::processStopRequestEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(stop_request_event());
 }
 
-void ControllerStateMachine::processStopReplyReceivedEvent()
+void ControllerStateMachineImpl::processStopReplyReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(stop_reply_received_event());

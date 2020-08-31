@@ -16,7 +16,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(psen_scan)
 
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++14)
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-Wno-unused-parameter)
@@ -96,9 +96,9 @@ include_directories(
 )
 
 set(${PROJECT_NAME}_sources
-  src/scanner.cpp
-  src/laserscan.cpp
   src/controller_state_machine.cpp
+  src/laserscan.cpp
+  src/scanner.cpp
   src/start_request.cpp
 )
 
@@ -238,6 +238,15 @@ if(CATKIN_ENABLE_TESTING)
     src/laserscan.cpp
   )
   target_link_libraries(unittest_laserscan
+    ${catkin_LIBRARIES}
+  )
+
+  catkin_add_gmock(unittest_scanner_controller
+    test/unit_tests/unittest_scanner_controller.cpp
+    src/scanner_configuration.cpp
+    src/start_request.cpp
+  )
+  target_link_libraries(unittest_scanner_controller
     ${catkin_LIBRARIES}
   )
 

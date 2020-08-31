@@ -45,11 +45,11 @@ TEST(UdpClientTests, testInvalidNewDataHandler)
 {
   CallbackHandler handler;
 
-  EXPECT_THROW(psen_scan::UdpClient reader(nullptr,
-                                           std::bind(&CallbackHandler::handleError, &handler, _1),
-                                           HOST_UDP_READ_PORT,
-                                           inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
-                                           UDP_MOCK_SEND_PORT),
+  EXPECT_THROW(psen_scan::UdpClientImpl reader(nullptr,
+                                               std::bind(&CallbackHandler::handleError, &handler, _1),
+                                               HOST_UDP_READ_PORT,
+                                               inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
+                                               UDP_MOCK_SEND_PORT),
                std::invalid_argument);
 }
 
@@ -57,11 +57,11 @@ TEST(UdpClientTests, testInvalidErrorHandler)
 {
   CallbackHandler handler;
 
-  EXPECT_THROW(psen_scan::UdpClient reader(std::bind(&CallbackHandler::handleNewData, &handler, _1, _2),
-                                           nullptr,
-                                           HOST_UDP_READ_PORT,
-                                           inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
-                                           UDP_MOCK_SEND_PORT),
+  EXPECT_THROW(psen_scan::UdpClientImpl reader(std::bind(&CallbackHandler::handleNewData, &handler, _1, _2),
+                                               nullptr,
+                                               HOST_UDP_READ_PORT,
+                                               inet_network(UDP_MOCK_IP_ADDRESS.c_str()),
+                                               UDP_MOCK_SEND_PORT),
                std::invalid_argument);
 }
 
