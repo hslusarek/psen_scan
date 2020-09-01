@@ -68,12 +68,12 @@ ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
 
   if (start_angle < MIN_SCAN_ANGLE || start_angle > MAX_SCAN_ANGLE)
   {
-    throw std::invalid_argument("Start angle out of range");
+    throw std::out_of_range("Start angle out of range");
   }
 
   if (end_angle < MIN_SCAN_ANGLE || end_angle > MAX_SCAN_ANGLE)
   {
-    throw std::invalid_argument("End angle out of range");
+    throw std::out_of_range("End angle out of range");
   }
 
   if (start_angle > end_angle)

@@ -27,14 +27,64 @@ using namespace psen_scan;
 
 namespace psen_scan_test
 {
+static constexpr int MINIMAL_PORT_NUMBER{ std::numeric_limits<uint16_t>::min() };
 static constexpr int MAXIMAL_PORT_NUMBER{ std::numeric_limits<uint16_t>::max() };
 static constexpr double MINIMAL_SCAN_ANGLE{ 0.0 };
 static constexpr double MAXIMAL_SCAN_ANGLE{ degreeToRad(275.) };
+static const double TOO_LARGE_SCAN_ANGLE{ std::nextafter(MAXIMAL_SCAN_ANGLE, MAXIMAL_SCAN_ANGLE + 1) };
+static const double TOO_SMALL_SCAN_ANGLE{ std::nextafter(MINIMAL_SCAN_ANGLE, MINIMAL_SCAN_ANGLE - 1) };
 static const std::string VALID_IP{ "127.0.0.1" };
 static const std::string INVALID_IP{ "invalid_ip" };
 
 class ScannerConfigurationTest : public testing::Test
 {
+};
+
+class ScannerConfigurationBuilder
+{
+public:
+  ScannerConfigurationBuilder& setHostIp(const std::string& host_ip)
+  {
+    host_ip_ = host_ip;
+    return *this;
+  }
+
+  ScannerConfigurationBuilder& setClientIp(const std::string& client_ip)
+  {
+    client_ip_ = client_ip;
+    return *this;
+  }
+
+  ScannerConfigurationBuilder& setHostUdpDataPort(const int& host_udp_port_data)
+  {
+    host_udp_port_data_ = host_udp_port_data;
+    return *this;
+  }
+
+  ScannerConfigurationBuilder& setHostUdpControlPort(const int& host_udp_port_control)
+  {
+    host_udp_port_control_ = host_udp_port_control;
+    return *this;
+  }
+
+  ScannerConfigurationBuilder& setStartAngle(const double& start_angle)
+  {
+    start_angle_ = start_angle;
+    return *this;
+  }
+
+  ScannerConfigurationBuilder& setEndAngle(const double& end_angle)
+  {
+    end_angle_ = end_angle;
+    return *this;
+  }
+
+  ScannerConfiguration build()
+  {
+    return ScannerConfiguration(
+        host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
+  }
+
 protected:
   std::string host_ip_{ VALID_IP };
   std::string client_ip_{ VALID_IP };
@@ -46,71 +96,70 @@ protected:
 
 TEST_F(ScannerConfigurationTest, testConstructorSuccess)
 {
-  EXPECT_NO_THROW(ScannerConfiguration sc(
-      host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_));
+  EXPECT_NO_THROW(ScannerConfigurationBuilder().build());
 }
 
 TEST_F(ScannerConfigurationTest, testConstructorInvalidHostIp)
 {
-  host_ip_ = INVALID_IP;
-
-  EXPECT_THROW(ScannerConfiguration sc(
-                   host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
-               std::invalid_argument);
+  EXPECT_THROW(ScannerConfigurationBuilder().setHostIp(INVALID_IP).build(), std::invalid_argument);
 }
 
 TEST_F(ScannerConfigurationTest, testConstructorInvalidClientIp)
 {
-  client_ip_ = INVALID_IP;
+  EXPECT_THROW(ScannerConfigurationBuilder().setClientIp(INVALID_IP).build(), std::invalid_argument);
+}
 
-  EXPECT_THROW(ScannerConfiguration sc(
-                   host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
+TEST_F(ScannerConfigurationTest, testConstructorDataPortTooSmall)
+{
+  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpDataPort(-1).build(), std::invalid_argument);
+}
+
+TEST_F(ScannerConfigurationTest, testConstructorDataPortTooLarge)
+{
+  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpDataPort(MAXIMAL_PORT_NUMBER + 1).build(),
                std::invalid_argument);
 }
 
-TEST_F(ScannerConfigurationTest, testConstructorInvalidDataPort)
+TEST_F(ScannerConfigurationTest, testConstructorControlPortTooSmall)
 {
-  host_udp_port_data_ = std::numeric_limits<uint16_t>::min() - 1;
-
-  EXPECT_THROW(ScannerConfiguration sc(
-                   host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
-               std::invalid_argument);
-
-  host_udp_port_data_ = MAXIMAL_PORT_NUMBER + 1;
-
-  EXPECT_THROW(ScannerConfiguration sc(
-                   host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
+  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpControlPort(MINIMAL_PORT_NUMBER - 1).build(),
                std::invalid_argument);
 }
 
-TEST_F(ScannerConfigurationTest, testConstructorInvalidControlPort)
+TEST_F(ScannerConfigurationTest, testConstructorControlPortTooLarge)
 {
-  host_udp_port_control_ = std::numeric_limits<uint16_t>::min() - 1;
-
-  EXPECT_THROW(ScannerConfiguration sc(
-                   host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
-               std::invalid_argument);
-
-  host_udp_port_control_ = MAXIMAL_PORT_NUMBER + 1;
-
-  EXPECT_THROW(ScannerConfiguration sc(
-                   host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
+  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpControlPort(MAXIMAL_PORT_NUMBER + 1).build(),
                std::invalid_argument);
 }
 
-TEST_F(ScannerConfigurationTest, testConstructorInvalidAngles)
+TEST_F(ScannerConfigurationTest, testConstructorStartAngleTooSmall)
 {
-  start_angle_ = MAXIMAL_SCAN_ANGLE;
-  end_angle_ = MAXIMAL_SCAN_ANGLE - 0.1;
+  EXPECT_THROW(ScannerConfigurationBuilder().setStartAngle(TOO_SMALL_SCAN_ANGLE).build(), std::out_of_range);
+}
 
-  EXPECT_THROW(ScannerConfiguration sc(
-                   host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_),
-               std::invalid_argument);
+TEST_F(ScannerConfigurationTest, testConstructorStartAngleTooLarge)
+{
+  EXPECT_THROW(ScannerConfigurationBuilder().setStartAngle(TOO_LARGE_SCAN_ANGLE).build(), std::out_of_range);
+}
+
+TEST_F(ScannerConfigurationTest, testConstructorEndAngleTooSmall)
+{
+  EXPECT_THROW(ScannerConfigurationBuilder().setEndAngle(TOO_SMALL_SCAN_ANGLE).build(), std::out_of_range);
+}
+
+TEST_F(ScannerConfigurationTest, testConstructorEndAngleTooLarge)
+{
+  EXPECT_THROW(ScannerConfigurationBuilder().setEndAngle(TOO_LARGE_SCAN_ANGLE).build(), std::out_of_range);
+}
+
+TEST_F(ScannerConfigurationTest, testConstructorEndAngleSmallerThanStartAngle)
+{
+  EXPECT_THROW(ScannerConfigurationBuilder().setStartAngle(2.0).setEndAngle(1.0).build(), std::invalid_argument);
 }
 
 TEST_F(ScannerConfigurationTest, testTargetIp)
 {
-  ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
+  ScannerConfiguration sc{ ScannerConfigurationBuilder().build() };
 
   const auto host_ip = sc.hostIp();
   EXPECT_EQ(4U, sizeof(host_ip));
@@ -120,12 +169,12 @@ TEST_F(ScannerConfigurationTest, testTargetIp)
   const auto network_number_ascii = inet_ntoa(network_number);
   const std::string host_ip_string(network_number_ascii);
 
-  EXPECT_EQ(host_ip_, host_ip_string);
+  EXPECT_EQ(VALID_IP, host_ip_string);
 }
 
 TEST_F(ScannerConfigurationTest, testClientIp)
 {
-  ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
+  ScannerConfiguration sc{ ScannerConfigurationBuilder().build() };
 
   const auto client_ip = sc.clientIp();
   EXPECT_EQ(4U, sizeof(client_ip));
@@ -135,34 +184,34 @@ TEST_F(ScannerConfigurationTest, testClientIp)
   const auto network_number_ascii = inet_ntoa(network_number);
   const std::string client_ip_string(network_number_ascii);
 
-  EXPECT_EQ(client_ip_, client_ip_string);
+  EXPECT_EQ(VALID_IP, client_ip_string);
 }
 
 TEST_F(ScannerConfigurationTest, testUDPPorts)
 {
-  ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
+  ScannerConfiguration sc{ ScannerConfigurationBuilder().build() };
 
   const auto host_udp_port_data = sc.hostUDPPortData();
   EXPECT_EQ(2U, sizeof(host_udp_port_data));
-  EXPECT_EQ(host_udp_port_data_, static_cast<int>(host_udp_port_data));
+  EXPECT_EQ(MAXIMAL_PORT_NUMBER - 1, static_cast<int>(host_udp_port_data));
 
   const auto host_udp_port_control = sc.hostUDPPortControl();
   EXPECT_EQ(2U, sizeof(host_udp_port_control));
-  EXPECT_EQ(host_udp_port_control_, static_cast<int>(host_udp_port_control));
+  EXPECT_EQ(MAXIMAL_PORT_NUMBER, static_cast<int>(host_udp_port_control));
 }
 
 TEST_F(ScannerConfigurationTest, testStartAngle)
 {
-  ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
+  ScannerConfiguration sc{ ScannerConfigurationBuilder().build() };
 
-  EXPECT_EQ(start_angle_, sc.startAngle());
+  EXPECT_EQ(MINIMAL_SCAN_ANGLE, sc.startAngle());
 }
 
 TEST_F(ScannerConfigurationTest, testEndAngle)
 {
-  ScannerConfiguration sc(host_ip_, host_udp_port_data_, host_udp_port_control_, client_ip_, start_angle_, end_angle_);
+  ScannerConfiguration sc{ ScannerConfigurationBuilder().build() };
 
-  EXPECT_EQ(end_angle_, sc.endAngle());
+  EXPECT_EQ(MAXIMAL_SCAN_ANGLE, sc.endAngle());
 }
 
 }  // namespace psen_scan_test
