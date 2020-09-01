@@ -15,6 +15,7 @@
 
 #include <arpa/inet.h>
 #include <gtest/gtest.h>
+#include <boost/endian/conversion.hpp>
 
 #include <psen_scan/ros_parameter_handler.h>
 #include <psen_scan/default_parameters.h>
@@ -61,9 +62,10 @@ protected:
 
   // Default expected values
   std::string expected_password_{ "admin" };
-  uint32_t expected_host_ip_{ htobe32(inet_network(host_ip_.c_str())) };
-  uint32_t expected_host_udp_port_data_{ htole32(host_udp_port_data_) };
-  uint32_t expected_host_udp_port_control_{ htole32(host_udp_port_control_) };
+  uint32_t expected_host_ip_{ boost::endian::native_to_big(inet_network(host_ip_.c_str())) };
+  uint32_t expected_host_udp_port_data_{ boost::endian::native_to_little(static_cast<uint32_t>(host_udp_port_data_)) };
+  uint32_t expected_host_udp_port_control_{ boost::endian::native_to_little(
+      static_cast<uint32_t>(host_udp_port_control_)) };
   std::string expected_frame_id_{ DEFAULT_FRAME_ID };
   double expected_angle_start_degree_{ 70. };
   double expected_angle_end_degree_{ 100. };
