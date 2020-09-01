@@ -12,6 +12,7 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #ifndef PSEN_SCAN_SCANNER_CONTROLLER_H
 #define PSEN_SCAN_SCANNER_CONTROLLER_H
 
@@ -39,14 +40,25 @@ static constexpr std::chrono::milliseconds RECEIVE_TIMEOUT{ 1000 };
 
 static constexpr uint32_t DEFAULT_SEQ_NUMBER{ 0 };
 
+// LCOV_EXCL_START
 class ScannerController
 {
 public:
-  ScannerController(const ScannerConfiguration& scanner_config,
-                    std::shared_ptr<ControllerStateMachine> state_machine,
-                    std::shared_ptr<UdpClient> control_udp_client,
-                    std::shared_ptr<UdpClient> data_udp_client);
+  virtual ~ScannerController() = default;
+  virtual void start() = 0;
+  virtual void stop() = 0;
+  virtual void handleError(const std::string& error_msg) = 0;
+  virtual void sendStartRequest() = 0;
+};
+// LCOV_EXCL_STOP
 
+class ScannerControllerImpl : public ScannerController
+{
+public:
+  ScannerControllerImpl(const ScannerConfiguration& scanner_config,
+                        std::shared_ptr<ControllerStateMachine> state_machine,
+                        std::shared_ptr<UdpClient> control_udp_client,
+                        std::shared_ptr<UdpClient> data_udp_client);
   void start();
   void stop();
 
@@ -55,50 +67,10 @@ public:
 
 private:
   ScannerConfiguration scanner_config_;
-
   std::shared_ptr<ControllerStateMachine> state_machine_;
-
   std::shared_ptr<UdpClient> control_udp_client_;
   std::shared_ptr<UdpClient> data_udp_client_;
 };
-
-inline ScannerController::ScannerController(const ScannerConfiguration& scanner_config,
-                                            std::shared_ptr<ControllerStateMachine> state_machine,
-                                            std::shared_ptr<UdpClient> control_udp_client,
-                                            std::shared_ptr<UdpClient> data_udp_client)
-  : scanner_config_(scanner_config)
-  , state_machine_(state_machine)
-  , control_udp_client_(control_udp_client)
-  , data_udp_client_(data_udp_client)
-{
-}
-
-inline void ScannerController::handleError(const std::string& error_msg)
-{
-  std::cerr << error_msg << std::endl;
-  // TODO: Add implementation -> Tell state machine about error
-}
-
-inline void ScannerController::start()
-{
-  state_machine_->processStartRequestEvent();
-}
-
-inline void ScannerController::stop()
-{
-  // TODO: Impl. sending of StopRequest
-  state_machine_->processStopRequestEvent();
-}
-
-inline void ScannerController::sendStartRequest()
-{
-  control_udp_client_->startReceiving(RECEIVE_TIMEOUT);
-  data_udp_client_->startReceiving(RECEIVE_TIMEOUT);
-  StartRequest start_request(scanner_config_, DEFAULT_SEQ_NUMBER);
-  const auto start_request_as_byte_stream{ start_request.toCharArray() };
-  std::shared_ptr<char> byte_stream_ptr{ std::make_shared<char>(start_request_as_byte_stream.at(0)) };
-  control_udp_client_->write(byte_stream_ptr, start_request_as_byte_stream.size());
-}
 
 }  // namespace psen_scan
 

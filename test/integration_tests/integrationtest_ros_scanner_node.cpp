@@ -28,7 +28,7 @@
 
 #include "psen_scan/ros_scanner_node.h"
 #include "psen_scan/laserscan.h"
-#include "psen_scan/mock_scanner.h"
+#include "psen_scan/mock_scanner_impl.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
 
 using namespace psen_scan;
@@ -73,7 +73,7 @@ TEST_F(RosScannerNodeTests, testScanTopicReceived)
 
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
-  std::unique_ptr<MockScanner> mock_scanner{ new MockScanner() };
+  std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
   EXPECT_CALL(*(mock_scanner), getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
   ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", 2.4, std::move(mock_scanner));
 
@@ -96,7 +96,7 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
 
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
-  std::unique_ptr<MockScanner> mock_scanner{ new MockScanner() };
+  std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
   {
     ::testing::InSequence s;
     EXPECT_CALL(*(mock_scanner), getCompleteScan())

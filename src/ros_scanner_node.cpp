@@ -34,7 +34,7 @@ ROSScannerNode::ROSScannerNode(ros::NodeHandle& nh,
                                const std::string& topic,
                                const std::string& frame_id,
                                const double& x_axis_rotation,
-                               std::unique_ptr<vScanner> scanner)
+                               std::unique_ptr<Scanner> scanner)
   : nh_(nh), frame_id_(frame_id), scanner_(std::move(scanner)), x_axis_rotation_(x_axis_rotation)
 {
   if (!scanner_)

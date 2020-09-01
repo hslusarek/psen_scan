@@ -31,7 +31,7 @@ class MockCallbackHolder
 {
 public:
   MOCK_METHOD0(start_reply_callback, void());
-  MOCK_METHOD1(errorCallback, void(const std::string&));
+  MOCK_METHOD1(error_callback, void(const std::string&));
 };
 
 /**
@@ -42,7 +42,7 @@ TEST(MsgDecoderTest, decodeStartReply)
 {
   MockCallbackHolder mock;
   MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock),
-                     std::bind(&MockCallbackHolder::errorCallback, &mock, std::placeholders::_1));
+                     std::bind(&MockCallbackHolder::error_callback, &mock, std::placeholders::_1));
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
 
@@ -59,7 +59,7 @@ TEST(MsgDecoderTest, decodeStartReplyCrcFail)
 {
   MockCallbackHolder mock;
   MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock),
-                     std::bind(&MockCallbackHolder::errorCallback, &mock, std::placeholders::_1));
+                     std::bind(&MockCallbackHolder::error_callback, &mock, std::placeholders::_1));
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
 
@@ -82,7 +82,7 @@ TEST(MsgDecoderTest, decodeStartReplyWrongSizeNotImplemented)
 {
   MockCallbackHolder mock;
   MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock),
-                     std::bind(&MockCallbackHolder::errorCallback, &mock, std::placeholders::_1));
+                     std::bind(&MockCallbackHolder::error_callback, &mock, std::placeholders::_1));
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
 
@@ -91,7 +91,7 @@ TEST(MsgDecoderTest, decodeStartReplyWrongSizeNotImplemented)
   std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
-  EXPECT_CALL(mock, errorCallback(::testing::_)).Times(1);
+  EXPECT_CALL(mock, error_callback(::testing::_)).Times(1);
 
   decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE + 1);  // TODO get correct size
 }
@@ -104,7 +104,7 @@ TEST(MsgDecoderTest, decodeWrongOpCodeNotImplemented)
 {
   MockCallbackHolder mock;  // Needed
   MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock),
-                     std::bind(&MockCallbackHolder::errorCallback, &mock, std::placeholders::_1));
+                     std::bind(&MockCallbackHolder::error_callback, &mock, std::placeholders::_1));
 
   ReplyMsg reply{ ReplyMsg::getStartOpCode() + 1, DEFAULT_RESULT_CODE };
 
@@ -113,7 +113,7 @@ TEST(MsgDecoderTest, decodeWrongOpCodeNotImplemented)
   std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
-  EXPECT_CALL(mock, errorCallback(::testing::_)).Times(1);
+  EXPECT_CALL(mock, error_callback(::testing::_)).Times(1);
 
   decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE);  // TODO get correct size
 }

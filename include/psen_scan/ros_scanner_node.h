@@ -37,17 +37,17 @@ public:
                  const std::string& topic,
                  const std::string& frame_id,
                  const double& x_axis_rotation,
-                 std::unique_ptr<vScanner> scanner);
+                 std::unique_ptr<Scanner> scanner);
   sensor_msgs::LaserScan buildRosMessage(const LaserScan& laserscan);
   void processingLoop();
   void terminateProcessingLoop();
 
 private:
-  ros::NodeHandle nh_;                /**< ROS Node handler*/
-  ros::Publisher pub_;                /**< ROS message publisher*/
-  std::string frame_id_;              /**< Defines the name of the frame_id. Default is scanner.*/
-  std::unique_ptr<vScanner> scanner_; /**< Points to an instance of the Scanner class.*/
-  double x_axis_rotation_;
+  ros::NodeHandle nh_;               /**< ROS Node handler*/
+  ros::Publisher pub_;               /**< ROS message publisher*/
+  std::string frame_id_;             /**< Defines the name of the frame_id. Default is scanner.*/
+  std::unique_ptr<Scanner> scanner_; /**< Points to an instance of the Scanner class.*/
+  double x_axis_rotation_;           /**< X-axis rotation.*/
   std::atomic_bool terminate_{ false };
 };
 }  // namespace psen_scan

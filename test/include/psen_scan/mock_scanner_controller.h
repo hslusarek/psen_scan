@@ -13,31 +13,25 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "psen_scan/scanner.h"
+#ifndef PSEN_SCAN_TEST_MOCK_SCANNER_CONTROLLER_H
+#define PSEN_SCAN_TEST_MOCK_SCANNER_CONTROLLER_H
 
-#include "psen_scan/scanner_controller.h"
+#include <gmock/gmock.h>
 
-namespace psen_scan
+#include <psen_scan/scanner_configuration.h>
+#include <psen_scan/scanner_controller.h>
+
+namespace psen_scan_test
 {
-ScannerImpl::ScannerImpl(std::shared_ptr<ScannerController> scanner_controller)
-  : scanner_controller_(std::move(scanner_controller))
+class MockScannerController : public psen_scan::ScannerController
 {
-}
+public:
+  MOCK_METHOD0(start, void());
+  MOCK_METHOD0(stop, void());
+  MOCK_METHOD1(handleError, void(const std::string& error_msg));
+  MOCK_METHOD0(sendStartRequest, void());
+};
 
-void ScannerImpl::start()
-{
-  scanner_controller_->start();
-}
+}  // namespace psen_scan_test
 
-void ScannerImpl::stop()
-{
-  scanner_controller_->stop();
-}
-
-LaserScan ScannerImpl::getCompleteScan()
-{
-  // TODO: Add implementation in following stories
-  throw LaserScanBuildFailure();
-}
-
-}  // namespace psen_scan
+#endif  // PSEN_SCAN_TEST_MOCK_SCANNER_CONTROLLER_H

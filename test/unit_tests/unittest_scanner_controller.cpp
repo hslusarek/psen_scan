@@ -52,7 +52,7 @@ protected:
   std::shared_ptr<MockControllerStateMachine> mock_csm_;
   std::shared_ptr<MockUdpClient> mock_control_udp_client_;
   std::shared_ptr<MockUdpClient> mock_data_udp_client_;
-  ScannerController scanner_controller_;
+  ScannerControllerImpl scanner_controller_;
 };
 
 TEST_F(ScannerControllerTest, test_start_method_calls_correct_state_machine_event)

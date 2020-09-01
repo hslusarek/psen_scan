@@ -20,15 +20,13 @@
 #include <sstream>
 #include <string>
 
+#include "psen_scan/function_pointers.h"
 #include "psen_scan/raw_scanner_data.h"
 #include "psen_scan/reply_msg.h"
 #include "psen_scan/decode_exception.h"
 
 namespace psen_scan
 {
-using StartReplyCallback = std::function<void()>;
-using ErrorCallback = std::function<void(const std::string&)>;
-
 class MsgDecoder
 {
 public:

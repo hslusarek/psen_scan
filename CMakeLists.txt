@@ -99,6 +99,7 @@ set(${PROJECT_NAME}_sources
   src/controller_state_machine.cpp
   src/laserscan.cpp
   src/scanner.cpp
+  src/scanner_controller.cpp
   src/start_request.cpp
 )
 
@@ -219,6 +220,14 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
 
+  catkin_add_gmock(unittest_scanner
+    test/unit_tests/unittest_scanner.cpp
+    src/scanner.cpp
+  )
+  target_link_libraries(unittest_scanner
+    ${catkin_LIBRARIES}
+  )
+
   catkin_add_gmock(unittest_udp_client
     test/unit_tests/unittest_udp_client.cpp
   )
@@ -244,6 +253,7 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_gmock(unittest_scanner_controller
     test/unit_tests/unittest_scanner_controller.cpp
     src/scanner_configuration.cpp
+    src/scanner_controller.cpp
     src/start_request.cpp
   )
   target_link_libraries(unittest_scanner_controller

@@ -30,14 +30,14 @@ namespace psen_scan_test
 class ControllerStateMachineTest : public ::testing::Test
 {
 public:
-  MOCK_METHOD0(sendStartRequestCallbackTest, void());
+  MOCK_METHOD0(send_start_request_callbackTest, void());
 };
 
 TEST_F(ControllerStateMachineTest, triggerSendStartRequestCallbackTest)
 {
-  EXPECT_CALL(*this, sendStartRequestCallbackTest()).Times(1);
+  EXPECT_CALL(*this, send_start_request_callbackTest()).Times(1);
 
-  ControllerStateMachineImpl sm(std::bind(&ControllerStateMachineTest::sendStartRequestCallbackTest, this));
+  ControllerStateMachineImpl sm(std::bind(&ControllerStateMachineTest::send_start_request_callbackTest, this));
 
   sm.processStartRequestEvent();
 }

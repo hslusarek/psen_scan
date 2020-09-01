@@ -36,34 +36,26 @@ public:
 };
 
 // LCOV_EXCL_START
-class vScanner
+class Scanner
 {
 public:
-  virtual ~vScanner() = default;
+  virtual ~Scanner() = default;
   virtual void start() = 0;
   virtual void stop() = 0;
   virtual LaserScan getCompleteScan() = 0;
 };
-
 // LCOV_EXCL_STOP
 
-class Scanner : public vScanner
+class ScannerImpl : public Scanner
 {
 public:
-  Scanner(const ScannerConfiguration& scanner_configuration);
+  ScannerImpl(std::shared_ptr<ScannerController> scanner_controller);
   void start();
   void stop();
   LaserScan getCompleteScan();
 
 private:
-  std::shared_ptr<ControllerStateMachineImpl> state_machine_;
-  // TODO should be dedicated ControlMsgDecoder
-  MsgDecoder control_msg_decoder_;
-  std::shared_ptr<UdpClientImpl> control_udp_client_;
-  // TODO should be dedicated DataMsgDecoder
-  MsgDecoder data_msg_decoder_;
-  std::shared_ptr<UdpClientImpl> data_udp_client_;
-  ScannerController scanner_controller_;
+  std::shared_ptr<ScannerController> scanner_controller_;
 };
 
 inline LaserScanBuildFailure::LaserScanBuildFailure(const std::string& msg) : std::runtime_error(msg)
