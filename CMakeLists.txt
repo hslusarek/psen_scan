@@ -176,14 +176,10 @@ if(CATKIN_ENABLE_TESTING)
     gtest_main
   )
 
-  catkin_add_gtest(unittest_build_new_exceptions
-    test/unit_tests/unittest_new_build_ros_message_exception.cpp
-    test/unit_tests/unittest_new_decrypt_password_exception.cpp
-    test/unit_tests/unittest_new_get_ros_parameter_exception.cpp
-    test/unit_tests/unittest_new_psen_scan_fatal_exception.cpp
-    test/unit_tests/unittest_decode_exception.cpp
+  catkin_add_gtest(unittest_new_exceptions
+    test/unit_tests/unittest_new_exceptions.cpp
   )
-  target_link_libraries(unittest_build_new_exceptions
+  target_link_libraries(unittest_new_exceptions
     ${catkin_LIBRARIES}
     gtest_main
   )
