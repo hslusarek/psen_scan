@@ -15,8 +15,9 @@
 
 #include <arpa/inet.h>
 #include <boost/endian/conversion.hpp>
-
+#include <boost/crc.hpp>
 #include <gtest/gtest.h>
+
 #include <psen_scan/scanner_configuration.h>
 #include <psen_scan/start_request.h>
 #include <psen_scan/tenth_degree_conversion.h>
@@ -71,8 +72,10 @@ TEST_F(StartRequestTest, constructorTest)
   StartRequest sr(sc, sequence_number);
 
   auto data = sr.toCharArray();
+  boost::crc_32_type result;
+  result.process_bytes(&data[sizeof(uint32_t)], data.size() - sizeof(uint32_t));
 
-  EXPECT_TRUE(DecodingEquals(data, 0x00, (uint32_t)sr.getCRC()));  // CRC
+  EXPECT_TRUE(DecodingEquals(data, 0x00, (uint32_t)result.checksum()));  // CRC
 
   EXPECT_TRUE(DecodingEquals(data, 0x04, (uint32_t)sequence_number));  // SequenceNumber
 

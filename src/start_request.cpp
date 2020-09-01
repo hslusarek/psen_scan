@@ -36,94 +36,64 @@ StartRequest::StartRequest(const ScannerConfiguration& scanner_configuration, co
   , host_udp_port_data_(scanner_configuration.hostUDPPortData())  // Write is deduced by the scanner
   , master_(scanner_configuration.startAngle(), scanner_configuration.endAngle(), MASTER_RESOLUTION_RAD)
 {
+  crc_ = getCRC();
 }
 
 uint32_t StartRequest::getCRC() const
 {
   boost::crc_32_type result;
 
-  result.process_bytes((char*)&seq_number_, sizeof(uint32_t));
-  result.process_bytes((char*)&RESERVED_, sizeof(uint64_t));
-  result.process_bytes((char*)&OPCODE_, sizeof(uint32_t));
+  std::array<char, START_REQUEST_SIZE> char_array = toCharArray();
 
-  uint32_t host_ip_big_endian = htobe32(host_ip_);
-  result.process_bytes((char*)&host_ip_big_endian, sizeof(uint32_t));
-
-  result.process_bytes((char*)&host_udp_port_data_, sizeof(uint16_t));
-  result.process_bytes((char*)&device_enabled_, sizeof(uint8_t));
-  result.process_bytes((char*)&intensity_enabled_, sizeof(uint8_t));
-  result.process_bytes((char*)&point_in_safety_enabled_, sizeof(uint8_t));
-  result.process_bytes((char*)&active_zone_set_enabled_, sizeof(uint8_t));
-  result.process_bytes((char*)&io_pin_enabled_, sizeof(uint8_t));
-  result.process_bytes((char*)&scan_counter_enabled_, sizeof(uint8_t));
-  result.process_bytes((char*)&speed_encoder_enabled_, sizeof(uint8_t));
-  result.process_bytes((char*)&diagnostics_enabled_, sizeof(uint8_t));
-
-  uint16_t start_angle{ radToTenthDegree(master_.getStartAngle()) };
-  uint16_t end_angle{ radToTenthDegree(master_.getEndAngle()) };
-  uint16_t resolution{ radToTenthDegree(master_.getResolution()) };
-  result.process_bytes((char*)&start_angle, sizeof(uint16_t));
-  result.process_bytes((char*)&end_angle, sizeof(uint16_t));
-  result.process_bytes((char*)&resolution, sizeof(uint16_t));
-
-  for (const auto& slave : slaves_)
-  {
-    uint16_t slave_start_angle{ radToTenthDegree(slave.getStartAngle()) };
-    uint16_t slave_end_angle{ radToTenthDegree(slave.getEndAngle()) };
-    uint16_t slave_resolution{ radToTenthDegree(slave.getResolution()) };
-    result.process_bytes((char*)&(slave_start_angle), sizeof(uint16_t));
-    result.process_bytes((char*)&(slave_end_angle), sizeof(uint16_t));
-    result.process_bytes((char*)&(slave_resolution), sizeof(uint16_t));
-  }
+  result.process_bytes(&char_array.at(sizeof(crc_)), char_array.size() - sizeof(crc_));
 
   return result.checksum();
 }
 
-StartRequest::RawType StartRequest::toCharArray()
+StartRequest::RawType StartRequest::toCharArray() const
 {
   std::ostringstream os;
 
-  uint32_t crc{ getCRC() };
-  os.write((char*)&crc, sizeof(uint32_t));
-  os.write((char*)&seq_number_, sizeof(uint32_t));
-  os.write((char*)&RESERVED_, sizeof(uint64_t));
-  os.write((char*)&OPCODE_, sizeof(uint32_t));
+  os.write((char*)&crc_, sizeof(crc_));
+  os.write((char*)&seq_number_, sizeof(seq_number_));
+  os.write((char*)&RESERVED_, sizeof(RESERVED_));
+  os.write((char*)&OPCODE_, sizeof(OPCODE_));
 
   uint32_t host_ip_big_endian = htobe32(host_ip_);
-  os.write((char*)&host_ip_big_endian, sizeof(uint32_t));
+  os.write((char*)&host_ip_big_endian, sizeof(host_ip_big_endian));
 
-  os.write((char*)&host_udp_port_data_, sizeof(uint16_t));
-  os.write((char*)&device_enabled_, sizeof(uint8_t));
-  os.write((char*)&intensity_enabled_, sizeof(uint8_t));
-  os.write((char*)&point_in_safety_enabled_, sizeof(uint8_t));
-  os.write((char*)&active_zone_set_enabled_, sizeof(uint8_t));
-  os.write((char*)&io_pin_enabled_, sizeof(uint8_t));
-  os.write((char*)&scan_counter_enabled_, sizeof(uint8_t));
-  os.write((char*)&speed_encoder_enabled_, sizeof(uint8_t));
-  os.write((char*)&diagnostics_enabled_, sizeof(uint8_t));
+  os.write((char*)&host_udp_port_data_, sizeof(host_udp_port_data_));
+  os.write((char*)&device_enabled_, sizeof(device_enabled_));
+  os.write((char*)&intensity_enabled_, sizeof(intensity_enabled_));
+  os.write((char*)&point_in_safety_enabled_, sizeof(point_in_safety_enabled_));
+  os.write((char*)&active_zone_set_enabled_, sizeof(active_zone_set_enabled_));
+  os.write((char*)&io_pin_enabled_, sizeof(io_pin_enabled_));
+  os.write((char*)&scan_counter_enabled_, sizeof(scan_counter_enabled_));
+  os.write((char*)&speed_encoder_enabled_, sizeof(speed_encoder_enabled_));
+  os.write((char*)&diagnostics_enabled_, sizeof(diagnostics_enabled_));
 
   uint16_t start_angle{ radToTenthDegree(master_.getStartAngle()) };
   uint16_t end_angle{ radToTenthDegree(master_.getEndAngle()) };
   uint16_t resolution{ radToTenthDegree(master_.getResolution()) };
-  os.write((char*)&start_angle, sizeof(uint16_t));
-  os.write((char*)&end_angle, sizeof(uint16_t));
-  os.write((char*)&resolution, sizeof(uint16_t));
+  os.write((char*)&start_angle, sizeof(start_angle));
+  os.write((char*)&end_angle, sizeof(end_angle));
+  os.write((char*)&resolution, sizeof(resolution));
 
   for (const auto& slave : slaves_)
   {
     uint16_t slave_start_angle{ radToTenthDegree(slave.getStartAngle()) };
     uint16_t slave_end_angle{ radToTenthDegree(slave.getEndAngle()) };
     uint16_t slave_resolution{ radToTenthDegree(slave.getResolution()) };
-    os.write((char*)&slave_start_angle, sizeof(uint16_t));
-    os.write((char*)&slave_end_angle, sizeof(uint16_t));
-    os.write((char*)&slave_resolution, sizeof(uint16_t));
+    os.write((char*)&slave_start_angle, sizeof(slave_start_angle));
+    os.write((char*)&slave_end_angle, sizeof(slave_end_angle));
+    os.write((char*)&slave_resolution, sizeof(slave_resolution));
   }
 
   StartRequest::RawType ret_val{};
 
   // TODO check limits
   std::string data_str(os.str());
-  // TODO check if lengths match
+  assert(data_str.length() == START_REQUEST_SIZE);
   std::copy(data_str.begin(), data_str.end(), ret_val.begin());
 
   return ret_val;

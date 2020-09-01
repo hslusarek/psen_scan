@@ -23,6 +23,9 @@
 
 namespace psen_scan
 {
+
+static constexpr std::size_t START_REQUEST_SIZE { 58 };
+
 /**
  * @brief Frame containing all necessary fields for a Start Request.
  *
@@ -36,7 +39,11 @@ public:
 
   uint32_t getCRC() const;
 
+  using RawType = std::array<char, START_REQUEST_SIZE>;
+  RawType toCharArray() const;
+
 private:
+  uint32_t crc_ { 0 };                     /**< Will be filled in constructor */
   uint32_t seq_number_;
   uint64_t const RESERVED_{ 0 };           /**< Use all zeros */
   uint32_t const OPCODE_{ htole32(0x35) }; /**< Constant 0x35. */
@@ -89,10 +96,6 @@ private:
 
   DeviceField master_;
   std::array<DeviceField, 3> slaves_;
-
-public:
-  using RawType = std::array<char, 58>;
-  RawType toCharArray();
 };
 
 }  // namespace psen_scan
