@@ -46,10 +46,10 @@ protected:
 };
 // TEST_F(ScannerTest, testConstructorSuccess)
 // {
-//   EXPECT_NO_THROW(ScannerImplTempl<MockScannerController>());
+//   EXPECT_NO_THROW(ScannerT<MockScannerController>());
 // }
 
-typedef ScannerImplTempl<psen_scan_test::MockScannerController> MockedScanner;
+typedef ScannerT<psen_scan_test::MockScannerController> MockedScanner;
 
 TEST_F(ScannerTest, testStart)
 {

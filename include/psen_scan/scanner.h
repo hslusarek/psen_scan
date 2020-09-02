@@ -35,21 +35,11 @@ public:
   LaserScanBuildFailure(const std::string& msg = "Error while building laser scan");
 };
 
-// LCOV_EXCL_START
-class Scanner
-{
-public:
-  virtual ~Scanner() = default;
-  virtual void start() = 0;
-  virtual void stop() = 0;
-  virtual LaserScan getCompleteScan() = 0;
-};
-// LCOV_EXCL_STOP
 template <typename SC = ScannerControllerImpl>
-class ScannerImplTempl : public Scanner
+class ScannerT
 {
 public:
-  ScannerImplTempl(const ScannerConfiguration& scanner_config);
+  ScannerT(const ScannerConfiguration& scanner_config);
   void start();
   void stop();
   LaserScan getCompleteScan();
@@ -64,31 +54,31 @@ private:
   FRIEND_TEST(ScannerTest, testGetCompleteScan);
 };
 
-typedef ScannerImplTempl<> ScannerImpl;
+typedef ScannerT<> Scanner;
 
 inline LaserScanBuildFailure::LaserScanBuildFailure(const std::string& msg) : std::runtime_error(msg)
 {
 }
 
 template <typename SC>
-ScannerImplTempl<SC>::ScannerImplTempl(const ScannerConfiguration& scanner_config) : scanner_controller_(scanner_config)
+ScannerT<SC>::ScannerT(const ScannerConfiguration& scanner_config) : scanner_controller_(scanner_config)
 {
 }
 
 template <typename SC>
-void ScannerImplTempl<SC>::start()
+void ScannerT<SC>::start()
 {
   scanner_controller_.start();
 }
 
 template <typename SC>
-void ScannerImplTempl<SC>::stop()
+void ScannerT<SC>::stop()
 {
   scanner_controller_.stop();
 }
 
 template <typename SC>
-LaserScan ScannerImplTempl<SC>::getCompleteScan()
+LaserScan ScannerT<SC>::getCompleteScan()
 {
   // TODO: Add implementation in following stories
   throw LaserScanBuildFailure();

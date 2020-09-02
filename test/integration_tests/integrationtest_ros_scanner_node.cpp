@@ -29,7 +29,7 @@
 #include "psen_scan/degree_to_rad.h"
 #include "psen_scan/ros_scanner_node.h"
 #include "psen_scan/laserscan.h"
-#include "psen_scan/mock_scanner_impl.h"
+#include "psen_scan/scanner_mock.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/scanner_configuration.h"
 
@@ -87,9 +87,8 @@ TEST_F(RosScannerNodeTests, testScanTopicReceived)
 
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
-  // std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
 
-  ROSScannerNodeImpl<MockScannerImpl> ros_scanner_node(
+  ROSScannerNodeImpl<ScannerMock> ros_scanner_node(
       nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, scanner_config_);
   EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
 
@@ -113,7 +112,7 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
 
-  ROSScannerNodeImpl<MockScannerImpl> ros_scanner_node(
+  ROSScannerNodeImpl<ScannerMock> ros_scanner_node(
       nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, scanner_config_);
   {
     ::testing::InSequence s;

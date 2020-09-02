@@ -34,7 +34,7 @@ namespace psen_scan
  * @brief Class implements a ROS-Node for the PSENscan safety laser scanner
  *
  */
-template <typename S = ScannerImpl>
+template <typename S = Scanner>
 class ROSScannerNodeImpl
 {
 public:

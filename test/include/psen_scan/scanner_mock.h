@@ -23,10 +23,10 @@
 
 namespace psen_scan_test
 {
-class MockScannerImpl : public psen_scan::Scanner
+class ScannerMock
 {
 public:
-  MockScannerImpl(const psen_scan::ScannerConfiguration& scanner_config){};
+  ScannerMock(const psen_scan::ScannerConfiguration& scanner_config){};
 
   MOCK_METHOD0(start, void());
   MOCK_METHOD0(stop, void());
