@@ -1,0 +1,32 @@
+<!--
+Copyright (c) 2020 Pilz GmbH & Co. KG
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<launch>
+
+  <test test-name="integrationtest_psen_scan_driver" pkg="psen_scan" type="integrationtest_psen_scan_driver"/>
+  <node name="laser_scanner" type="psen_scan_node" pkg="psen_scan" output="screen" required="true">
+    <rosparam param="password">"ac0d68d033"</rosparam>
+    <rosparam param="host_ip">0.0.0.0</rosparam>
+    <rosparam param="host_udp_port_data">0</rosparam>
+    <rosparam param="host_udp_port_control">0</rosparam>
+    <rosparam param="sensor_ip">0.0.0.0</rosparam>
+    <rosparam param="frame_id">EMTPY</rosparam>
+    <rosparam param="angle_start">0</rosparam>
+    <rosparam param="angle_end">0</rosparam>
+    <rosparam param="x_axis_rotation">0</rosparam>
+  </node>
+
+</launch>

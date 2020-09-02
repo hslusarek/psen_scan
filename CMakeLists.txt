@@ -278,6 +278,15 @@ if(CATKIN_ENABLE_TESTING)
     ${pilz_testutils_LIBRARIES}
   )
 
+  add_rostest_gmock(integrationtest_psen_scan_driver
+    test/integration_tests/integrationtest_psen_scan_driver.test
+    test/integration_tests/integrationtest_psen_scan_driver.cpp
+  )
+  target_link_libraries(integrationtest_psen_scan_driver
+    ${catkin_LIBRARIES}
+    ${pilz_testutils_LIBRARIES}
+  )
+
   add_rostest_gtest(integrationtest_ros_parameter_handler
     test/integration_tests/integrationtest_ros_parameter_handler.test
     test/integration_tests/integrationtest_ros_parameter_handler.cpp
