@@ -38,6 +38,7 @@ ROSScannerNode::ROSScannerNode(ros::NodeHandle& nh,
                                std::unique_ptr<Scanner> scanner)
   : nh_(nh), frame_id_(frame_id), scanner_(std::move(scanner)), x_axis_rotation_(x_axis_rotation)
 {
+  std::cout << "ROSScannerNode" << std::endl;  // TODO: remove
   if (!scanner_)
   {
     throw PSENScanFatalException("Nullpointer isn't a valid argument!");
@@ -98,6 +99,7 @@ void ROSScannerNode::terminateProcessingLoop()
  */
 void ROSScannerNode::processingLoop()
 {
+  std::cout << "processingLoop" << std::endl;  // TODO: remove
   ros::Rate r(10);
   scanner_->start();
   while (ros::ok() && !terminate_)

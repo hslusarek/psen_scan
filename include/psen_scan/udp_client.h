@@ -108,10 +108,11 @@ inline UdpClientImpl::UdpClientImpl(const NewDataHandler& data_handler,
     throw std::invalid_argument("New data handler is invalid");
   }
 
-  if (!error_handler)
-  {
-    throw std::invalid_argument("Error handler is invalid");
-  }
+  // TODO: COMMENT IN
+  // if (!error_handler)
+  // {
+  //   throw std::invalid_argument("Error handler is invalid");
+  // }
 
   try
   {
