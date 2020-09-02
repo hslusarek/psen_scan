@@ -41,7 +41,7 @@ static constexpr std::chrono::milliseconds RECEIVE_TIMEOUT{ 1000 };
 
 static constexpr uint32_t DEFAULT_SEQ_NUMBER{ 0 };
 
-template <typename SM = ControllerStateMachineImpl, typename UDPC = UdpClientImpl>
+template <typename SM = ControllerStateMachine, typename UDPC = UdpClientImpl>
 class ScannerControllerT
 {
 public:
@@ -72,9 +72,9 @@ template <typename SM, typename UDPC>
 ScannerControllerT<SM, UDPC>::ScannerControllerT(const ScannerConfiguration& scanner_config)
   : scanner_config_(scanner_config)
   , state_machine_(std::bind(&ScannerControllerT::sendStartRequest, this))
-  , control_msg_decoder_(std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
+  , control_msg_decoder_(std::bind(&SM::processStartReplyReceivedEvent, &state_machine_),
                          std::bind(&ScannerControllerT::handleError, this, std::placeholders::_1))
-  , data_msg_decoder_(std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
+  , data_msg_decoder_(std::bind(&SM::processStartReplyReceivedEvent, &state_machine_),
                       std::bind(&ScannerControllerT::handleError, this, std::placeholders::_1))
   , control_udp_client_(
         std::bind(&MsgDecoder::decodeAndDispatch, &control_msg_decoder_, std::placeholders::_1, std::placeholders::_2),

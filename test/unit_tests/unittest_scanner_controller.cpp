@@ -19,7 +19,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <psen_scan/mock_controller_state_machine.h>
+#include <psen_scan/state_machine_controller_mock.h>
 #include <psen_scan/mock_udp_client.h>
 #include <psen_scan/scanner_configuration.h>
 #include <psen_scan/scanner_controller.h>
@@ -46,7 +46,7 @@ protected:
 
 protected:
   ScannerConfiguration scanner_config_;
-  ScannerControllerT<psen_scan_test::MockControllerStateMachine, psen_scan_test::MockUdpClient> scanner_controller_;
+  ScannerControllerT<psen_scan_test::ControllerStateMachineMock, psen_scan_test::MockUdpClient> scanner_controller_;
 };
 
 TEST_F(ScannerControllerTest, test_start_method_calls_correct_state_machine_event)

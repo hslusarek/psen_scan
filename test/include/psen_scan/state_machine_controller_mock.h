@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#ifndef PSEN_SCAN_TEST_STATE_MACHINE_CONTROLLER_MOCK_H
+#define PSEN_SCAN_TEST_STATE_MACHINE_CONTROLLER_MOCK_H
+
 #include <gmock/gmock.h>
 
 #include <psen_scan/controller_state_machine.h>
@@ -20,10 +23,10 @@
 
 namespace psen_scan_test
 {
-class MockControllerStateMachine : public psen_scan::ControllerStateMachine
+class ControllerStateMachineMock
 {
 public:
-  explicit MockControllerStateMachine(const psen_scan::SendStartRequestCallback& sr){};
+  ControllerStateMachineMock(const psen_scan::SendStartRequestCallback& sr){};
 
 public:
   MOCK_METHOD0(processStartRequestEvent, void());
@@ -34,3 +37,5 @@ public:
 };
 
 }  // namespace psen_scan_test
+
+#endif  // PSEN_SCAN_TEST_STATE_MACHINE_CONTROLLER_MOCK_H
