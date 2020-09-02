@@ -41,23 +41,11 @@ static constexpr std::chrono::milliseconds RECEIVE_TIMEOUT{ 1000 };
 
 static constexpr uint32_t DEFAULT_SEQ_NUMBER{ 0 };
 
-// LCOV_EXCL_START
-class ScannerController
-{
-public:
-  virtual ~ScannerController() = default;
-  virtual void start() = 0;
-  virtual void stop() = 0;
-  virtual void handleError(const std::string& error_msg) = 0;
-  virtual void sendStartRequest() = 0;
-};
-// LCOV_EXCL_STOP
-
 template <typename SM = ControllerStateMachineImpl, typename UDPC = UdpClientImpl>
-class ScannerControllerImplTempl : public ScannerController
+class ScannerControllerT
 {
 public:
-  ScannerControllerImplTempl(const ScannerConfiguration& scanner_config);
+  ScannerControllerT(const ScannerConfiguration& scanner_config);
   void start();
   void stop();
 
@@ -78,25 +66,25 @@ private:
   FRIEND_TEST(ScannerControllerTest, test_udp_clients_listen_before_sending_start_request);
 };
 
-typedef ScannerControllerImplTempl<> ScannerControllerImpl;
+typedef ScannerControllerT<> ScannerController;
 
 template <typename SM, typename UDPC>
-ScannerControllerImplTempl<SM, UDPC>::ScannerControllerImplTempl(const ScannerConfiguration& scanner_config)
+ScannerControllerT<SM, UDPC>::ScannerControllerT(const ScannerConfiguration& scanner_config)
   : scanner_config_(scanner_config)
-  , state_machine_(std::bind(&ScannerControllerImplTempl::sendStartRequest, this))
+  , state_machine_(std::bind(&ScannerControllerT::sendStartRequest, this))
   , control_msg_decoder_(std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
-                         std::bind(&ScannerControllerImplTempl::handleError, this, std::placeholders::_1))
+                         std::bind(&ScannerControllerT::handleError, this, std::placeholders::_1))
   , data_msg_decoder_(std::bind(&ControllerStateMachine::processStartReplyReceivedEvent, &state_machine_),
-                      std::bind(&ScannerControllerImplTempl::handleError, this, std::placeholders::_1))
+                      std::bind(&ScannerControllerT::handleError, this, std::placeholders::_1))
   , control_udp_client_(
         std::bind(&MsgDecoder::decodeAndDispatch, &control_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
-        std::bind(&ScannerControllerImplTempl::handleError, this, std::placeholders::_1),
+        std::bind(&ScannerControllerT::handleError, this, std::placeholders::_1),
         scanner_config.hostUDPPortControl(),
         scanner_config.clientIp(),
         CONTROL_PORT_OF_SCANNER_DEVICE)
   , data_udp_client_(
         std::bind(&MsgDecoder::decodeAndDispatch, &data_msg_decoder_, std::placeholders::_1, std::placeholders::_2),
-        std::bind(&ScannerControllerImplTempl::handleError, this, std::placeholders::_1),
+        std::bind(&ScannerControllerT::handleError, this, std::placeholders::_1),
         scanner_config.hostUDPPortData(),
         scanner_config.clientIp(),
         DATA_PORT_OF_SCANNER_DEVICE)
@@ -104,27 +92,27 @@ ScannerControllerImplTempl<SM, UDPC>::ScannerControllerImplTempl(const ScannerCo
 }
 
 template <typename SM, typename UDPC>
-void ScannerControllerImplTempl<SM, UDPC>::handleError(const std::string& error_msg)
+void ScannerControllerT<SM, UDPC>::handleError(const std::string& error_msg)
 {
   std::cerr << error_msg << std::endl;
   // TODO: Add implementation -> Tell state machine about error
 }
 
 template <typename SM, typename UDPC>
-void ScannerControllerImplTempl<SM, UDPC>::start()
+void ScannerControllerT<SM, UDPC>::start()
 {
   state_machine_.processStartRequestEvent();
 }
 
 template <typename SM, typename UDPC>
-void ScannerControllerImplTempl<SM, UDPC>::stop()
+void ScannerControllerT<SM, UDPC>::stop()
 {
   // TODO: Impl. sending of StopRequest
   state_machine_.processStopRequestEvent();
 }
 
 template <typename SM, typename UDPC>
-void ScannerControllerImplTempl<SM, UDPC>::sendStartRequest()
+void ScannerControllerT<SM, UDPC>::sendStartRequest()
 {
   control_udp_client_.startReceiving(RECEIVE_TIMEOUT);
   data_udp_client_.startReceiving(RECEIVE_TIMEOUT);

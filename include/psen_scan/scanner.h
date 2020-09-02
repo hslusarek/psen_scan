@@ -35,7 +35,7 @@ public:
   LaserScanBuildFailure(const std::string& msg = "Error while building laser scan");
 };
 
-template <typename SC = ScannerControllerImpl>
+template <typename SC = ScannerController>
 class ScannerT
 {
 public:

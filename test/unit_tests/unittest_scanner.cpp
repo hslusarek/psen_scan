@@ -20,7 +20,7 @@
 #include <psen_scan/scanner.h>
 #include <psen_scan/scanner_configuration.h>
 #include <psen_scan/scanner_controller.h>
-#include <psen_scan/mock_scanner_controller.h>
+#include <psen_scan/scanner_controller_mock.h>
 
 using namespace psen_scan;
 
@@ -46,10 +46,10 @@ protected:
 };
 // TEST_F(ScannerTest, testConstructorSuccess)
 // {
-//   EXPECT_NO_THROW(ScannerT<MockScannerController>());
+//   EXPECT_NO_THROW(ScannerT<ScannerControllerMock>());
 // }
 
-typedef ScannerT<psen_scan_test::MockScannerController> MockedScanner;
+typedef ScannerT<psen_scan_test::ScannerControllerMock> MockedScanner;
 
 TEST_F(ScannerTest, testStart)
 {

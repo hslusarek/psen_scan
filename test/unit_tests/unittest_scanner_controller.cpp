@@ -46,7 +46,7 @@ protected:
 
 protected:
   ScannerConfiguration scanner_config_;
-  ScannerControllerImplTempl<psen_scan_test::MockControllerStateMachine, psen_scan_test::MockUdpClient>
+  ScannerControllerT<psen_scan_test::MockControllerStateMachine, psen_scan_test::MockUdpClient>
       scanner_controller_;
 };
 

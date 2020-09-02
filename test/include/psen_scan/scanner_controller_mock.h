@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef PSEN_SCAN_TEST_MOCK_SCANNER_CONTROLLER_H
-#define PSEN_SCAN_TEST_MOCK_SCANNER_CONTROLLER_H
+#ifndef PSEN_SCAN_TEST_SCANNER_CONTROLLER_MOCK_H
+#define PSEN_SCAN_TEST_SCANNER_CONTROLLER_MOCK_H
 
 #include <gmock/gmock.h>
 
@@ -23,10 +23,10 @@
 
 namespace psen_scan_test
 {
-class MockScannerController : public psen_scan::ScannerController
+class ScannerControllerMock
 {
 public:
-  MockScannerController(const psen_scan::ScannerConfiguration& scanner_config){};
+  ScannerControllerMock(const psen_scan::ScannerConfiguration& scanner_config){};
   MOCK_METHOD0(start, void());
   MOCK_METHOD0(stop, void());
   MOCK_METHOD1(handleError, void(const std::string& error_msg));
@@ -35,4 +35,4 @@ public:
 
 }  // namespace psen_scan_test
 
-#endif  // PSEN_SCAN_TEST_MOCK_SCANNER_CONTROLLER_H
+#endif  // PSEN_SCAN_TEST_SCANNER_CONTROLLER_MOCK_H
