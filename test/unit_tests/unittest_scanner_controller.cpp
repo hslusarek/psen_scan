@@ -46,7 +46,8 @@ protected:
 
 protected:
   ScannerConfiguration scanner_config_;
-  ScannerControllerImplTempl<psen_scan_test::MockControllerStateMachine, psen_scan_test::MockUdpClient> scanner_controller_;
+  ScannerControllerImplTempl<psen_scan_test::MockControllerStateMachine, psen_scan_test::MockUdpClient>
+      scanner_controller_;
 };
 
 TEST_F(ScannerControllerTest, test_start_method_calls_correct_state_machine_event)
@@ -68,7 +69,8 @@ TEST_F(ScannerControllerTest, test_udp_clients_listen_before_sending_start_reque
   using ::testing::_;
   using ::testing::Expectation;
 
-  Expectation control_udp_client_start_receiving = EXPECT_CALL(scanner_controller_.control_udp_client_, startReceiving(_));
+  Expectation control_udp_client_start_receiving =
+      EXPECT_CALL(scanner_controller_.control_udp_client_, startReceiving(_));
   Expectation data_udp_client_start_receiving = EXPECT_CALL(scanner_controller_.data_udp_client_, startReceiving(_));
   EXPECT_CALL(scanner_controller_.control_udp_client_, write(_, _))
       .After(control_udp_client_start_receiving, data_udp_client_start_receiving);
@@ -81,7 +83,7 @@ TEST_F(ScannerControllerTest, test_handle_error_no_throw)
   ASSERT_NO_THROW(scanner_controller_.handleError("Error Message."));
 }
 
-}  // namespace psen_scan_test
+}  // namespace psen_scan
 
 int main(int argc, char* argv[])
 {

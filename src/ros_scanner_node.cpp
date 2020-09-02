@@ -22,6 +22,4 @@
 
 namespace psen_scan
 {
-
-
 }  // namespace psen_scan

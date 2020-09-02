@@ -38,8 +38,7 @@ static constexpr double END_ANGLE{ 275. * 2 * M_PI / 360. };
 class ScannerTest : public testing::Test
 {
 protected:
-  ScannerTest():
-  scanner_config_(HOST_IP, HOST_UDP_PORT_DATA, HOST_UDP_PORT_CONTROL, DEVICE_IP, START_ANGLE, END_ANGLE)
+  ScannerTest() : scanner_config_(HOST_IP, HOST_UDP_PORT_DATA, HOST_UDP_PORT_CONTROL, DEVICE_IP, START_ANGLE, END_ANGLE)
   {
   }
 
@@ -72,7 +71,7 @@ TEST_F(ScannerTest, testGetCompleteScan)
   EXPECT_THROW(scanner.getCompleteScan(), LaserScanBuildFailure);
 }
 
-}  // namespace psen_scan_test
+}  // namespace psen_scan
 
 int main(int argc, char* argv[])
 {

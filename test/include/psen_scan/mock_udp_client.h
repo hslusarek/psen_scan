@@ -27,6 +27,7 @@ public:
                 const unsigned short& host_port,
                 const unsigned int& endpoint_ip,
                 const unsigned short& endpoint_port){};
+
 public:
   MOCK_METHOD0(close, void());
   MOCK_METHOD1(startReceiving, void(const std::chrono::high_resolution_clock::duration timeout));

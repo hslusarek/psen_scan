@@ -34,32 +34,30 @@ namespace psen_scan
  * @brief Class implements a ROS-Node for the PSENscan safety laser scanner
  *
  */
-template<typename S = ScannerImpl>
+template <typename S = ScannerImpl>
 class ROSScannerNodeImpl
 {
 public:
   ROSScannerNodeImpl(ros::NodeHandle& nh,
-                 const std::string& topic,
-                 const std::string& frame_id,
-                 const double& x_axis_rotation,
-                 const ScannerConfiguration& scanner_config);
+                     const std::string& topic,
+                     const std::string& frame_id,
+                     const double& x_axis_rotation,
+                     const ScannerConfiguration& scanner_config);
   sensor_msgs::LaserScan buildRosMessage(const LaserScan& laserscan);
   void processingLoop();
   void terminateProcessingLoop();
 
 private:
-  ros::NodeHandle nh_;               /**< ROS Node handler*/
-  ros::Publisher pub_;               /**< ROS message publisher*/
-  std::string frame_id_;             /**< Defines the name of the frame_id. Default is scanner.*/
-  double x_axis_rotation_;           /**< X-axis rotation.*/
-  S scanner_; /**< Points to an instance of the Scanner class.*/
+  ros::NodeHandle nh_;     /**< ROS Node handler*/
+  ros::Publisher pub_;     /**< ROS message publisher*/
+  std::string frame_id_;   /**< Defines the name of the frame_id. Default is scanner.*/
+  double x_axis_rotation_; /**< X-axis rotation.*/
+  S scanner_;              /**< Points to an instance of the Scanner class.*/
   std::atomic_bool terminate_{ false };
 
-
-friend class RosScannerNodeTests;
-FRIEND_TEST(RosScannerNodeTests, testScanTopicReceived);
-FRIEND_TEST(RosScannerNodeTests, testScanBuildFailure);
-
+  friend class RosScannerNodeTests;
+  FRIEND_TEST(RosScannerNodeTests, testScanTopicReceived);
+  FRIEND_TEST(RosScannerNodeTests, testScanBuildFailure);
 };
 
 typedef ROSScannerNodeImpl<> ROSScannerNode;
@@ -73,12 +71,12 @@ typedef ROSScannerNodeImpl<> ROSScannerNode;
  * @param scanner pointer ot an instance of the class Scanner
  * @param x_axis_rotation rotation of 2D scan around the z-axis.
  */
-template<typename S>
+template <typename S>
 ROSScannerNodeImpl<S>::ROSScannerNodeImpl(ros::NodeHandle& nh,
-                                       const std::string& topic,
-                                       const std::string& frame_id,
-                                       const double& x_axis_rotation,
-                                       const ScannerConfiguration& scanner_config)
+                                          const std::string& topic,
+                                          const std::string& frame_id,
+                                          const double& x_axis_rotation,
+                                          const ScannerConfiguration& scanner_config)
   : nh_(nh), frame_id_(frame_id), x_axis_rotation_(x_axis_rotation), scanner_(scanner_config)
 {
   pub_ = nh_.advertise<sensor_msgs::LaserScan>(topic, 1);
@@ -94,7 +92,7 @@ ROSScannerNodeImpl<S>::ROSScannerNodeImpl(ros::NodeHandle& nh,
  * @throws BuildROSMessageException
  *
  */
-template<typename S>
+template <typename S>
 sensor_msgs::LaserScan ROSScannerNodeImpl<S>::buildRosMessage(const LaserScan& laserscan)
 {
   // TODO Remove after implementing building of laserscans
@@ -127,7 +125,7 @@ sensor_msgs::LaserScan ROSScannerNodeImpl<S>::buildRosMessage(const LaserScan& l
   // LCOV_EXCL_STOP
 }
 
-template<typename S>
+template <typename S>
 void ROSScannerNodeImpl<S>::terminateProcessingLoop()
 {
   terminate_ = true;
@@ -137,7 +135,7 @@ void ROSScannerNodeImpl<S>::terminateProcessingLoop()
  * @brief endless loop for processing incoming UDP data from the laser scanner
  *
  */
-template<typename S>
+template <typename S>
 void ROSScannerNodeImpl<S>::processingLoop()
 {
   ros::Rate r(10);

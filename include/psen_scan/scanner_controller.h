@@ -72,7 +72,6 @@ private:
   UDPC control_udp_client_;
   UDPC data_udp_client_;
 
-
   friend class ScannerControllerTest;
   FRIEND_TEST(ScannerControllerTest, test_start_method_calls_correct_state_machine_event);
   FRIEND_TEST(ScannerControllerTest, test_stop_method_calls_correct_state_machine_event);

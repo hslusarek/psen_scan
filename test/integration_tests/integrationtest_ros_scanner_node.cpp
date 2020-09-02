@@ -76,7 +76,7 @@ TEST_F(RosScannerNodeTests, testScanTopicReceived)
 
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
-  //std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
+  // std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
 
   ROSScannerNodeImpl<MockScannerImpl> ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION);
   EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
@@ -110,7 +110,6 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
     EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan()).Times(1).WillRepeatedly(Return(laser_scan_fake));
   }
 
-
   subscriber.initialize(nh_priv_);
   std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
   BARRIER(LASER_SCAN_RECEIVED);
@@ -118,7 +117,7 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
   EXPECT_EQ(loop.wait_for(LOOP_END_TIMEOUT), std::future_status::ready);
 }
 
-}  // namespace psen_scan_test
+}  // namespace psen_scan
 
 int main(int argc, char* argv[])
 {

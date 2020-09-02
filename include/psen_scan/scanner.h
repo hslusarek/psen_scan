@@ -45,7 +45,7 @@ public:
   virtual LaserScan getCompleteScan() = 0;
 };
 // LCOV_EXCL_STOP
-template<typename SC = ScannerControllerImpl>
+template <typename SC = ScannerControllerImpl>
 class ScannerImplTempl : public Scanner
 {
 public:
@@ -57,11 +57,11 @@ public:
 private:
   SC scanner_controller_;
 
-friend class ScannerTest;
-FRIEND_TEST(ScannerTest, testConstructorSuccess);
-FRIEND_TEST(ScannerTest, testStart);
-FRIEND_TEST(ScannerTest, testStop);
-FRIEND_TEST(ScannerTest, testGetCompleteScan);
+  friend class ScannerTest;
+  FRIEND_TEST(ScannerTest, testConstructorSuccess);
+  FRIEND_TEST(ScannerTest, testStart);
+  FRIEND_TEST(ScannerTest, testStop);
+  FRIEND_TEST(ScannerTest, testGetCompleteScan);
 };
 
 typedef ScannerImplTempl<> ScannerImpl;
@@ -70,25 +70,24 @@ inline LaserScanBuildFailure::LaserScanBuildFailure(const std::string& msg) : st
 {
 }
 
-template<typename SC>
-ScannerImplTempl<SC>::ScannerImplTempl(const ScannerConfiguration& scanner_config)
-  : scanner_controller_(scanner_config)
+template <typename SC>
+ScannerImplTempl<SC>::ScannerImplTempl(const ScannerConfiguration& scanner_config) : scanner_controller_(scanner_config)
 {
 }
 
-template<typename SC>
+template <typename SC>
 void ScannerImplTempl<SC>::start()
 {
   scanner_controller_.start();
 }
 
-template<typename SC>
+template <typename SC>
 void ScannerImplTempl<SC>::stop()
 {
   scanner_controller_.stop();
 }
 
-template<typename SC>
+template <typename SC>
 LaserScan ScannerImplTempl<SC>::getCompleteScan()
 {
   // TODO: Add implementation in following stories
