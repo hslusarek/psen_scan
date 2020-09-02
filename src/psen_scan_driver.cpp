@@ -77,7 +77,7 @@ int main(int argc, char** argv)
         std::make_shared<ScannerControllerImpl>(scanner_controller)) };
 
     ROSScannerNode ros_scanner_node(
-        pnh, DEFAULT_PUBLISH_TOPIC, param_handler.getFrameID(), param_handler.getXAxisRotation(), std::move(scanner));
+        pnh, DEFAULT_PUBLISH_TOPIC, param_handler.getFrameID(), param_handler.getXAxisRotation());
     ros_scanner_node.processingLoop();
   }
   catch (PSENScanFatalException& e)

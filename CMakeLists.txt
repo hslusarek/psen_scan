@@ -106,7 +106,6 @@ set(${PROJECT_NAME}_sources
 set(${PROJECT_NAME}_node_sources
   src/psen_scan_driver.cpp
   src/ros_parameter_handler.cpp
-  src/ros_scanner_node.cpp
   src/scanner_configuration.cpp
 )
 

@@ -37,7 +37,7 @@ using namespace psen_scan_test;
 using ::testing::DoAll;
 using ::testing::Return;
 
-namespace psen_scan_test
+namespace psen_scan
 {
 static constexpr std::chrono::seconds LOOP_END_TIMEOUT{ 3 };
 
@@ -76,9 +76,10 @@ TEST_F(RosScannerNodeTests, testScanTopicReceived)
 
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
-  std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
-  EXPECT_CALL(*(mock_scanner), getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
-  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, std::move(mock_scanner));
+  //std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
+
+  ROSScannerNodeImpl<MockScannerImpl> ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION);
+  EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
 
   subscriber.initialize(nh_priv_);
   std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
@@ -99,32 +100,22 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
 
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
-  std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
+
+  ROSScannerNodeImpl<MockScannerImpl> ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION);
   {
     ::testing::InSequence s;
-    EXPECT_CALL(*(mock_scanner), getCompleteScan())
+    EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan())
         .Times(100)
         .WillRepeatedly(DoAll(ThrowScanBuildFailure(), Return(laser_scan_fake)));
-    EXPECT_CALL(*(mock_scanner), getCompleteScan()).Times(1).WillRepeatedly(Return(laser_scan_fake));
+    EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan()).Times(1).WillRepeatedly(Return(laser_scan_fake));
   }
-  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, std::move(mock_scanner));
+
 
   subscriber.initialize(nh_priv_);
   std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
   BARRIER(LASER_SCAN_RECEIVED);
   ros_scanner_node.terminateProcessingLoop();
   EXPECT_EQ(loop.wait_for(LOOP_END_TIMEOUT), std::future_status::ready);
-}
-
-TEST_F(RosScannerNodeTests, testMissingScannerObject)
-{
-  EXPECT_THROW(ROSScannerNode scanner_node(nh_priv_,
-                                           "scan",
-                                           "scanner",
-                                           DEFAULT_X_AXIS_ROTATION,
-                                           nullptr  // This throws exception
-                                           ),
-               psen_scan::PSENScanFatalException);
 }
 
 }  // namespace psen_scan_test

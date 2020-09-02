@@ -49,7 +49,8 @@ public:
 class ScannerImpl : public Scanner
 {
 public:
-  ScannerImpl(std::shared_ptr<ScannerController> scanner_controller);
+  ScannerImpl(){};
+  ScannerImpl(std::shared_ptr<ScannerController> scanner_controller); //TODO Remove later
   void start();
   void stop();
   LaserScan getCompleteScan();
