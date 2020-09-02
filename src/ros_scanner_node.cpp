@@ -29,6 +29,7 @@ namespace psen_scan
  * @param topic name of the ROS topic
  * @param frame_id name of the frame id
  * @param scanner pointer ot an instance of the class Scanner
+ * @param x_axis_rotation rotation of 2D scan around the z-axis.
  */
 ROSScannerNode::ROSScannerNode(ros::NodeHandle& nh,
                                const std::string& topic,

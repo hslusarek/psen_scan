@@ -174,7 +174,7 @@ void RosParameterHandler::updateAllParamsFromParamServer()
  *
  * @tparam T Type of parameter to fetch
  * @param key Key for the parameter on parameter-server
- *
+ * @param param variable where the parameter is stored
  * @throws GetROSParameterException
  */
 template <class T>
@@ -197,6 +197,7 @@ void RosParameterHandler::getRequiredParamFromParamServer(const std::string& key
  *
  * @tparam T Type of parameter to fetch
  * @param key Key for the parameter on parameter-server
+ * @param param variable where the parameter is stored
  * @return true for sucess and false if the parameter does not exist
  *
  * @throws GetROSParameterException
