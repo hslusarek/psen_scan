@@ -26,6 +26,7 @@
 #include <sensor_msgs/LaserScan.h>
 #include <pilz_testutils/async_test.h>
 
+#include "psen_scan/degree_to_rad.h"
 #include "psen_scan/ros_scanner_node.h"
 #include "psen_scan/laserscan.h"
 #include "psen_scan/mock_scanner_impl.h"
@@ -43,6 +44,8 @@ static constexpr std::chrono::seconds LOOP_END_TIMEOUT{ 3 };
 static constexpr int QUEUE_SIZE{ 10 };
 
 static const std::string LASER_SCAN_RECEIVED{ "LASER_SCAN_RECEIVED" };
+
+static constexpr double DEFAULT_X_AXIS_ROTATION{ degreeToRad(137.5) };
 
 class SubscriberMock
 {
@@ -75,7 +78,7 @@ TEST_F(RosScannerNodeTests, testScanTopicReceived)
   laser_scan_fake.getMeasurements().push_back(1);
   std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
   EXPECT_CALL(*(mock_scanner), getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
-  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", 2.4, std::move(mock_scanner));
+  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, std::move(mock_scanner));
 
   subscriber.initialize(nh_priv_);
   std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
@@ -104,7 +107,7 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
         .WillRepeatedly(DoAll(ThrowScanBuildFailure(), Return(laser_scan_fake)));
     EXPECT_CALL(*(mock_scanner), getCompleteScan()).Times(1).WillRepeatedly(Return(laser_scan_fake));
   }
-  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", 2.4, std::move(mock_scanner));
+  ROSScannerNode ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, std::move(mock_scanner));
 
   subscriber.initialize(nh_priv_);
   std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
@@ -118,7 +121,7 @@ TEST_F(RosScannerNodeTests, testMissingScannerObject)
   EXPECT_THROW(ROSScannerNode scanner_node(nh_priv_,
                                            "scan",
                                            "scanner",
-                                           2.3998277,
+                                           DEFAULT_X_AXIS_ROTATION,
                                            nullptr  // This throws exception
                                            ),
                psen_scan::PSENScanFatalException);
@@ -131,7 +134,7 @@ int main(int argc, char* argv[])
   ros::init(argc, argv, "integrationtest_ros_scanner_node");
   ros::NodeHandle nh;
 
-  ros::AsyncSpinner spinner{ 2 };
+  ros::AsyncSpinner spinner{ 1 };
   spinner.start();
 
   testing::InitGoogleTest(&argc, argv);
