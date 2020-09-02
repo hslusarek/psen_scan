@@ -45,22 +45,54 @@ public:
   virtual LaserScan getCompleteScan() = 0;
 };
 // LCOV_EXCL_STOP
-
-class ScannerImpl : public Scanner
+template<typename SC = ScannerControllerImpl>
+class ScannerImplTempl : public Scanner
 {
 public:
-  ScannerImpl(){};
-  ScannerImpl(std::shared_ptr<ScannerController> scanner_controller); //TODO Remove later
+  ScannerImplTempl(const ScannerConfiguration& scanner_config);
   void start();
   void stop();
   LaserScan getCompleteScan();
 
 private:
-  std::shared_ptr<ScannerController> scanner_controller_;
+  SC scanner_controller_;
+
+friend class ScannerTest;
+FRIEND_TEST(ScannerTest, testConstructorSuccess);
+FRIEND_TEST(ScannerTest, testStart);
+FRIEND_TEST(ScannerTest, testStop);
+FRIEND_TEST(ScannerTest, testGetCompleteScan);
 };
+
+typedef ScannerImplTempl<> ScannerImpl;
 
 inline LaserScanBuildFailure::LaserScanBuildFailure(const std::string& msg) : std::runtime_error(msg)
 {
+}
+
+template<typename SC>
+ScannerImplTempl<SC>::ScannerImplTempl(const ScannerConfiguration& scanner_config)
+  : scanner_controller_(scanner_config)
+{
+}
+
+template<typename SC>
+void ScannerImplTempl<SC>::start()
+{
+  scanner_controller_.start();
+}
+
+template<typename SC>
+void ScannerImplTempl<SC>::stop()
+{
+  scanner_controller_.stop();
+}
+
+template<typename SC>
+LaserScan ScannerImplTempl<SC>::getCompleteScan()
+{
+  // TODO: Add implementation in following stories
+  throw LaserScanBuildFailure();
 }
 
 }  // namespace psen_scan

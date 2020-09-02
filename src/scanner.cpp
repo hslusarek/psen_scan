@@ -19,25 +19,6 @@
 
 namespace psen_scan
 {
-ScannerImpl::ScannerImpl(std::shared_ptr<ScannerController> scanner_controller)
-  : scanner_controller_(std::move(scanner_controller))
-{
-}
 
-void ScannerImpl::start()
-{
-  scanner_controller_->start();
-}
-
-void ScannerImpl::stop()
-{
-  scanner_controller_->stop();
-}
-
-LaserScan ScannerImpl::getCompleteScan()
-{
-  // TODO: Add implementation in following stories
-  throw LaserScanBuildFailure();
-}
 
 }  // namespace psen_scan
