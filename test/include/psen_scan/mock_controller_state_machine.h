@@ -16,11 +16,15 @@
 #include <gmock/gmock.h>
 
 #include <psen_scan/controller_state_machine.h>
+#include <psen_scan/function_pointers.h>
 
 namespace psen_scan_test
 {
 class MockControllerStateMachine : public psen_scan::ControllerStateMachine
 {
+public:
+  explicit MockControllerStateMachine(const psen_scan::SendStartRequestCallback& sr){};
+
 public:
   MOCK_METHOD0(processStartRequestEvent, void());
   MOCK_METHOD0(processStartReplyReceivedEvent, void());

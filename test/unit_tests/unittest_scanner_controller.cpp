@@ -26,7 +26,7 @@
 
 using namespace psen_scan;
 
-namespace psen_scan_test
+namespace psen_scan
 {
 static const std::string HOST_IP{ "127.0.0.1" };
 static constexpr int HOST_UDP_PORT_DATA{ 50505 };
@@ -40,31 +40,25 @@ class ScannerControllerTest : public ::testing::Test
 protected:
   ScannerControllerTest()
     : scanner_config_(HOST_IP, HOST_UDP_PORT_DATA, HOST_UDP_PORT_CONTROL, DEVICE_IP, START_ANGLE, END_ANGLE)
-    , mock_csm_(std::make_shared<MockControllerStateMachine>())
-    , mock_control_udp_client_(std::make_shared<MockUdpClient>())
-    , mock_data_udp_client_(std::make_shared<MockUdpClient>())
-    , scanner_controller_(scanner_config_, mock_csm_, mock_control_udp_client_, mock_data_udp_client_)
+    , scanner_controller_(scanner_config_)
   {
   }
 
 protected:
   ScannerConfiguration scanner_config_;
-  std::shared_ptr<MockControllerStateMachine> mock_csm_;
-  std::shared_ptr<MockUdpClient> mock_control_udp_client_;
-  std::shared_ptr<MockUdpClient> mock_data_udp_client_;
-  ScannerControllerImpl scanner_controller_;
+  ScannerControllerImplTempl<psen_scan_test::MockControllerStateMachine, psen_scan_test::MockUdpClient> scanner_controller_;
 };
 
 TEST_F(ScannerControllerTest, test_start_method_calls_correct_state_machine_event)
 {
-  EXPECT_CALL(*mock_csm_, processStartRequestEvent()).Times(1);
+  EXPECT_CALL(scanner_controller_.state_machine_, processStartRequestEvent()).Times(1);
 
   scanner_controller_.start();
 }
 
 TEST_F(ScannerControllerTest, test_stop_method_calls_correct_state_machine_event)
 {
-  EXPECT_CALL(*mock_csm_, processStopRequestEvent()).Times(1);
+  EXPECT_CALL(scanner_controller_.state_machine_, processStopRequestEvent()).Times(1);
 
   scanner_controller_.stop();
 }
@@ -74,9 +68,9 @@ TEST_F(ScannerControllerTest, test_udp_clients_listen_before_sending_start_reque
   using ::testing::_;
   using ::testing::Expectation;
 
-  Expectation control_udp_client_start_receiving = EXPECT_CALL(*mock_control_udp_client_, startReceiving(_));
-  Expectation data_udp_client_start_receiving = EXPECT_CALL(*mock_data_udp_client_, startReceiving(_));
-  EXPECT_CALL(*mock_control_udp_client_, write(_, _))
+  Expectation control_udp_client_start_receiving = EXPECT_CALL(scanner_controller_.control_udp_client_, startReceiving(_));
+  Expectation data_udp_client_start_receiving = EXPECT_CALL(scanner_controller_.data_udp_client_, startReceiving(_));
+  EXPECT_CALL(scanner_controller_.control_udp_client_, write(_, _))
       .After(control_udp_client_start_receiving, data_udp_client_start_receiving);
 
   scanner_controller_.sendStartRequest();
