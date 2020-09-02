@@ -46,8 +46,7 @@ protected:
 
 protected:
   ScannerConfiguration scanner_config_;
-  ScannerControllerT<psen_scan_test::MockControllerStateMachine, psen_scan_test::MockUdpClient>
-      scanner_controller_;
+  ScannerControllerT<psen_scan_test::MockControllerStateMachine, psen_scan_test::MockUdpClient> scanner_controller_;
 };
 
 TEST_F(ScannerControllerTest, test_start_method_calls_correct_state_machine_event)

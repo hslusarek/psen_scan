@@ -88,7 +88,7 @@ TEST_F(RosScannerNodeTests, testScanTopicReceived)
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
 
-  ROSScannerNodeImpl<ScannerMock> ros_scanner_node(
+  ROSScannerNodeImplT<ScannerMock> ros_scanner_node(
       nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, scanner_config_);
   EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
 
@@ -112,7 +112,7 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
 
-  ROSScannerNodeImpl<ScannerMock> ros_scanner_node(
+  ROSScannerNodeImplT<ScannerMock> ros_scanner_node(
       nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, scanner_config_);
   {
     ::testing::InSequence s;
