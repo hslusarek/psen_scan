@@ -272,6 +272,7 @@ if(CATKIN_ENABLE_TESTING)
     test/integration_tests/integrationtest_ros_scanner_node.cpp
     src/laserscan.cpp
     src/ros_scanner_node.cpp
+    src/scanner_configuration.cpp
   )
   target_link_libraries(integrationtest_ros_scanner_node
     ${catkin_LIBRARIES}

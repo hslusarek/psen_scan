@@ -31,6 +31,7 @@
 #include "psen_scan/laserscan.h"
 #include "psen_scan/mock_scanner_impl.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
+#include "psen_scan/scanner_configuration.h"
 
 using namespace psen_scan;
 using namespace psen_scan_test;
@@ -63,10 +64,20 @@ inline void SubscriberMock::initialize(ros::NodeHandle& nh)
   subscriber_ = nh.subscribe("scan", QUEUE_SIZE, &SubscriberMock::callback, this);
 }
 
+static const std::string HOST_IP{ "127.0.0.1" };
+static constexpr int HOST_UDP_PORT_DATA{ 50505 };
+static constexpr int HOST_UDP_PORT_CONTROL{ 55055 };
+static const std::string DEVICE_IP{ "127.0.0.100" };
+static constexpr double START_ANGLE{ 0. };
+static constexpr double END_ANGLE{ 275. * 2 * M_PI / 360. };
+
 class RosScannerNodeTests : public testing::Test, public testing::AsyncTest
 {
 protected:
+  RosScannerNodeTests()
+    : scanner_config_(HOST_IP, HOST_UDP_PORT_DATA, HOST_UDP_PORT_CONTROL, DEVICE_IP, START_ANGLE, END_ANGLE){};
   ros::NodeHandle nh_priv_{ "~" };
+  ScannerConfiguration scanner_config_;
 };
 
 TEST_F(RosScannerNodeTests, testScanTopicReceived)
@@ -78,7 +89,8 @@ TEST_F(RosScannerNodeTests, testScanTopicReceived)
   laser_scan_fake.getMeasurements().push_back(1);
   // std::unique_ptr<MockScannerImpl> mock_scanner{ new MockScannerImpl() };
 
-  ROSScannerNodeImpl<MockScannerImpl> ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION);
+  ROSScannerNodeImpl<MockScannerImpl> ros_scanner_node(
+      nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, scanner_config_);
   EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
 
   subscriber.initialize(nh_priv_);
@@ -101,7 +113,8 @@ TEST_F(RosScannerNodeTests, testScanBuildFailure)
   LaserScan laser_scan_fake(0.02, 0.03, 0.05);
   laser_scan_fake.getMeasurements().push_back(1);
 
-  ROSScannerNodeImpl<MockScannerImpl> ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION);
+  ROSScannerNodeImpl<MockScannerImpl> ros_scanner_node(
+      nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, scanner_config_);
   {
     ::testing::InSequence s;
     EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan())
