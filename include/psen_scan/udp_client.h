@@ -40,17 +40,17 @@ namespace psen_scan
 using NewDataHandler = std::function<void(const RawScannerData&, const std::size_t&)>;
 using ErrorHandler = std::function<void(const std::string&)>;
 
-class UdpClient
-{
-public:
-  virtual ~UdpClient() = default;
+// class UdpClient
+// {
+// public:
+//   virtual ~UdpClient() = default;
 
-  virtual void startReceiving(const std::chrono::high_resolution_clock::duration timeout) = 0;
-  virtual void write(std::shared_ptr<char> data, const std::size_t& number_of_bytes) = 0;
-  virtual void close() = 0;
-};
+//   virtual void startReceiving(const std::chrono::high_resolution_clock::duration timeout) = 0;
+//   virtual void write(std::shared_ptr<char> data, const std::size_t& number_of_bytes) = 0;
+//   virtual void close() = 0;
+// };
 
-class UdpClientImpl : public UdpClient
+class UdpClientImpl
 {
 public:
   UdpClientImpl(const NewDataHandler& data_handler,
@@ -62,7 +62,8 @@ public:
 
 public:
   void startReceiving(const std::chrono::high_resolution_clock::duration timeout);
-  void write(std::shared_ptr<char> data, const std::size_t& number_of_bytes);
+  template <std::size_t NumberOfBytesToSend>
+  void write(const RawDataContainer<NumberOfBytesToSend>& data);
   void close();
 
 private:
@@ -182,10 +183,11 @@ inline void UdpClientImpl::sendCompleteHandler(const boost::system::error_code& 
   std::cout << "Data successfully sent." << std::endl;
 }
 
-inline void UdpClientImpl::write(std::shared_ptr<char> data, const std::size_t& number_of_bytes)
+template <std::size_t NumberOfBytesToSend>
+inline void UdpClientImpl::write(const RawDataContainer<NumberOfBytesToSend>& data)
 {
-  io_service_.post([this, data, number_of_bytes]() {
-    socket_.async_send(boost::asio::buffer(data.get(), number_of_bytes),
+  io_service_.post([this, data]() {
+    socket_.async_send(boost::asio::buffer(data, data.size()),
                        boost::bind(&UdpClientImpl::sendCompleteHandler,
                                    this,
                                    boost::asio::placeholders::error,

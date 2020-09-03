@@ -117,9 +117,8 @@ void ScannerControllerT<SM, UDPC>::sendStartRequest()
   control_udp_client_.startReceiving(RECEIVE_TIMEOUT);
   data_udp_client_.startReceiving(RECEIVE_TIMEOUT);
   StartRequest start_request(scanner_config_, DEFAULT_SEQ_NUMBER);
-  const auto start_request_as_byte_stream{ start_request.toCharArray() };
-  std::shared_ptr<char> byte_stream_ptr{ std::make_shared<char>(start_request_as_byte_stream.at(0)) };
-  control_udp_client_.write(byte_stream_ptr, start_request_as_byte_stream.size());
+  const auto start_request_as_byte_stream{ start_request.toCharArray() };;
+  control_udp_client_.write(start_request_as_byte_stream);
 }
 
 }  // namespace psen_scan
