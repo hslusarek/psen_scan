@@ -47,14 +47,14 @@ ScannerConfiguration::ScannerConfiguration(const std::string& host_ip,
   if (host_udp_port_data < std::numeric_limits<uint16_t>::min() ||
       host_udp_port_data > std::numeric_limits<uint16_t>::max())
   {
-    throw std::invalid_argument("Host UDP port out of range");
+    throw std::out_of_range("Host UDP port out of range");
   }
   host_udp_port_data_ = htole16(static_cast<uint16_t>(host_udp_port_data));
 
   if (host_udp_port_control < std::numeric_limits<uint16_t>::min() ||
       host_udp_port_control > std::numeric_limits<uint16_t>::max())
   {
-    throw std::invalid_argument("Host UDP port out of range");
+    throw std::out_of_range("Host UDP port out of range");
   }
   host_udp_port_control_ = htole16(static_cast<uint16_t>(host_udp_port_control));
 
