@@ -35,14 +35,14 @@ namespace psen_scan
  *
  */
 template <typename S = Scanner>
-class ROSScannerNodeImplT
+class ROSScannerNodeT
 {
 public:
-  ROSScannerNodeImplT(ros::NodeHandle& nh,
-                      const std::string& topic,
-                      const std::string& frame_id,
-                      const double& x_axis_rotation,
-                      const ScannerConfiguration& scanner_config);
+  ROSScannerNodeT(ros::NodeHandle& nh,
+                  const std::string& topic,
+                  const std::string& frame_id,
+                  const double& x_axis_rotation,
+                  const ScannerConfiguration& scanner_config);
   sensor_msgs::LaserScan buildRosMessage(const LaserScan& laserscan);
   void processingLoop();
   void terminateProcessingLoop();
@@ -60,10 +60,10 @@ private:
   FRIEND_TEST(RosScannerNodeTests, testScanBuildFailure);
 };
 
-typedef ROSScannerNodeImplT<> ROSScannerNode;
+typedef ROSScannerNodeT<> ROSScannerNode;
 
 /**
- * @brief Construct a new ROSScannerNodeROSScannerNodeImplT::ROSScannerNodeROSScannerNodeImplT object
+ * @brief Construct a new ROSScannerNodeROSScannerNodeT::ROSScannerNodeROSScannerNodeT object
  *
  * @param nh node handle for the ROS node
  * @param topic name of the ROS topic
@@ -72,11 +72,11 @@ typedef ROSScannerNodeImplT<> ROSScannerNode;
  * @param x_axis_rotation rotation of 2D scan around the z-axis.
  */
 template <typename S>
-ROSScannerNodeImplT<S>::ROSScannerNodeImplT(ros::NodeHandle& nh,
-                                            const std::string& topic,
-                                            const std::string& frame_id,
-                                            const double& x_axis_rotation,
-                                            const ScannerConfiguration& scanner_config)
+ROSScannerNodeT<S>::ROSScannerNodeT(ros::NodeHandle& nh,
+                                    const std::string& topic,
+                                    const std::string& frame_id,
+                                    const double& x_axis_rotation,
+                                    const ScannerConfiguration& scanner_config)
   : nh_(nh), frame_id_(frame_id), x_axis_rotation_(x_axis_rotation), scanner_(scanner_config)
 {
   pub_ = nh_.advertise<sensor_msgs::LaserScan>(topic, 1);
@@ -93,7 +93,7 @@ ROSScannerNodeImplT<S>::ROSScannerNodeImplT(ros::NodeHandle& nh,
  *
  */
 template <typename S>
-sensor_msgs::LaserScan ROSScannerNodeImplT<S>::buildRosMessage(const LaserScan& laserscan)
+sensor_msgs::LaserScan ROSScannerNodeT<S>::buildRosMessage(const LaserScan& laserscan)
 {
   // TODO Remove after implementing building of laserscans
   // LCOV_EXCL_START
@@ -126,7 +126,7 @@ sensor_msgs::LaserScan ROSScannerNodeImplT<S>::buildRosMessage(const LaserScan& 
 }
 
 template <typename S>
-void ROSScannerNodeImplT<S>::terminateProcessingLoop()
+void ROSScannerNodeT<S>::terminateProcessingLoop()
 {
   terminate_ = true;
 }
@@ -136,7 +136,7 @@ void ROSScannerNodeImplT<S>::terminateProcessingLoop()
  *
  */
 template <typename S>
-void ROSScannerNodeImplT<S>::processingLoop()
+void ROSScannerNodeT<S>::processingLoop()
 {
   ros::Rate r(10);
   scanner_.start();
