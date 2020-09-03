@@ -43,9 +43,9 @@ uint32_t StartRequest::getCRC() const
 {
   boost::crc_32_type result;
 
-  std::vector<char> char_array = toRaw();
+  std::vector<char> raw_data = toRaw();
 
-  result.process_bytes(&char_array.at(sizeof(crc_)), char_array.size() - sizeof(crc_));
+  result.process_bytes(&raw_data.at(sizeof(crc_)), raw_data.size() - sizeof(crc_));
 
   return result.checksum();
 }
