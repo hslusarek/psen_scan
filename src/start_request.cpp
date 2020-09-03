@@ -89,21 +89,14 @@ StartRequest::RawType StartRequest::toRaw() const
     os.write((char*)&slave_resolution, sizeof(slave_resolution));
   }
 
-  // StartRequest::RawType ret_val{};
-
-  // TODO check limits
   std::string data_str(os.str());
-  // assert(data_str.length() == START_REQUEST_SIZE);
-  // std::copy(data_str.begin(), data_str.end(), ret_val.begin());
 
-  std::vector<char> v;
-  v.reserve(data_str.length());
+  std::vector<char> raw_data;
+  raw_data.reserve(data_str.length());
+  assert(data_str.length() == START_REQUEST_SIZE);
+  std::copy(data_str.begin(), data_str.end(), std::back_inserter(raw_data));
 
-  std::copy(data_str.begin(), data_str.end(), std::back_inserter(v));
-  // for(size_t i = 0; i < data_str.length(); ++i)
-  //   std::cout << (int) v[i] << "    " << (int) ret_val[i] << "\n";
-
-  return v;
+  return raw_data;
 }
 
 }  // namespace psen_scan
