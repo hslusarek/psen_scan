@@ -20,50 +20,58 @@
 #include <psen_scan/scanner.h>
 #include <psen_scan/scanner_configuration.h>
 #include <psen_scan/scanner_controller.h>
-#include <psen_scan/mock_scanner_controller.h>
+#include <psen_scan/scanner_controller_mock.h>
 
 using namespace psen_scan;
 
 using ::testing::_;
 
-namespace psen_scan_test
+namespace psen_scan
 {
+static const std::string HOST_IP{ "127.0.0.1" };
+static constexpr int HOST_UDP_PORT_DATA{ 50505 };
+static constexpr int HOST_UDP_PORT_CONTROL{ 55055 };
+static const std::string DEVICE_IP{ "127.0.0.100" };
+static constexpr double START_ANGLE{ 0. };
+static constexpr double END_ANGLE{ 275. * 2 * M_PI / 360. };
+
 class ScannerTest : public testing::Test
 {
 protected:
-  ScannerTest() : mock_scanner_controller_(std::make_shared<MockScannerController>())
+  ScannerTest() : scanner_config_(HOST_IP, HOST_UDP_PORT_DATA, HOST_UDP_PORT_CONTROL, DEVICE_IP, START_ANGLE, END_ANGLE)
   {
   }
 
-  std::shared_ptr<MockScannerController> mock_scanner_controller_;
+  ScannerConfiguration scanner_config_;
 };
+// TEST_F(ScannerTest, testConstructorSuccess)
+// {
+//   EXPECT_NO_THROW(ScannerT<ScannerControllerMock>());
+// }
 
-TEST_F(ScannerTest, testConstructorSuccess)
-{
-  EXPECT_NO_THROW(ScannerImpl(std::make_shared<MockScannerController>()));
-}
+typedef ScannerT<psen_scan_test::ScannerControllerMock> MockedScanner;
 
 TEST_F(ScannerTest, testStart)
 {
-  ScannerImpl scanner(mock_scanner_controller_);
-  EXPECT_CALL(*mock_scanner_controller_, start()).Times(1);
+  MockedScanner scanner(scanner_config_);
+  EXPECT_CALL(scanner.scanner_controller_, start()).Times(1);
   scanner.start();
 }
 
 TEST_F(ScannerTest, testStop)
 {
-  ScannerImpl scanner(mock_scanner_controller_);
-  EXPECT_CALL(*mock_scanner_controller_, stop()).Times(1);
+  MockedScanner scanner(scanner_config_);
+  EXPECT_CALL(scanner.scanner_controller_, stop()).Times(1);
   scanner.stop();
 }
 
 TEST_F(ScannerTest, testGetCompleteScan)
 {
-  ScannerImpl scanner(mock_scanner_controller_);
+  MockedScanner scanner(scanner_config_);
   EXPECT_THROW(scanner.getCompleteScan(), LaserScanBuildFailure);
 }
 
-}  // namespace psen_scan_test
+}  // namespace psen_scan
 
 int main(int argc, char* argv[])
 {

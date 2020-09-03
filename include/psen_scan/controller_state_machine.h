@@ -24,20 +24,8 @@ namespace psen_scan
 class ControllerStateMachine
 {
 public:
-  virtual ~ControllerStateMachine() = default;
-
-  virtual void processStartRequestEvent() = 0;
-  virtual void processStartReplyReceivedEvent() = 0;
-  virtual void processMonitoringFrameReceivedEvent() = 0;
-  virtual void processStopRequestEvent() = 0;
-  virtual void processStopReplyReceivedEvent() = 0;
-};
-
-class ControllerStateMachineImpl : public ControllerStateMachine
-{
-public:
-  explicit ControllerStateMachineImpl(const SendStartRequestCallback& sr);
-  virtual ~ControllerStateMachineImpl();
+  explicit ControllerStateMachine(const SendStartRequestCallback& sr);
+  virtual ~ControllerStateMachine();
 
   void processStartRequestEvent();
   void processStartReplyReceivedEvent();
