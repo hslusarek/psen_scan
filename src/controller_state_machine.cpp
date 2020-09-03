@@ -33,7 +33,7 @@ ControllerStateMachineImpl::~ControllerStateMachineImpl()
 void ControllerStateMachineImpl::processStartRequestEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
-  sm_.process_event(start_request_event());
+  sm_.process_event(udp_connection_state_machine::events::start_request());
 }
 
 // LCOV_EXCL_START
@@ -41,25 +41,25 @@ void ControllerStateMachineImpl::processStartRequestEvent()
 void ControllerStateMachineImpl::processStartReplyReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
-  sm_.process_event(start_reply_received_event());
+  sm_.process_event(udp_connection_state_machine::events::start_reply_received());
 }
 
 void ControllerStateMachineImpl::processMonitoringFrameReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
-  sm_.process_event(monitoring_frame_received_event());
+  sm_.process_event(udp_connection_state_machine::events::monitoring_frame_received());
 }
 
 void ControllerStateMachineImpl::processStopRequestEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
-  sm_.process_event(stop_request_event());
+  sm_.process_event(udp_connection_state_machine::events::stop_request());
 }
 
 void ControllerStateMachineImpl::processStopReplyReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
-  sm_.process_event(stop_reply_received_event());
+  sm_.process_event(udp_connection_state_machine::events::stop_reply_received());
 }
 // LCOV_EXCL_STOP
 

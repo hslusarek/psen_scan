@@ -17,7 +17,7 @@
 #define PSEN_SCAN_CONTROLLER_STATE_MACHINE_H
 
 #include <mutex>
-#include <psen_scan/controller_msm_state_machine.h>
+#include <psen_scan/udp_connection_state_machine.h>
 
 namespace psen_scan
 {
@@ -50,7 +50,7 @@ private:
   void processEvent();
 
 private:
-  controller_msm_state_machine sm_;
+  udp_connection_state_machine sm_;
   std::mutex sm_access_mutex_;
 };
 
