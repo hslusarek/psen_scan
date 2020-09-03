@@ -35,7 +35,10 @@ public:
   MOCK_METHOD0(write, void());
 
   template <std::size_t NumberOfBytesToSend>
-  void write(const psen_scan::RawDataContainer<NumberOfBytesToSend>& data){write();};
+  void write(const psen_scan::RawDataContainer<NumberOfBytesToSend>& data)
+  {
+    write();
+  };
 };
 
 }  // namespace psen_scan_test
