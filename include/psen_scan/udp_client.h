@@ -179,7 +179,7 @@ inline void UdpClientImpl::sendCompleteHandler(const boost::system::error_code& 
               << "Error message: " << error.message() << std::endl;
   }
   // LCOV_EXCL_STOP
-  std::cout << "Data successfully send." << std::endl;
+  std::cout << "Data successfully sent." << std::endl;
 }
 
 inline void UdpClientImpl::write(std::shared_ptr<char> data, const std::size_t& number_of_bytes)
