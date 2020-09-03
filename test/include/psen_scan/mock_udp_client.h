@@ -15,6 +15,7 @@
 
 #include <gmock/gmock.h>
 
+#include "psen_scan/raw_scanner_data.h"
 #include <psen_scan/udp_client.h>
 
 namespace psen_scan_test
@@ -31,7 +32,10 @@ public:
 public:
   MOCK_METHOD0(close, void());
   MOCK_METHOD1(startReceiving, void(const std::chrono::high_resolution_clock::duration timeout));
-  MOCK_METHOD2(write, void(std::shared_ptr<char> data, const std::size_t& number_of_bytes));
+  MOCK_METHOD0(write, void());
+
+  template <std::size_t NumberOfBytesToSend>
+  void write(const psen_scan::RawDataContainer<NumberOfBytesToSend>& data){write();};
 };
 
 }  // namespace psen_scan_test
