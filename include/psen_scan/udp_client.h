@@ -185,7 +185,7 @@ inline void UdpClientImpl::sendCompleteHandler(const boost::system::error_code& 
 inline void UdpClientImpl::write(const std::vector<char>& data)
 {
   io_service_.post([this, data]() {
-    socket_.async_send(boost::asio::buffer(&data.front(), data.size()),
+    socket_.async_send(boost::asio::buffer(data.data(), data.size()),
                        boost::bind(&UdpClientImpl::sendCompleteHandler,
                                    this,
                                    boost::asio::placeholders::error,

@@ -35,7 +35,7 @@ template <typename T>
 DecodingEquals(StartRequest::RawType const& data, std::size_t offset, T expected, const Endian& endian = Endian::LITTLE)
 {
   T actual_val;
-  memcpy(&actual_val, &data.front() + offset, sizeof(T));
+  memcpy(&actual_val, data.data() + offset, sizeof(T));
 
   if (endian == Endian::BIG)
   {
