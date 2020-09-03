@@ -32,13 +32,7 @@ public:
 public:
   MOCK_METHOD0(close, void());
   MOCK_METHOD1(startReceiving, void(const std::chrono::high_resolution_clock::duration timeout));
-  MOCK_METHOD0(write, void());
-
-  template <std::size_t NumberOfBytesToSend>
-  void write(const psen_scan::RawDataContainer<NumberOfBytesToSend>& data)
-  {
-    write();
-  };
+  MOCK_METHOD1(write, void(const std::vector<char>& data));
 };
 
 }  // namespace psen_scan_test

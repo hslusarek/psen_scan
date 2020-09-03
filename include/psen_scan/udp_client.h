@@ -62,8 +62,7 @@ public:
 
 public:
   void startReceiving(const std::chrono::high_resolution_clock::duration timeout);
-  template <std::size_t NumberOfBytesToSend>
-  void write(const RawDataContainer<NumberOfBytesToSend>& data);
+  void write(const std::vector<char>& data);
   void close();
 
 private:
@@ -183,11 +182,10 @@ inline void UdpClientImpl::sendCompleteHandler(const boost::system::error_code& 
   std::cout << "Data successfully sent." << std::endl;
 }
 
-template <std::size_t NumberOfBytesToSend>
-inline void UdpClientImpl::write(const RawDataContainer<NumberOfBytesToSend>& data)
+inline void UdpClientImpl::write(const std::vector<char>& data)
 {
   io_service_.post([this, data]() {
-    socket_.async_send(boost::asio::buffer(data, data.size()),
+    socket_.async_send(boost::asio::buffer(&data.front(), data.size()),
                        boost::bind(&UdpClientImpl::sendCompleteHandler,
                                    this,
                                    boost::asio::placeholders::error,

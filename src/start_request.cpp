@@ -43,14 +43,14 @@ uint32_t StartRequest::getCRC() const
 {
   boost::crc_32_type result;
 
-  std::array<char, START_REQUEST_SIZE> char_array = toCharArray();
+  std::vector<char> char_array = toRaw();
 
   result.process_bytes(&char_array.at(sizeof(crc_)), char_array.size() - sizeof(crc_));
 
   return result.checksum();
 }
 
-StartRequest::RawType StartRequest::toCharArray() const
+StartRequest::RawType StartRequest::toRaw() const
 {
   std::ostringstream os;
 
@@ -89,14 +89,21 @@ StartRequest::RawType StartRequest::toCharArray() const
     os.write((char*)&slave_resolution, sizeof(slave_resolution));
   }
 
-  StartRequest::RawType ret_val{};
+  // StartRequest::RawType ret_val{};
 
   // TODO check limits
   std::string data_str(os.str());
-  assert(data_str.length() == START_REQUEST_SIZE);
-  std::copy(data_str.begin(), data_str.end(), ret_val.begin());
+  // assert(data_str.length() == START_REQUEST_SIZE);
+  // std::copy(data_str.begin(), data_str.end(), ret_val.begin());
 
-  return ret_val;
+  std::vector<char> v;
+  v.reserve(data_str.length());
+
+  std::copy(data_str.begin(), data_str.end(), std::back_inserter(v));
+  // for(size_t i = 0; i < data_str.length(); ++i)
+  //   std::cout << (int) v[i] << "    " << (int) ret_val[i] << "\n";
+
+  return v;
 }
 
 }  // namespace psen_scan

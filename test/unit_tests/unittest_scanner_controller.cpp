@@ -71,7 +71,7 @@ TEST_F(ScannerControllerTest, test_udp_clients_listen_before_sending_start_reque
   Expectation control_udp_client_start_receiving =
       EXPECT_CALL(scanner_controller_.control_udp_client_, startReceiving(_));
   Expectation data_udp_client_start_receiving = EXPECT_CALL(scanner_controller_.data_udp_client_, startReceiving(_));
-  EXPECT_CALL(scanner_controller_.control_udp_client_, write())
+  EXPECT_CALL(scanner_controller_.control_udp_client_, write(_))
       .After(control_udp_client_start_receiving, data_udp_client_start_receiving);
 
   scanner_controller_.sendStartRequest();
