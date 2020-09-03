@@ -40,16 +40,6 @@ namespace psen_scan
 using NewDataHandler = std::function<void(const RawScannerData&, const std::size_t&)>;
 using ErrorHandler = std::function<void(const std::string&)>;
 
-// class UdpClient
-// {
-// public:
-//   virtual ~UdpClient() = default;
-
-//   virtual void startReceiving(const std::chrono::high_resolution_clock::duration timeout) = 0;
-//   virtual void write(std::shared_ptr<char> data, const std::size_t& number_of_bytes) = 0;
-//   virtual void close() = 0;
-// };
-
 class UdpClientImpl
 {
 public:

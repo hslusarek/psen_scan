@@ -43,14 +43,14 @@ uint32_t StartRequest::getCRC() const
 {
   boost::crc_32_type result;
 
-  std::vector<char> raw_data = toRaw();
+  std::vector<char> raw_data = toRawType();
 
   result.process_bytes(&raw_data.at(sizeof(crc_)), raw_data.size() - sizeof(crc_));
 
   return result.checksum();
 }
 
-StartRequest::RawType StartRequest::toRaw() const
+StartRequest::RawType StartRequest::toRawType() const
 {
   std::ostringstream os;
 

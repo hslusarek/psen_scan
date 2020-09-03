@@ -39,7 +39,7 @@ public:
   uint32_t getCRC() const;
 
   using RawType = std::vector<char>;
-  RawType toRaw() const;
+  RawType toRawType() const;
 
 private:
   uint32_t crc_{ 0 }; /**< Will be filled in constructor */
