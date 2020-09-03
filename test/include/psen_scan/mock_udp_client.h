@@ -19,7 +19,7 @@
 
 namespace psen_scan_test
 {
-class MockUdpClient : public psen_scan::UdpClient
+class MockUdpClient
 {
 public:
   MockUdpClient(const psen_scan::NewDataHandler& data_handler,
