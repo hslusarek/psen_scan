@@ -98,15 +98,12 @@ include_directories(
 set(${PROJECT_NAME}_sources
   src/controller_state_machine.cpp
   src/laserscan.cpp
-  src/scanner.cpp
-  src/scanner_controller.cpp
   src/start_request.cpp
 )
 
 set(${PROJECT_NAME}_node_sources
   src/psen_scan_driver.cpp
   src/ros_parameter_handler.cpp
-  src/ros_scanner_node.cpp
   src/scanner_configuration.cpp
 )
 
@@ -218,7 +215,7 @@ if(CATKIN_ENABLE_TESTING)
 
   catkin_add_gmock(unittest_scanner
     test/unit_tests/unittest_scanner.cpp
-    src/scanner.cpp
+    src/scanner_configuration.cpp
   )
   target_link_libraries(unittest_scanner
     ${catkin_LIBRARIES}
@@ -249,7 +246,6 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_gmock(unittest_scanner_controller
     test/unit_tests/unittest_scanner_controller.cpp
     src/scanner_configuration.cpp
-    src/scanner_controller.cpp
     src/start_request.cpp
   )
   target_link_libraries(unittest_scanner_controller
@@ -271,7 +267,7 @@ if(CATKIN_ENABLE_TESTING)
     test/integration_tests/integrationtest_ros_scanner_node.test
     test/integration_tests/integrationtest_ros_scanner_node.cpp
     src/laserscan.cpp
-    src/ros_scanner_node.cpp
+    src/scanner_configuration.cpp
   )
   target_link_libraries(integrationtest_ros_scanner_node
     ${catkin_LIBRARIES}

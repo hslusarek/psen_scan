@@ -35,7 +35,7 @@ template <typename T>
 DecodingEquals(StartRequest::RawType const& data, std::size_t offset, T expected, const Endian& endian = Endian::LITTLE)
 {
   T actual_val;
-  memcpy(&actual_val, (char*)&data + offset, sizeof(T));
+  memcpy(&actual_val, data.data() + offset, sizeof(T));
 
   if (endian == Endian::BIG)
   {
@@ -71,7 +71,7 @@ TEST_F(StartRequestTest, constructorTest)
   uint32_t sequence_number{ 123 };
   StartRequest sr(sc, sequence_number);
 
-  auto data = sr.toCharArray();
+  auto data = sr.toRawType();
   boost::crc_32_type result;
   result.process_bytes(&data[sizeof(uint32_t)], data.size() - sizeof(uint32_t));
 

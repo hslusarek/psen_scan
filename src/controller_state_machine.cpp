@@ -17,20 +17,20 @@
 
 namespace psen_scan
 {
-ControllerStateMachineImpl::ControllerStateMachineImpl(const SendStartRequestCallback& sr) : sm_(sr)
+ControllerStateMachine::ControllerStateMachine(const SendStartRequestCallback& sr) : sm_(sr)
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.start();
 }
 
-ControllerStateMachineImpl::~ControllerStateMachineImpl()
+ControllerStateMachine::~ControllerStateMachine()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.send_start_request_callback_ = nullptr;
   sm_.stop();
 }
 
-void ControllerStateMachineImpl::processStartRequestEvent()
+void ControllerStateMachine::processStartRequestEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(udp_connection_state_machine::events::start_request());
@@ -38,25 +38,25 @@ void ControllerStateMachineImpl::processStartRequestEvent()
 
 // LCOV_EXCL_START
 // TODO: Add again to coverage when function are actually used.
-void ControllerStateMachineImpl::processStartReplyReceivedEvent()
+void ControllerStateMachine::processStartReplyReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(udp_connection_state_machine::events::start_reply_received());
 }
 
-void ControllerStateMachineImpl::processMonitoringFrameReceivedEvent()
+void ControllerStateMachine::processMonitoringFrameReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(udp_connection_state_machine::events::monitoring_frame_received());
 }
 
-void ControllerStateMachineImpl::processStopRequestEvent()
+void ControllerStateMachine::processStopRequestEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(udp_connection_state_machine::events::stop_request());
 }
 
-void ControllerStateMachineImpl::processStopReplyReceivedEvent()
+void ControllerStateMachine::processStopReplyReceivedEvent()
 {
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(udp_connection_state_machine::events::stop_reply_received());

@@ -20,6 +20,8 @@
 #include <memory>
 #include <stdexcept>
 
+#include <gtest/gtest_prod.h>
+
 #include "psen_scan/controller_state_machine.h"
 #include "psen_scan/laserscan.h"
 #include "psen_scan/msg_decoder.h"
@@ -35,31 +37,53 @@ public:
   LaserScanBuildFailure(const std::string& msg = "Error while building laser scan");
 };
 
-// LCOV_EXCL_START
-class Scanner
+template <typename SC = ScannerController>
+class ScannerT
 {
 public:
-  virtual ~Scanner() = default;
-  virtual void start() = 0;
-  virtual void stop() = 0;
-  virtual LaserScan getCompleteScan() = 0;
-};
-// LCOV_EXCL_STOP
-
-class ScannerImpl : public Scanner
-{
-public:
-  ScannerImpl(std::shared_ptr<ScannerController> scanner_controller);
+  ScannerT(const ScannerConfiguration& scanner_config);
   void start();
   void stop();
   LaserScan getCompleteScan();
 
 private:
-  std::shared_ptr<ScannerController> scanner_controller_;
+  SC scanner_controller_;
+
+  friend class ScannerTest;
+  FRIEND_TEST(ScannerTest, testConstructorSuccess);
+  FRIEND_TEST(ScannerTest, testStart);
+  FRIEND_TEST(ScannerTest, testStop);
+  FRIEND_TEST(ScannerTest, testGetCompleteScan);
 };
+
+typedef ScannerT<> Scanner;
 
 inline LaserScanBuildFailure::LaserScanBuildFailure(const std::string& msg) : std::runtime_error(msg)
 {
+}
+
+template <typename SC>
+ScannerT<SC>::ScannerT(const ScannerConfiguration& scanner_config) : scanner_controller_(scanner_config)
+{
+}
+
+template <typename SC>
+void ScannerT<SC>::start()
+{
+  scanner_controller_.start();
+}
+
+template <typename SC>
+void ScannerT<SC>::stop()
+{
+  scanner_controller_.stop();
+}
+
+template <typename SC>
+LaserScan ScannerT<SC>::getCompleteScan()
+{
+  // TODO: Add implementation in following stories
+  throw LaserScanBuildFailure();
 }
 
 }  // namespace psen_scan

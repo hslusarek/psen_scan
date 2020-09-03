@@ -15,16 +15,24 @@
 
 #include <gmock/gmock.h>
 
+#include "psen_scan/raw_scanner_data.h"
 #include <psen_scan/udp_client.h>
 
 namespace psen_scan_test
 {
-class MockUdpClient : public psen_scan::UdpClient
+class MockUdpClient
 {
+public:
+  MockUdpClient(const psen_scan::NewDataHandler& data_handler,
+                const psen_scan::ErrorHandler& error_handler,
+                const unsigned short& host_port,
+                const unsigned int& endpoint_ip,
+                const unsigned short& endpoint_port){};
+
 public:
   MOCK_METHOD0(close, void());
   MOCK_METHOD1(startReceiving, void(const std::chrono::high_resolution_clock::duration timeout));
-  MOCK_METHOD2(write, void(std::shared_ptr<char> data, const std::size_t& number_of_bytes));
+  MOCK_METHOD1(write, void(const std::vector<char>& data));
 };
 
 }  // namespace psen_scan_test

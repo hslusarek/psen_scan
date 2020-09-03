@@ -43,14 +43,14 @@ uint32_t StartRequest::getCRC() const
 {
   boost::crc_32_type result;
 
-  std::array<char, START_REQUEST_SIZE> char_array = toCharArray();
+  std::vector<char> raw_data = toRawType();
 
-  result.process_bytes(&char_array.at(sizeof(crc_)), char_array.size() - sizeof(crc_));
+  result.process_bytes(&raw_data.at(sizeof(crc_)), raw_data.size() - sizeof(crc_));
 
   return result.checksum();
 }
 
-StartRequest::RawType StartRequest::toCharArray() const
+StartRequest::RawType StartRequest::toRawType() const
 {
   std::ostringstream os;
 
@@ -89,14 +89,14 @@ StartRequest::RawType StartRequest::toCharArray() const
     os.write((char*)&slave_resolution, sizeof(slave_resolution));
   }
 
-  StartRequest::RawType ret_val{};
-
-  // TODO check limits
   std::string data_str(os.str());
-  assert(data_str.length() == START_REQUEST_SIZE);
-  std::copy(data_str.begin(), data_str.end(), ret_val.begin());
 
-  return ret_val;
+  std::vector<char> raw_data;
+  raw_data.reserve(data_str.length());
+  assert(data_str.length() == START_REQUEST_SIZE);
+  std::copy(data_str.begin(), data_str.end(), std::back_inserter(raw_data));
+
+  return raw_data;
 }
 
 }  // namespace psen_scan

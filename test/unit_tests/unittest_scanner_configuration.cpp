@@ -111,25 +111,22 @@ TEST_F(ScannerConfigurationTest, testConstructorInvalidClientIp)
 
 TEST_F(ScannerConfigurationTest, testConstructorDataPortTooSmall)
 {
-  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpDataPort(-1).build(), std::invalid_argument);
+  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpDataPort(-1).build(), std::out_of_range);
 }
 
 TEST_F(ScannerConfigurationTest, testConstructorDataPortTooLarge)
 {
-  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpDataPort(MAXIMAL_PORT_NUMBER + 1).build(),
-               std::invalid_argument);
+  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpDataPort(MAXIMAL_PORT_NUMBER + 1).build(), std::out_of_range);
 }
 
 TEST_F(ScannerConfigurationTest, testConstructorControlPortTooSmall)
 {
-  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpControlPort(MINIMAL_PORT_NUMBER - 1).build(),
-               std::invalid_argument);
+  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpControlPort(MINIMAL_PORT_NUMBER - 1).build(), std::out_of_range);
 }
 
 TEST_F(ScannerConfigurationTest, testConstructorControlPortTooLarge)
 {
-  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpControlPort(MAXIMAL_PORT_NUMBER + 1).build(),
-               std::invalid_argument);
+  EXPECT_THROW(ScannerConfigurationBuilder().setHostUdpControlPort(MAXIMAL_PORT_NUMBER + 1).build(), std::out_of_range);
 }
 
 TEST_F(ScannerConfigurationTest, testConstructorStartAngleTooSmall)
