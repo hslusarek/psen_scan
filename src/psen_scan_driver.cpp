@@ -15,6 +15,8 @@
 
 #include <functional>
 
+#include <ros/ros.h>
+
 #include "psen_scan/function_pointers.h"
 #include "psen_scan/scanner.h"
 #include "psen_scan/scanner_controller.h"

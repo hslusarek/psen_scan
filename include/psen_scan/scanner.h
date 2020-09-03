@@ -20,6 +20,8 @@
 #include <memory>
 #include <stdexcept>
 
+#include <gtest/gtest_prod.h>
+
 #include "psen_scan/controller_state_machine.h"
 #include "psen_scan/laserscan.h"
 #include "psen_scan/msg_decoder.h"
