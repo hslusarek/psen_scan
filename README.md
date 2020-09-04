@@ -58,9 +58,6 @@ Needed Equipment:
 Publishes a complete scan from the PSENscan safety laser scanner.
 
 ### Parameters
-_password_ (_string_, default: "ac0d68d033")<br/>
-Password for safety laser scanner.
-
 _host_ip_ (_string_, default: "192.168.0.50")<br/>
 IP-Address of host machine.
 

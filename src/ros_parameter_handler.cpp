@@ -18,7 +18,6 @@
 #include <psen_scan/ros_parameter_handler.h>
 #include "psen_scan/get_ros_parameter_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
-#include "psen_scan/decrypt_password_exception.h"
 #include <psen_scan/default_parameters.h>
 #include <psen_scan/scanner_data.h>
 
@@ -53,120 +52,29 @@ RosParameterHandler::RosParameterHandler(const ros::NodeHandle& nh)
 void RosParameterHandler::updateAllParamsFromParamServer()
 {
   // required parameters first
-  // update parameter password
-  try
-  {
-    getRequiredParamFromParamServer<std::string>("password", password_);
-    try
-    {
-      password_ = decryptPassword(password_);
-    }
-    catch (const DecryptPasswordException& e)
-    {
-      throw PSENScanFatalException("Invalid Password: " + std::string(e.what()));
-    }
-  }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter password
-  // update parameter host_ip
-  try
-  {
-    getRequiredParamFromParamServer<std::string>("host_ip", host_ip_);
-  }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter host_ip
-  // update parameter host_udp_port
-  try
-  {
-    getRequiredParamFromParamServer<int>("host_udp_port_data", host_udp_port_data_);
-  }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter host_udp_port
+  getRequiredParamFromParamServer<std::string>("host_ip", host_ip_);
+  getRequiredParamFromParamServer<int>("host_udp_port_data", host_udp_port_data_);
+  getRequiredParamFromParamServer<int>("host_udp_port_control", host_udp_port_control_);
+  getRequiredParamFromParamServer<std::string>("sensor_ip", sensor_ip_);
+  getOptionalParamFromParamServer<std::string>("frame_id", frame_id_);
 
-  try
+  double angle_start;
+  if (getOptionalParamFromParamServer<double>("angle_start", angle_start))
   {
-    getRequiredParamFromParamServer<int>("host_udp_port_control", host_udp_port_control_);
+    angle_start_ = degreeToRad(angle_start);
   }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter host_udp_port
 
-  // update parameter sensor_ip
-  try
+  double angle_end;
+  if (getOptionalParamFromParamServer<double>("angle_end", angle_end))
   {
-    getRequiredParamFromParamServer<std::string>("sensor_ip", sensor_ip_);
+    angle_end_ = degreeToRad(angle_end);
   }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter sensor_ip
 
-  // non-required parameters last
-  // update parameter frame_id
-  try
+  double x_axis_rotation;
+  if (getOptionalParamFromParamServer<double>("x_axis_rotation", x_axis_rotation))
   {
-    getOptionalParamFromParamServer<std::string>("frame_id", frame_id_);
+    x_axis_rotation_ = degreeToRad(x_axis_rotation);
   }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter frame_id
-
-  // update parameter angle_start
-  try
-  {
-    double angle_start;
-    if (getOptionalParamFromParamServer<double>("angle_start", angle_start))
-    {
-      angle_start_ = degreeToRad(angle_start);
-    }
-  }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter angle_start
-  // update parameter angle_end
-  try
-  {
-    double angle_end;
-    if (getOptionalParamFromParamServer<double>("angle_end", angle_end))
-    {
-      angle_end_ = degreeToRad(angle_end);
-    }
-  }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter angle_end
-  // update parameter x_axis_rotation
-  try
-  {
-    double x_axis_rotation;
-    if (getOptionalParamFromParamServer<double>("x_axis_rotation", x_axis_rotation))
-    {
-      x_axis_rotation_ = degreeToRad(x_axis_rotation);
-    }
-  }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter x_axis_rotation
 }
 
 /**
@@ -182,12 +90,12 @@ void RosParameterHandler::getRequiredParamFromParamServer(const std::string& key
 {
   if (!nh_.hasParam(key))
   {
-    throw GetROSParameterException("Parameter " + key + " doesn't exist on parameter server.");
+    throw ParamMissingOnServer("Parameter " + key + " doesn't exist on parameter server.");
   }
 
   if (!nh_.getParam(key, param))
   {
-    throw GetROSParameterException("Parameter " + key + " has wrong datatype on parameter server.");
+    throw WrongParameterType("Parameter " + key + " has wrong datatype on parameter server.");
   }
   return;
 }
@@ -212,19 +120,9 @@ bool RosParameterHandler::getOptionalParamFromParamServer(const std::string& key
   }
   if (!nh_.getParam(key, param))
   {
-    throw GetROSParameterException("Parameter " + key + " has wrong datatype on parameter server.");
+    throw WrongParameterType("Parameter " + key + " has wrong datatype on parameter server.");
   }
   return true;
-}
-
-/**
- * @brief Getter method for password_
- *
- * @return std::string
- */
-std::string RosParameterHandler::getPassword() const
-{
-  return password_;
 }
 
 /**
@@ -288,60 +186,6 @@ double RosParameterHandler::getAngleEnd() const
 double RosParameterHandler::getXAxisRotation() const
 {
   return x_axis_rotation_;
-}
-
-/**
- * @brief Decrypt password
- *
- * @param encrypted_password Encrypted Password
- * @return Decrypted Password
- *
- * @throws DecryptPasswordException
- */
-std::string RosParameterHandler::decryptPassword(const std::string& encrypted_password)
-{
-  const int encrypted_char_len = 2;
-  const int encrypted_char_base = 16;
-  const int addition_coeff = 100;  // arbitrary
-  const int number_of_ascii_chars = 256;
-  const int encryption_xor_key = 0xCD;  // arbitrary
-
-  std::string decrypted_password = "";
-
-  std::string encrypted_pw_temp = encrypted_password;
-
-  encrypted_pw_temp.erase(std::remove(encrypted_pw_temp.begin(), encrypted_pw_temp.end(), ' '),
-                          encrypted_pw_temp.end());
-
-  if (encrypted_pw_temp.length() % 2 != 0)
-  {
-    throw DecryptPasswordException("Password length must be even!");
-  }
-
-  for (unsigned int i = 0; i < encrypted_pw_temp.length(); i += encrypted_char_len)
-  {
-    char c;
-    try
-    {
-      c = (std::stoi(encrypted_pw_temp.substr(i, encrypted_char_len), nullptr, encrypted_char_base) -
-           i * addition_coeff / encrypted_char_len) %
-              number_of_ascii_chars ^
-          encryption_xor_key;
-    }
-    catch (const std::invalid_argument& e)
-    {
-      throw DecryptPasswordException(e.what());
-    }
-
-    if (c < 32)
-    {
-      throw DecryptPasswordException("Control characters not allowed!");
-    }
-
-    decrypted_password += c;
-  }
-
-  return decrypted_password;
 }
 
 }  // namespace psen_scan

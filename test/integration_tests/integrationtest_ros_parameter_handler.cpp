@@ -21,6 +21,7 @@
 #include <psen_scan/default_parameters.h>
 #include <psen_scan/psen_scan_fatal_exception.h>
 #include <psen_scan/degree_to_rad.h>
+#include <psen_scan/get_ros_parameter_exception.h>
 
 using namespace psen_scan;
 
@@ -31,7 +32,6 @@ using namespace psen_scan;
   }
 
 #define DELETE_ALL_ROS_PARAMS()                                                                                        \
-  DELETE_ROS_PARAM("password");                                                                                        \
   DELETE_ROS_PARAM("sensor_ip");                                                                                       \
   DELETE_ROS_PARAM("host_ip");                                                                                         \
   DELETE_ROS_PARAM("host_udp_port_data");                                                                              \
@@ -54,14 +54,12 @@ protected:
   ros::NodeHandle node_handle_;
 
   // Default values to set
-  std::string password_{ "ac0d68d033" };
   std::string host_ip_{ "1.2.3.5" };
   int host_udp_port_data_{ 12345 };
   int host_udp_port_control_{ 12346 };
   std::string sensor_ip_{ "1.2.3.4" };
 
   // Default expected values
-  std::string expected_password_{ "admin" };
   uint32_t expected_host_ip_{ boost::endian::native_to_big(inet_network(host_ip_.c_str())) };
   uint32_t expected_host_udp_port_data_{ boost::endian::native_to_little(static_cast<uint32_t>(host_udp_port_data_)) };
   uint32_t expected_host_udp_port_control_{ boost::endian::native_to_little(
@@ -77,7 +75,6 @@ class ROSRequiredParameterTest : public ROSParameterHandlerTest
 protected:
   ROSRequiredParameterTest()
   {
-    ros::param::set("password", password_);
     ros::param::set("sensor_ip", sensor_ip_);
     ros::param::set("host_ip", host_ip_);
     ros::param::set("host_udp_port_data", host_udp_port_data_);
@@ -90,7 +87,6 @@ class ROSInvalidParameterTest : public ROSParameterHandlerTest
 protected:
   ROSInvalidParameterTest()
   {
-    ros::param::set("password", password_);
     ros::param::set("host_ip", host_ip_);
     ros::param::set("host_udp_port_data", host_udp_port_data_);
     ros::param::set("host_udp_port_control", host_udp_port_control_);
@@ -105,14 +101,12 @@ protected:
 
 TEST_F(ROSParameterHandlerTest, test_no_param)
 {
-  EXPECT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  EXPECT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
 TEST_F(ROSRequiredParameterTest, test_required_params_only)
 {
-  ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_);
-                  EXPECT_EQ(param_handler.getPassword(), expected_password_);
-                  EXPECT_EQ(param_handler.getSensorIP(), sensor_ip_);
+  ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_); EXPECT_EQ(param_handler.getSensorIP(), sensor_ip_);
                   EXPECT_EQ(param_handler.getHostIP(), host_ip_);
                   EXPECT_EQ(param_handler.getHostUDPPortData(), expected_host_udp_port_data_);
                   EXPECT_EQ(param_handler.getHostUDPPortControl(), expected_host_udp_port_control_);
@@ -122,39 +116,32 @@ TEST_F(ROSRequiredParameterTest, test_required_params_only)
                   EXPECT_EQ(param_handler.getXAxisRotation(), DEFAULT_X_AXIS_ROTATION););
 }
 
-TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_password)
-{
-  DELETE_ROS_PARAM("password");
-
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
-}
-
 TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_sensor_ip)
 {
   DELETE_ROS_PARAM("sensor_ip");
 
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
 TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_ip)
 {
   DELETE_ROS_PARAM("host_ip");
 
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
 TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_port_data)
 {
   DELETE_ROS_PARAM("host_udp_port_data");
 
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
 TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_port_control)
 {
   DELETE_ROS_PARAM("host_udp_port_control");
 
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
 TEST_F(ROSRequiredParameterTest, test_all_params)
@@ -169,7 +156,6 @@ TEST_F(ROSRequiredParameterTest, test_all_params)
   ros::param::set("frame_id", frame_id);
 
   RosParameterHandler param_handler(node_handle_);
-  EXPECT_EQ(param_handler.getPassword(), expected_password_);
   EXPECT_EQ(param_handler.getSensorIP(), sensor_ip_);
   EXPECT_EQ(param_handler.getHostIP(), host_ip_);
   EXPECT_EQ(param_handler.getHostUDPPortData(), expected_host_udp_port_data_);
@@ -180,21 +166,37 @@ TEST_F(ROSRequiredParameterTest, test_all_params)
   EXPECT_DOUBLE_EQ(param_handler.getXAxisRotation(), degreeToRad(expected_x_axis_rotation_degree));
 }
 
-TEST_F(ROSInvalidParameterTest, test_invalid_params_password)
+TEST_F(ROSInvalidParameterTest, test_invalid_host_param_host_udp_port_data)
 {
-  // Set password with wrong datatype (expected string) as example for wrong datatypes on expected strings
-  ros::param::set("password", 15);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ros::param::set("host_udp_port_data", "string");
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
-  ros::param::set("password", true);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ros::param::set("host_udp_port_data", true);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
-  // Set password back to valid data type but not in accepted format
-  ros::param::set("password", "AABBCCDDEEFFGG");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  // Wrong Datatype, but can be converted to float
+  ros::param::set("host_udp_port_data", "2.4");
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
-  // Set password back to valid data type
-  ros::param::set("password", password_);
+  // valid test
+  ros::param::set("host_udp_port_data", host_udp_port_data_);
+  ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
+}
+
+TEST_F(ROSInvalidParameterTest, test_invalid_host_param_host_udp_port_control)
+{
+  ros::param::set("host_udp_port_control", "string");
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
+
+  ros::param::set("host_udp_port_control", true);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
+
+  // Wrong Datatype, but can be converted to float
+  ros::param::set("host_udp_port_control", "2.4");
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
+
+  // valid test
+  ros::param::set("host_udp_port_control", host_udp_port_control_);
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 
@@ -202,10 +204,10 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_frame_id)
 {
   // Set frame_id with wrong datatype (expected string) as example for wrong datatypes on expected strings
   ros::param::set("frame_id", 12);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   ros::param::set("frame_id", true);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   // Set frame_id back to valid data type, which could be interpreted as int
   // Numbers are allowed for frame id TODO: discussion
@@ -217,14 +219,14 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_start)
 {
   // Set angle_start with wrong datatype (expected double) as example for wrong datatypes on expected double
   ros::param::set("angle_start", "string");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   ros::param::set("angle_start", true);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   // Wrong Datatype, but can be interpreted as int
   ros::param::set("angle_start", "0.21");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   // valid test
   ros::param::set("angle_start", 0.35);
@@ -235,14 +237,14 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_end)
 {
   // Set angle_end with wrong datatype (expected double) as example for wrong datatypes on expected double
   ros::param::set("angle_end", "string");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   ros::param::set("angle_end", true);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   // Wrong Datatype, but can be converted to int
   ros::param::set("angle_end", "4.36");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   // valid test
   ros::param::set("angle_end", 1.57);
@@ -253,19 +255,20 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_x_axis_rotation)
 {
   // Set x_axis_rotation with wrong datatype (expected double) as example for wrong datatypes on expected double
   ros::param::set("x_axis_rotation", "string");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   ros::param::set("x_axis_rotation", true);
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   // Wrong Datatype, but can be converted to float
   ros::param::set("x_axis_rotation", "2.4");
-  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), PSENScanFatalException);
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
 
   // valid test
   ros::param::set("x_axis_rotation", 1.57);
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
+
 }  // namespace psen_scan_test
 
 int main(int argc, char** argv)

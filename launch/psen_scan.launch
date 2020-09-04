@@ -17,9 +17,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 <launch>
 
-  <!-- Password for Laserscanner -->
-  <arg name="password" default="ac0d68d033" />
-
   <!-- IP-Address of host machine -->
   <arg name="host_ip" default="192.168.0.50" />
 
@@ -45,7 +42,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <arg name="x_axis_rotation" default="137.5" />
 
   <node name="laser_scanner" type="psen_scan_node" pkg="psen_scan" output="screen" required="true">
-    <rosparam param="password" subst_value="True">$(arg password)</rosparam>
     <rosparam param="host_ip" subst_value="True">$(arg host_ip)</rosparam>
     <rosparam param="host_udp_port_data" subst_value="True">$(arg host_udp_port_data)</rosparam>
     <rosparam param="host_udp_port_control" subst_value="True">$(arg host_udp_port_control)</rosparam>

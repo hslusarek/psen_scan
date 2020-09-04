@@ -20,13 +20,22 @@
 
 namespace psen_scan
 {
-class GetROSParameterException : public std::runtime_error
+class ParamMissingOnServer : public std::runtime_error
 {
 public:
-  GetROSParameterException(const std::string& msg) : std::runtime_error(msg)
+  ParamMissingOnServer(const std::string& msg) : std::runtime_error(msg)
   {
   }
 };
+
+class WrongParameterType : public std::runtime_error
+{
+public:
+  WrongParameterType(const std::string& msg) : std::runtime_error(msg)
+  {
+  }
+};
+
 }  // namespace psen_scan
 
 #endif  // PSEN_SCAN_GET_ROS_PARAMETER_EXCEPTION_H

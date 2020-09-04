@@ -35,7 +35,6 @@ public:
   void getRequiredParamFromParamServer(const std::string& key, T& param);
   template <class T>
   bool getOptionalParamFromParamServer(const std::string& key, T& param);
-  std::string getPassword() const;
   std::string getHostIP() const;
   uint32_t getHostUDPPortData() const;
   uint32_t getHostUDPPortControl() const;
@@ -47,7 +46,6 @@ public:
 
 private:
   ros::NodeHandle const nh_;  /**< Nodehandle through which parameters are fetched */
-  std::string password_;      /**< Password for Laserscanner */
   std::string host_ip_;       /**< IP-Adress of host machine */
   int host_udp_port_data_;    /**< UDP Port on which monitoring frames (scans) should be received.*/
   int host_udp_port_control_; /**< UDP Port used to send commands (start/stop) and receive the corresponding replies. */
@@ -56,9 +54,6 @@ private:
   double angle_start_;        /**< Start angle of measurement in radian */
   double angle_end_;          /**< End angle of measurement in radian */
   double x_axis_rotation_;    /**< Rotation of x-axis arround the center in radian */
-
-public:
-  static std::string decryptPassword(const std::string& encrypted_password);
 };
 }  // namespace psen_scan
 

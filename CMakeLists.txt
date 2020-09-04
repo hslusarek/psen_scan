@@ -164,15 +164,6 @@ if(CATKIN_ENABLE_TESTING)
   ##################
   ##  Unit-Tests  ##
   ##################
-  catkin_add_gtest(unittest_decrypt_password
-    test/unit_tests/unittest_decrypt_password.cpp
-    src/ros_parameter_handler.cpp
-  )
-  target_link_libraries(unittest_decrypt_password
-    ${catkin_LIBRARIES}
-    gtest_main
-  )
-
   catkin_add_gtest(unittest_new_exceptions
     test/unit_tests/unittest_new_exceptions.cpp
   )
