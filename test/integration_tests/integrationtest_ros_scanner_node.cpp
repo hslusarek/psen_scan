@@ -45,6 +45,8 @@ static constexpr std::chrono::seconds LOOP_END_TIMEOUT{ 3 };
 static constexpr int QUEUE_SIZE{ 10 };
 
 static const std::string LASER_SCAN_RECEIVED{ "LASER_SCAN_RECEIVED" };
+static const std::string SCANNER_STARTED{ "SCANNER_STARTED" };
+static const std::string SCANNER_STOPPED{ "SCANNER_STOPPED" };
 
 static constexpr double DEFAULT_X_AXIS_ROTATION{ degreeToRad(137.5) };
 
@@ -79,6 +81,27 @@ protected:
   ros::NodeHandle nh_priv_{ "~" };
   ScannerConfiguration scanner_config_;
 };
+
+TEST_F(RosScannerNodeTests, testScannerInvocation)
+{
+  ROSScannerNodeT<ScannerMock> ros_scanner_node(nh_priv_, "scan", "scanner", DEFAULT_X_AXIS_ROTATION, scanner_config_);
+
+  LaserScan laser_scan_fake(0.02, 0.03, 0.05);
+  laser_scan_fake.getMeasurements().push_back(1);
+
+  {
+    ::testing::InSequence s;
+    EXPECT_CALL(ros_scanner_node.scanner_, start()).WillOnce(ACTION_OPEN_BARRIER_VOID(SCANNER_STARTED));
+    EXPECT_CALL(ros_scanner_node.scanner_, getCompleteScan()).WillRepeatedly(Return(laser_scan_fake));
+    EXPECT_CALL(ros_scanner_node.scanner_, stop()).WillOnce(ACTION_OPEN_BARRIER_VOID(SCANNER_STOPPED));
+  }
+
+  std::future<void> loop = std::async(std::launch::async, [&ros_scanner_node]() { ros_scanner_node.processingLoop(); });
+  BARRIER(SCANNER_STARTED);
+  ros_scanner_node.terminateProcessingLoop();
+  BARRIER(SCANNER_STOPPED);
+  EXPECT_EQ(loop.wait_for(LOOP_END_TIMEOUT), std::future_status::ready);
+}
 
 TEST_F(RosScannerNodeTests, testScanTopicReceived)
 {

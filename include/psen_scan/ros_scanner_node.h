@@ -56,6 +56,7 @@ private:
   std::atomic_bool terminate_{ false };
 
   friend class RosScannerNodeTests;
+  FRIEND_TEST(RosScannerNodeTests, testScannerInvocation);
   FRIEND_TEST(RosScannerNodeTests, testScanTopicReceived);
   FRIEND_TEST(RosScannerNodeTests, testScanBuildFailure);
 };
