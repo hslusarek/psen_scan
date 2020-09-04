@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <array>
 #include <sstream>
+#include <iomanip>
 
 #include <boost/crc.hpp>
 
@@ -32,6 +33,13 @@ enum class ReplyMsgType
   Start,
   Unknown
 };
+
+static std::string int32ToHex(uint32_t value)
+{
+  std::stringstream stream;
+  stream << "0x" << std::hex << value;
+  return stream.str();
+}
 
 static constexpr std::size_t REPLY_MSG_SIZE = 16;
 
@@ -48,6 +56,9 @@ public:
 
 public:
   ReplyMsgType type() const;
+  bool isAccepted() const;
+  bool isRefused() const;
+  std::string getResCode() const;
 
 public:
   static uint32_t getStartOpCode();
@@ -72,8 +83,25 @@ private:
   uint32_t res_code_{ 0 };
 
 private:
+  static constexpr uint32_t RESCODE_START_ACCEPTED{ 0x00 };
+  static constexpr uint32_t RESCODE_START_REFUSED{ 0xEB };
   static constexpr uint32_t OPCODE_START{ 0x35 };
 };
+
+inline bool ReplyMsg::isAccepted() const
+{
+  return res_code_ == RESCODE_START_ACCEPTED;
+}
+
+inline bool ReplyMsg::isRefused() const
+{
+  return res_code_ == RESCODE_START_REFUSED;
+}
+
+inline std::string ReplyMsg::getResCode() const
+{
+  return int32ToHex(res_code_);
+}
 
 inline uint32_t ReplyMsg::calcCRC(const ReplyMsg& msg)
 {

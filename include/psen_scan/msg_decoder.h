@@ -24,6 +24,7 @@
 #include "psen_scan/raw_scanner_data.h"
 #include "psen_scan/reply_msg.h"
 #include "psen_scan/decode_exception.h"
+#include "psen_scan/logging.h"
 
 namespace psen_scan
 {
@@ -52,7 +53,18 @@ inline void MsgDecoder::decodeAndDispatch(const RawScannerData& data, const std:
 
     if (frame.type() == ReplyMsgType::Start)
     {
-      start_reply_callback_();
+      if (frame.isAccepted())
+      {
+        PSENSCAN_INFO("MsgDecoder", "Scanner started");  // ? Should be included in start_reply_callback_
+        start_reply_callback_();
+        return;
+      }
+      if (frame.isRefused())
+      {
+        error_callback_("Start message refused");
+        return;
+      }
+      error_callback_("Error in start message (Result code " + frame.getResCode() + ")");
     }
     else
     {

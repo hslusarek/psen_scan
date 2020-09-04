@@ -30,6 +30,7 @@
 #include <psen_scan/controller_state_machine.h>
 #include <psen_scan/start_request.h>
 #include <psen_scan/scanner_configuration.h>
+#include <psen_scan/logging.h>
 
 namespace psen_scan
 {
@@ -94,7 +95,7 @@ ScannerControllerT<TSCM, TUCI>::ScannerControllerT(const ScannerConfiguration& s
 template <typename TSCM, typename TUCI>
 void ScannerControllerT<TSCM, TUCI>::handleError(const std::string& error_msg)
 {
-  std::cerr << error_msg << std::endl;
+  PSENSCAN_ERROR("ScannerController", error_msg);
   // TODO: Add implementation -> Tell state machine about error
 }
 
