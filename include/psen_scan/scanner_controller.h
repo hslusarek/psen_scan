@@ -51,6 +51,7 @@ public:
   void stop();
 
   void handleError(const std::string& error_msg);
+  void handleActivation();
   void sendStartRequest();
 
 private:
@@ -73,7 +74,7 @@ template <typename TSCM, typename TUCI>
 ScannerControllerT<TSCM, TUCI>::ScannerControllerT(const ScannerConfiguration& scanner_config)
   : scanner_config_(scanner_config)
   , state_machine_(std::bind(&ScannerControllerT::sendStartRequest, this))
-  , control_msg_decoder_(std::bind(&TSCM::processStartReplyReceivedEvent, &state_machine_),
+  , control_msg_decoder_(std::bind(&ScannerControllerT::handleActivation, this),
                          std::bind(&ScannerControllerT::handleError, this, std::placeholders::_1))
   , data_msg_decoder_(std::bind(&TSCM::processStartReplyReceivedEvent, &state_machine_),
                       std::bind(&ScannerControllerT::handleError, this, std::placeholders::_1))
@@ -97,6 +98,13 @@ void ScannerControllerT<TSCM, TUCI>::handleError(const std::string& error_msg)
 {
   PSENSCAN_ERROR("ScannerController", error_msg);
   // TODO: Add implementation -> Tell state machine about error
+}
+
+template <typename TSCM, typename TUCI>
+void ScannerControllerT<TSCM, TUCI>::handleActivation()
+{
+  PSENSCAN_INFO("ScannerController", "Scanner started");
+  state_machine_.processStartReplyReceivedEvent();
 }
 
 template <typename TSCM, typename TUCI>
