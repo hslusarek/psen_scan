@@ -23,6 +23,7 @@
 #include <psen_scan/mock_udp_client.h>
 #include <psen_scan/scanner_configuration.h>
 #include <psen_scan/scanner_controller.h>
+#include <psen_scan/start_request.h>
 
 using namespace psen_scan;
 
@@ -68,10 +69,12 @@ TEST_F(ScannerControllerTest, test_udp_clients_listen_before_sending_start_reque
   using ::testing::_;
   using ::testing::Expectation;
 
+  StartRequest start_request(scanner_config_, 0);
+
   Expectation control_udp_client_start_receiving =
       EXPECT_CALL(scanner_controller_.control_udp_client_, startReceiving(_));
   Expectation data_udp_client_start_receiving = EXPECT_CALL(scanner_controller_.data_udp_client_, startReceiving(_));
-  EXPECT_CALL(scanner_controller_.control_udp_client_, write(_))
+  EXPECT_CALL(scanner_controller_.control_udp_client_, write(start_request.toRawType()))
       .After(control_udp_client_start_receiving, data_udp_client_start_receiving);
 
   scanner_controller_.sendStartRequest();
