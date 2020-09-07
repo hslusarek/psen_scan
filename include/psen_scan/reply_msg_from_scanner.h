@@ -13,10 +13,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef PSEN_SCAN_REPLY_MSG_H
-#define PSEN_SCAN_REPLY_MSG_H
+#ifndef PSEN_SCAN_REPLY_MSG_FROM_SCANNER_H
+#define PSEN_SCAN_REPLY_MSG_FROM_SCANNER_H
 
 #include <cstdint>
+#include <cassert>
 #include <array>
 #include <sstream>
 
@@ -27,37 +28,34 @@
 
 namespace psen_scan
 {
-enum class ReplyMsgType
+enum class ReplyMsgFromScannerType
 {
   Start,
   Unknown
 };
 
-static constexpr std::size_t REPLY_MSG_SIZE = 16;
+static constexpr std::size_t REPLY_MSG_FROM_SCANNER_SIZE = 16;  // See protocol description
 
-/**
- * @brief Represents the reply messages send from the scanner device.
- */
-class ReplyMsg
+class ReplyMsgFromScanner
 {
 public:
-  static ReplyMsg fromRawData(const RawScannerData& data);
+  static ReplyMsgFromScanner fromRawData(const RawScannerData& data);
 
 public:
-  ReplyMsg(const uint32_t op_code, const uint32_t res_code);
+  ReplyMsgFromScanner(const uint32_t op_code, const uint32_t res_code);
 
 public:
-  ReplyMsgType type() const;
+  ReplyMsgFromScannerType type() const;
 
 public:
   static uint32_t getStartOpCode();
-  static uint32_t calcCRC(const ReplyMsg& msg);
+  static uint32_t calcCRC(const ReplyMsgFromScanner& msg);
 
-  using RawType = std::array<char, REPLY_MSG_SIZE>;
+  using RawType = std::array<char, REPLY_MSG_FROM_SCANNER_SIZE>;
   RawType toCharArray();
 
 private:
-  ReplyMsg() = delete;
+  ReplyMsgFromScanner() = delete;
 
 private:
   //! A CRC32 of all the following fields.
@@ -75,41 +73,42 @@ private:
   static constexpr uint32_t OPCODE_START{ 0x35 };
 };
 
-inline uint32_t ReplyMsg::calcCRC(const ReplyMsg& msg)
+inline uint32_t ReplyMsgFromScanner::calcCRC(const ReplyMsgFromScanner& msg)
 {
   boost::crc_32_type result;
   // Read all data except the field of the sent crc at the beginning according to:
   // Reference Guide Rev. A – November 2019 Page 14
-  result.process_bytes(&(msg.reserved_), sizeof(ReplyMsg::reserved_));
-  result.process_bytes(&(msg.opcode_), sizeof(ReplyMsg::opcode_));
-  result.process_bytes(&(msg.res_code_), sizeof(ReplyMsg::res_code_));
+  result.process_bytes(&(msg.reserved_), sizeof(ReplyMsgFromScanner::reserved_));
+  result.process_bytes(&(msg.opcode_), sizeof(ReplyMsgFromScanner::opcode_));
+  result.process_bytes(&(msg.res_code_), sizeof(ReplyMsgFromScanner::res_code_));
   return result.checksum();
 }
 
-inline uint32_t ReplyMsg::getStartOpCode()
+inline uint32_t ReplyMsgFromScanner::getStartOpCode()
 {
   return OPCODE_START;
 }
 
-inline ReplyMsg::ReplyMsg(const uint32_t op_code, const uint32_t res_code) : opcode_(op_code), res_code_(res_code)
+inline ReplyMsgFromScanner::ReplyMsgFromScanner(const uint32_t op_code, const uint32_t res_code)
+  : opcode_(op_code), res_code_(res_code)
 {
   crc_ = calcCRC(*this);
 }
 
-inline ReplyMsg ReplyMsg::fromRawData(const RawScannerData& data)
+inline ReplyMsgFromScanner ReplyMsgFromScanner::fromRawData(const RawScannerData& data)
 {
-  ReplyMsg msg{ 0, 0 };
+  ReplyMsgFromScanner msg{ 0, 0 };
 
   // Alternatives for transformation:
   // typedef boost::iostreams::basic_array_source<char> Device;
   // boost::iostreams::stream<Device> stream((char*)&data, sizeof(DataReply::MemoryFormat));
 
-  std::istringstream stream(std::string((char*)&data, REPLY_MSG_SIZE));
+  std::istringstream stream(std::string((char*)&data, REPLY_MSG_FROM_SCANNER_SIZE));
 
-  stream.read((char*)&msg.crc_, sizeof(ReplyMsg::crc_));
-  stream.read((char*)&msg.reserved_, sizeof(ReplyMsg::reserved_));
-  stream.read((char*)&msg.opcode_, sizeof(ReplyMsg::opcode_));
-  stream.read((char*)&msg.res_code_, sizeof(ReplyMsg::res_code_));
+  stream.read((char*)&msg.crc_, sizeof(ReplyMsgFromScanner::crc_));
+  stream.read((char*)&msg.reserved_, sizeof(ReplyMsgFromScanner::reserved_));
+  stream.read((char*)&msg.opcode_, sizeof(ReplyMsgFromScanner::opcode_));
+  stream.read((char*)&msg.res_code_, sizeof(ReplyMsgFromScanner::res_code_));
 
   if (msg.crc_ != calcCRC(msg))
   {
@@ -119,16 +118,16 @@ inline ReplyMsg ReplyMsg::fromRawData(const RawScannerData& data)
   return msg;
 }
 
-inline ReplyMsgType ReplyMsg::type() const
+inline ReplyMsgFromScannerType ReplyMsgFromScanner::type() const
 {
   if (opcode_ == OPCODE_START)
   {
-    return ReplyMsgType::Start;
+    return ReplyMsgFromScannerType::Start;
   }
-  return ReplyMsgType::Unknown;
+  return ReplyMsgFromScannerType::Unknown;
 }
 
-inline ReplyMsg::RawType ReplyMsg::toCharArray()
+inline ReplyMsgFromScanner::RawType ReplyMsgFromScanner::toCharArray()
 {
   std::ostringstream os;
 
@@ -138,11 +137,11 @@ inline ReplyMsg::RawType ReplyMsg::toCharArray()
   os.write((char*)&opcode_, sizeof(uint32_t));
   os.write((char*)&res_code_, sizeof(uint32_t));
 
-  ReplyMsg::RawType ret_val{};
+  ReplyMsgFromScanner::RawType ret_val{};
 
   // TODO check limits
   std::string data_str(os.str());
-  // TODO check if lengths match
+  assert(data_str.length() == REPLY_MSG_FROM_SCANNER_SIZE && "Message data of start reply has not the expected size");
   std::copy(data_str.begin(), data_str.end(), ret_val.begin());
 
   return ret_val;
@@ -150,4 +149,4 @@ inline ReplyMsg::RawType ReplyMsg::toCharArray()
 
 }  // namespace psen_scan
 
-#endif  // PSEN_SCAN_REPLY_MSG_H
+#endif  // PSEN_SCAN_REPLY_MSG_FROM_SCANNER_H

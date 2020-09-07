@@ -23,7 +23,7 @@
 
 namespace psen_scan
 {
-static constexpr std::size_t START_REQUEST_SIZE{ 58 };
+static constexpr std::size_t START_REQUEST_SIZE{ 58 };  // See protocol description
 
 /**
  * @brief Frame containing all necessary fields for a Start Request.

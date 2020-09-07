@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <psen_scan/reply_msg.h>
+#include <psen_scan/reply_msg_from_scanner.h>
 #include <psen_scan/msg_decoder.h>
 
 using namespace psen_scan;
@@ -44,15 +44,15 @@ TEST(MsgDecoderTest, decodeStartReply)
   MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock),
                      std::bind(&MockCallbackHolder::error_callback, &mock, std::placeholders::_1));
 
-  ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
+  ReplyMsgFromScanner reply{ ReplyMsgFromScanner::getStartOpCode(), DEFAULT_RESULT_CODE };
 
-  ReplyMsg::RawType reply_raw{ reply.toCharArray() };
+  ReplyMsgFromScanner::RawType reply_raw{ reply.toCharArray() };
   RawScannerData raw_data{};
   std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
 
   EXPECT_CALL(mock, start_reply_callback()).Times(1);
 
-  decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE);  // TODO get correct size
+  decoder.decodeAndDispatch(raw_data, REPLY_MSG_FROM_SCANNER_SIZE);
 }
 
 TEST(MsgDecoderTest, decodeStartReplyCrcFail)
@@ -61,17 +61,16 @@ TEST(MsgDecoderTest, decodeStartReplyCrcFail)
   MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock),
                      std::bind(&MockCallbackHolder::error_callback, &mock, std::placeholders::_1));
 
-  ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
+  ReplyMsgFromScanner reply{ ReplyMsgFromScanner::getStartOpCode(), DEFAULT_RESULT_CODE };
 
-  ReplyMsg::RawType reply_raw{ reply.toCharArray() };
+  ReplyMsgFromScanner::RawType reply_raw{ reply.toCharArray() };
   RawScannerData raw_data{};
   std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
   raw_data[0] = 'a';
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
 
-  EXPECT_THROW(decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE),
-               DecodeCRCMismatchException);  // TODO get correct size
+  EXPECT_THROW(decoder.decodeAndDispatch(raw_data, REPLY_MSG_FROM_SCANNER_SIZE), DecodeCRCMismatchException);
 }
 
 /**
@@ -84,16 +83,16 @@ TEST(MsgDecoderTest, decodeStartReplyWrongSizeNotImplemented)
   MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock),
                      std::bind(&MockCallbackHolder::error_callback, &mock, std::placeholders::_1));
 
-  ReplyMsg reply{ ReplyMsg::getStartOpCode(), DEFAULT_RESULT_CODE };
+  ReplyMsgFromScanner reply{ ReplyMsgFromScanner::getStartOpCode(), DEFAULT_RESULT_CODE };
 
-  ReplyMsg::RawType reply_raw{ reply.toCharArray() };
+  ReplyMsgFromScanner::RawType reply_raw{ reply.toCharArray() };
   RawScannerData raw_data{};
   std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
   EXPECT_CALL(mock, error_callback(::testing::_)).Times(1);
 
-  decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE + 1);  // TODO get correct size
+  decoder.decodeAndDispatch(raw_data, REPLY_MSG_FROM_SCANNER_SIZE + 1);
 }
 
 /**
@@ -106,16 +105,16 @@ TEST(MsgDecoderTest, decodeWrongOpCodeNotImplemented)
   MsgDecoder decoder(std::bind(&MockCallbackHolder::start_reply_callback, &mock),
                      std::bind(&MockCallbackHolder::error_callback, &mock, std::placeholders::_1));
 
-  ReplyMsg reply{ ReplyMsg::getStartOpCode() + 1, DEFAULT_RESULT_CODE };
+  ReplyMsgFromScanner reply{ ReplyMsgFromScanner::getStartOpCode() + 1, DEFAULT_RESULT_CODE };
 
-  ReplyMsg::RawType reply_raw{ reply.toCharArray() };
+  ReplyMsgFromScanner::RawType reply_raw{ reply.toCharArray() };
   RawScannerData raw_data{};
   std::copy(reply_raw.begin(), reply_raw.end(), raw_data.begin());
 
   EXPECT_CALL(mock, start_reply_callback()).Times(0);
   EXPECT_CALL(mock, error_callback(::testing::_)).Times(1);
 
-  decoder.decodeAndDispatch(raw_data, REPLY_MSG_SIZE);  // TODO get correct size
+  decoder.decodeAndDispatch(raw_data, REPLY_MSG_FROM_SCANNER_SIZE);
 }
 
 TEST(MsgDecoderTest, testDecodeExceptionForCompleteCoverage)

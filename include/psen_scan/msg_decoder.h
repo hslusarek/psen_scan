@@ -22,7 +22,7 @@
 
 #include "psen_scan/function_pointers.h"
 #include "psen_scan/raw_scanner_data.h"
-#include "psen_scan/reply_msg.h"
+#include "psen_scan/reply_msg_from_scanner.h"
 #include "psen_scan/decode_exception.h"
 
 namespace psen_scan
@@ -46,11 +46,11 @@ inline MsgDecoder::MsgDecoder(const StartReplyCallback& start_reply_callback, co
 
 inline void MsgDecoder::decodeAndDispatch(const RawScannerData& data, const std::size_t& bytes_received)
 {
-  if (bytes_received == REPLY_MSG_SIZE)  // Check if this could be a reply
+  if (bytes_received == REPLY_MSG_FROM_SCANNER_SIZE)  // Check if this could be a reply
   {
-    ReplyMsg frame{ ReplyMsg::fromRawData(data) };  // TODO how to handle throw?
+    ReplyMsgFromScanner frame{ ReplyMsgFromScanner::fromRawData(data) };  // TODO how to handle throw?
 
-    if (frame.type() == ReplyMsgType::Start)
+    if (frame.type() == ReplyMsgFromScannerType::Start)
     {
       start_reply_callback_();
     }

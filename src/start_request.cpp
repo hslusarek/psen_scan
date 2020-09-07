@@ -93,7 +93,7 @@ StartRequest::RawType StartRequest::toRawType() const
 
   std::vector<char> raw_data;
   raw_data.reserve(data_str.length());
-  assert(data_str.length() == START_REQUEST_SIZE);
+  assert(data_str.length() == START_REQUEST_SIZE && "Message data of start request has not the expected size");
   std::copy(data_str.begin(), data_str.end(), std::back_inserter(raw_data));
 
   return raw_data;
