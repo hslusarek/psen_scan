@@ -21,7 +21,6 @@
 
 namespace psen_scan_test
 {
-
 enum class Endian
 {
   LITTLE,
