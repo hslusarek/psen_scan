@@ -77,6 +77,8 @@ TEST_F(StartRequestTest, constructorTest)
 
   EXPECT_TRUE(DecodingEquals(data, 0x00, (uint32_t)result.checksum()));  // CRC
 
+  EXPECT_TRUE(DecodingEquals(data, 0x00, 0xe450d7c1));  // CRC - Fixed for now, Note: Other byte order as in wireshark
+
   EXPECT_TRUE(DecodingEquals(data, 0x04, (uint32_t)sequence_number));  // SequenceNumber
 
   EXPECT_TRUE(DecodingEquals(data, 0x08, (uint64_t)0));  // Reserved
@@ -89,13 +91,13 @@ TEST_F(StartRequestTest, constructorTest)
 
   EXPECT_TRUE(DecodingEquals(data, 0x1A, (uint8_t)0b00001000));  // Device enabled
 
-  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1B, 0));  // Intensities enabled
-  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1C, 0));  // Point in safety enabled
-  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1D, 0));  // Active zone set enabled
-  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1E, 0));  // IO Pin enabled
-  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1F, 0));  // Scan counter enabled
-  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x20, 0));  // Speed encoder enabled
-  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x21, 0));  // Diagnostics enabled
+  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1B, 0));           // Intensities enabled
+  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1C, 0));           // Point in safety enabled
+  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1D, 0));           // Active zone set enabled
+  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1E, 0));           // IO Pin enabled
+  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x1F, 0b00001000));  // Scan counter enabled
+  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x20, 0));           // Speed encoder enabled
+  EXPECT_TRUE(DecodingEquals<uint8_t>(data, 0x21, 0));           // Diagnostics enabled
 
   EXPECT_TRUE(DecodingEquals(data, 0x22, radToTenthDegree(start_angle)));  // Master Start Angle
   EXPECT_TRUE(DecodingEquals(data, 0x24, radToTenthDegree(end_angle)));    // Master End Angle
