@@ -14,43 +14,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <arpa/inet.h>
-#include <boost/endian/conversion.hpp>
 #include <boost/crc.hpp>
 #include <gtest/gtest.h>
 
 #include <psen_scan/scanner_configuration.h>
 #include <psen_scan/start_request.h>
 #include <psen_scan/tenth_degree_conversion.h>
+#include <psen_scan/raw_data_test_helper.h>
 
 using namespace psen_scan;
-
-enum class Endian
-{
-  LITTLE,
-  BIG
-};
-
-template <typename T>
-::testing::AssertionResult
-DecodingEquals(StartRequest::RawType const& data, std::size_t offset, T expected, const Endian& endian = Endian::LITTLE)
-{
-  T actual_val;
-  memcpy(&actual_val, data.data() + offset, sizeof(T));
-
-  if (endian == Endian::BIG)
-  {
-    boost::endian::native_to_big_inplace(actual_val);
-  }
-
-  if (actual_val == expected)
-  {
-    return ::testing::AssertionSuccess();
-  }
-  else
-  {
-    return ::testing::AssertionFailure() << actual_val << " not equal to " << expected;
-  }
-}
 
 namespace psen_scan_test
 {

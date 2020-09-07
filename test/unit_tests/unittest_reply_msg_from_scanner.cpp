@@ -23,6 +23,7 @@
 
 #include <psen_scan/decode_exception.h>
 #include <psen_scan/reply_msg_from_scanner.h>
+#include <psen_scan/raw_data_test_helper.h>
 
 using namespace psen_scan;
 
@@ -31,22 +32,6 @@ namespace psen_scan_test
 static constexpr uint32_t OP_CODE_START{ 0x35 };
 static constexpr uint32_t OP_CODE_UNKNOWN{ 0x01 };
 static constexpr uint32_t RES_CODE_ACCEPTED{ 0x00 };
-
-template <typename T>
-::testing::AssertionResult DecodingEquals(ReplyMsgFromScanner::RawType const& data, std::size_t offset, T expected)
-{
-  T actual_val;
-  memcpy(&actual_val, data.data() + offset, sizeof(T));
-
-  if (actual_val == expected)
-  {
-    return ::testing::AssertionSuccess();
-  }
-  else
-  {
-    return ::testing::AssertionFailure() << actual_val << " not equal to " << expected;
-  }
-}
 
 TEST(ReplyMsgFromScannerTest, testTypeStart)
 {
