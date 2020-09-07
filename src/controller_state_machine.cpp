@@ -13,7 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <psen_scan/controller_state_machine.h>
+#include "psen_scan/logging.h"
+#include "psen_scan/controller_state_machine.h"
 
 namespace psen_scan
 {
@@ -40,6 +41,7 @@ void ControllerStateMachine::processStartRequestEvent()
 // TODO: Add again to coverage when function are actually used.
 void ControllerStateMachine::processStartReplyReceivedEvent()
 {
+  PSENSCAN_INFO("Scanner", "Scanner started.");
   const std::lock_guard<std::mutex> lock(sm_access_mutex_);
   sm_.process_event(udp_connection_state_machine::events::start_reply_received());
 }
