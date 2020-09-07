@@ -243,6 +243,13 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
 
+  catkin_add_gtest(unittest_reply_msg_from_scanner
+    test/unit_tests/unittest_reply_msg_from_scanner.cpp
+  )
+  target_link_libraries(unittest_reply_msg_from_scanner
+    ${catkin_LIBRARIES}
+  )
+
   #########################
   ##  Integration-Tests  ##
   #########################
