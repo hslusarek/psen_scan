@@ -27,7 +27,7 @@ public:
   virtual ~DecodeException() = default;
 };
 
-class DecodeCRCMismatchException : DecodeException
+class DecodeCRCMismatchException : public DecodeException
 {
 public:
   DecodeCRCMismatchException(const std::string& msg = "Decoding failed! CRC did not match");
