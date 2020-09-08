@@ -32,14 +32,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <!-- ROS Frame ID -->
   <arg name="frame_id" default="scanner" />
 
-  <!-- Start angle of measurement in degree -->
+  <!-- Start angle of measurement in radian -->
   <arg name="angle_start" default="0" />
 
-  <!-- End angle of measurement in degree -->
-  <arg name="angle_end" default="275.0" />
+  <!-- End angle of measurement in radian -->
+  <arg name="angle_end" default="$(eval 275.0 /180.0 * pi)" />
 
-  <!-- Rotation of x-axis around the center in degree. -->
-  <arg name="x_axis_rotation" default="137.5" />
+  <!-- Rotation of x-axis around the center in radian. -->
+  <arg name="x_axis_rotation" default="$(eval 137.5 / 180.0 * pi)" />
 
   <node name="laser_scanner" type="psen_scan_node" pkg="psen_scan" output="screen" required="true">
     <rosparam param="host_ip" subst_value="True">$(arg host_ip)</rosparam>

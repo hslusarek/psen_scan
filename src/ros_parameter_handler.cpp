@@ -57,24 +57,9 @@ void RosParameterHandler::updateAllParamsFromParamServer()
   getRequiredParamFromParamServer<int>("host_udp_port_control", host_udp_port_control_);
   getRequiredParamFromParamServer<std::string>("sensor_ip", sensor_ip_);
   getOptionalParamFromParamServer<std::string>("frame_id", frame_id_);
-
-  double angle_start;
-  if (getOptionalParamFromParamServer<double>("angle_start", angle_start))
-  {
-    angle_start_ = degreeToRad(angle_start);
-  }
-
-  double angle_end;
-  if (getOptionalParamFromParamServer<double>("angle_end", angle_end))
-  {
-    angle_end_ = degreeToRad(angle_end);
-  }
-
-  double x_axis_rotation;
-  if (getOptionalParamFromParamServer<double>("x_axis_rotation", x_axis_rotation))
-  {
-    x_axis_rotation_ = degreeToRad(x_axis_rotation);
-  }
+  getOptionalParamFromParamServer<double>("angle_start", angle_start_);
+  getOptionalParamFromParamServer<double>("angle_end", angle_end_);
+  getOptionalParamFromParamServer<double>("x_axis_rotation", x_axis_rotation_);
 }
 
 /**

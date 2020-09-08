@@ -49,6 +49,10 @@ protected:
   ROSParameterHandlerTest()
   {
     DELETE_ALL_ROS_PARAMS();
+    ros::param::set("sensor_ip", sensor_ip_);
+    ros::param::set("host_ip", host_ip_);
+    ros::param::set("host_udp_port_data", host_udp_port_data_);
+    ros::param::set("host_udp_port_control", host_udp_port_control_);
   }
 
   ros::NodeHandle node_handle_;
@@ -65,108 +69,80 @@ protected:
   uint32_t expected_host_udp_port_control_{ boost::endian::native_to_little(
       static_cast<uint32_t>(host_udp_port_control_)) };
   std::string expected_frame_id_{ DEFAULT_FRAME_ID };
-  double expected_angle_start_degree_{ 70. };
-  double expected_angle_end_degree_{ 100. };
-  double expected_x_axis_rotation_degree_{ 50 };
-};
-
-class ROSRequiredParameterTest : public ROSParameterHandlerTest
-{
-protected:
-  ROSRequiredParameterTest()
-  {
-    ros::param::set("sensor_ip", sensor_ip_);
-    ros::param::set("host_ip", host_ip_);
-    ros::param::set("host_udp_port_data", host_udp_port_data_);
-    ros::param::set("host_udp_port_control", host_udp_port_control_);
-  }
-};
-
-class ROSInvalidParameterTest : public ROSParameterHandlerTest
-{
-protected:
-  ROSInvalidParameterTest()
-  {
-    ros::param::set("host_ip", host_ip_);
-    ros::param::set("host_udp_port_data", host_udp_port_data_);
-    ros::param::set("host_udp_port_control", host_udp_port_control_);
-    ros::param::set("sensor_ip", sensor_ip_);
-    ros::param::set("frame_id", DEFAULT_FRAME_ID);
-
-    ros::param::set("angle_start", expected_angle_start_degree_);
-    ros::param::set("angle_end", expected_angle_end_degree_);
-    ros::param::set("x_axis_rotation", expected_x_axis_rotation_degree_);
-  }
+  double expected_angle_start_{ DEFAULT_ANGLE_START };
+  double expected_angle_end_{ DEFAULT_ANGLE_END };
+  double expected_x_axis_rotation{ DEFAULT_X_AXIS_ROTATION };
 };
 
 TEST_F(ROSParameterHandlerTest, test_no_param)
 {
+  DELETE_ALL_ROS_PARAMS();
   EXPECT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
-TEST_F(ROSRequiredParameterTest, test_required_params_only)
+TEST_F(ROSParameterHandlerTest, test_required_params_only)
 {
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_); EXPECT_EQ(param_handler.getSensorIP(), sensor_ip_);
                   EXPECT_EQ(param_handler.getHostIP(), host_ip_);
                   EXPECT_EQ(param_handler.getHostUDPPortData(), expected_host_udp_port_data_);
                   EXPECT_EQ(param_handler.getHostUDPPortControl(), expected_host_udp_port_control_);
                   EXPECT_EQ(param_handler.getFrameID(), expected_frame_id_);
-                  EXPECT_EQ(param_handler.getAngleStart(), DEFAULT_ANGLE_START);
-                  EXPECT_EQ(param_handler.getAngleEnd(), DEFAULT_ANGLE_END);
-                  EXPECT_EQ(param_handler.getXAxisRotation(), DEFAULT_X_AXIS_ROTATION););
+                  EXPECT_EQ(param_handler.getAngleStart(), expected_angle_start_);
+                  EXPECT_EQ(param_handler.getAngleEnd(), expected_angle_end_);
+                  EXPECT_EQ(param_handler.getXAxisRotation(), expected_x_axis_rotation););
 }
 
-TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_sensor_ip)
+TEST_F(ROSParameterHandlerTest, test_single_required_params_missing_sensor_ip)
 {
   DELETE_ROS_PARAM("sensor_ip");
 
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
-TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_ip)
+TEST_F(ROSParameterHandlerTest, test_single_required_params_missing_host_ip)
 {
   DELETE_ROS_PARAM("host_ip");
 
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
-TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_port_data)
+TEST_F(ROSParameterHandlerTest, test_single_required_params_missing_host_udp_port_data)
 {
   DELETE_ROS_PARAM("host_udp_port_data");
 
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
-TEST_F(ROSRequiredParameterTest, test_single_required_params_missing_host_udp_port_control)
+TEST_F(ROSParameterHandlerTest, test_single_required_params_missing_host_udp_port_control)
 {
   DELETE_ROS_PARAM("host_udp_port_control");
 
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), ParamMissingOnServer);
 }
 
-TEST_F(ROSRequiredParameterTest, test_all_params)
+TEST_F(ROSParameterHandlerTest, test_all_params)
 {
-  std::string frame_id = "abcdefg";
-  const double expected_angle_start_degree{ 70. };
-  const double expected_angle_end_degree{ 240. };
-  const double expected_x_axis_rotation_degree{ 100. };
-  ros::param::set("angle_start", expected_angle_start_degree);
-  ros::param::set("angle_end", expected_angle_end_degree);
-  ros::param::set("x_axis_rotation", expected_x_axis_rotation_degree);
-  ros::param::set("frame_id", frame_id);
+  std::string expected_frame_id = "abcdefg";
+  const double expected_angle_start{ 1. };
+  const double expected_angle_end{ 3. };
+  const double expected_x_axis_rotation{ 2. };
+  ros::param::set("angle_start", expected_angle_start);
+  ros::param::set("angle_end", expected_angle_end);
+  ros::param::set("x_axis_rotation", expected_x_axis_rotation);
+  ros::param::set("frame_id", expected_frame_id);
 
   RosParameterHandler param_handler(node_handle_);
   EXPECT_EQ(param_handler.getSensorIP(), sensor_ip_);
   EXPECT_EQ(param_handler.getHostIP(), host_ip_);
   EXPECT_EQ(param_handler.getHostUDPPortData(), expected_host_udp_port_data_);
   EXPECT_EQ(param_handler.getHostUDPPortControl(), expected_host_udp_port_control_);
-  EXPECT_EQ(param_handler.getFrameID(), frame_id);
-  EXPECT_DOUBLE_EQ(param_handler.getAngleStart(), degreeToRad(expected_angle_start_degree));
-  EXPECT_DOUBLE_EQ(param_handler.getAngleEnd(), degreeToRad(expected_angle_end_degree));
-  EXPECT_DOUBLE_EQ(param_handler.getXAxisRotation(), degreeToRad(expected_x_axis_rotation_degree));
+  EXPECT_EQ(param_handler.getFrameID(), expected_frame_id);
+  EXPECT_DOUBLE_EQ(param_handler.getAngleStart(), expected_angle_start);
+  EXPECT_DOUBLE_EQ(param_handler.getAngleEnd(), expected_angle_end);
+  EXPECT_DOUBLE_EQ(param_handler.getXAxisRotation(), expected_x_axis_rotation);
 }
 
-TEST_F(ROSInvalidParameterTest, test_invalid_host_param_host_udp_port_data)
+TEST_F(ROSParameterHandlerTest, test_invalid_host_param_host_udp_port_data)
 {
   ros::param::set("host_udp_port_data", "string");
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
@@ -183,7 +159,7 @@ TEST_F(ROSInvalidParameterTest, test_invalid_host_param_host_udp_port_data)
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 
-TEST_F(ROSInvalidParameterTest, test_invalid_host_param_host_udp_port_control)
+TEST_F(ROSParameterHandlerTest, test_invalid_host_param_host_udp_port_control)
 {
   ros::param::set("host_udp_port_control", "string");
   ASSERT_THROW(RosParameterHandler param_handler(node_handle_), WrongParameterType);
@@ -200,7 +176,7 @@ TEST_F(ROSInvalidParameterTest, test_invalid_host_param_host_udp_port_control)
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 
-TEST_F(ROSInvalidParameterTest, test_invalid_params_frame_id)
+TEST_F(ROSParameterHandlerTest, test_invalid_params_frame_id)
 {
   // Set frame_id with wrong datatype (expected string) as example for wrong datatypes on expected strings
   ros::param::set("frame_id", 12);
@@ -215,7 +191,7 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_frame_id)
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 
-TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_start)
+TEST_F(ROSParameterHandlerTest, test_invalid_params_angle_start)
 {
   // Set angle_start with wrong datatype (expected double) as example for wrong datatypes on expected double
   ros::param::set("angle_start", "string");
@@ -233,7 +209,7 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_start)
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 
-TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_end)
+TEST_F(ROSParameterHandlerTest, test_invalid_params_angle_end)
 {
   // Set angle_end with wrong datatype (expected double) as example for wrong datatypes on expected double
   ros::param::set("angle_end", "string");
@@ -251,7 +227,7 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_angle_end)
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
 
-TEST_F(ROSInvalidParameterTest, test_invalid_params_x_axis_rotation)
+TEST_F(ROSParameterHandlerTest, test_invalid_params_x_axis_rotation)
 {
   // Set x_axis_rotation with wrong datatype (expected double) as example for wrong datatypes on expected double
   ros::param::set("x_axis_rotation", "string");
