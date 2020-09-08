@@ -24,6 +24,7 @@
 #include <boost/msm/front/state_machine_def.hpp>
 
 #include "psen_scan/logging.h"
+#include "psen_scan/function_pointers.h"
 
 namespace psen_scan
 {
@@ -32,9 +33,6 @@ namespace mpl = boost::mpl;
 
 // special case: lots of empty structs due to metaprogramming
 // clang-format off
-
-
-using SendStartRequestCallback = std::function<void()>;
 
 // front-end: define the FSM structure
 struct udp_connection_state_machine_ : public msm::front::state_machine_def<udp_connection_state_machine_>
