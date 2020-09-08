@@ -21,9 +21,9 @@
 
 #include <gtest/gtest.h>
 
-#include <psen_scan/decode_exception.h>
-#include <psen_scan/reply_msg_from_scanner.h>
-#include <psen_scan/raw_data_test_helper.h>
+#include "psen_scan/decode_exception.h"
+#include "psen_scan/reply_msg_from_scanner.h"
+#include "psen_scan/raw_data_test_helper.h"
 
 using namespace psen_scan;
 

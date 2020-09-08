@@ -26,7 +26,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <psen_scan/raw_scanner_data.h>
+#include "psen_scan/raw_scanner_data.h"
 
 using boost::asio::ip::udp;
 

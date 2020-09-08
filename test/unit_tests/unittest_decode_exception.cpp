@@ -14,7 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <gtest/gtest.h>
-#include <psen_scan/decode_exception.h>
+#include "psen_scan/decode_exception.h"
 
 using namespace psen_scan;
 

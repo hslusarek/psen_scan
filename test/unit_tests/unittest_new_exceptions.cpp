@@ -14,9 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <gtest/gtest.h>
-#include <psen_scan/build_ros_message_exception.h>
-#include <psen_scan/get_ros_parameter_exception.h>
-#include <psen_scan/psen_scan_fatal_exception.h>
+#include "psen_scan/build_ros_message_exception.h"
+#include "psen_scan/get_ros_parameter_exception.h"
+#include "psen_scan/psen_scan_fatal_exception.h"
 
 using namespace psen_scan;
 

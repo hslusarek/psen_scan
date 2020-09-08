@@ -19,11 +19,11 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <psen_scan/state_machine_controller_mock.h>
-#include <psen_scan/mock_udp_client.h>
-#include <psen_scan/scanner_configuration.h>
-#include <psen_scan/scanner_controller.h>
-#include <psen_scan/start_request.h>
+#include "psen_scan/state_machine_controller_mock.h"
+#include "psen_scan/mock_udp_client.h"
+#include "psen_scan/scanner_configuration.h"
+#include "psen_scan/scanner_controller.h"
+#include "psen_scan/start_request.h"
 
 using namespace psen_scan;
 

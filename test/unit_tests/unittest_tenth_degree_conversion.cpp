@@ -21,7 +21,7 @@
 
 #include <gtest/gtest.h>
 
-#include <psen_scan/tenth_degree_conversion.h>
+#include "psen_scan/tenth_degree_conversion.h"
 
 namespace psen_scan_test
 {

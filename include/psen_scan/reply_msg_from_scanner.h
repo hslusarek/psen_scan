@@ -23,8 +23,8 @@
 
 #include <boost/crc.hpp>
 
-#include <psen_scan/raw_scanner_data.h>
-#include <psen_scan/decode_exception.h>
+#include "psen_scan/raw_scanner_data.h"
+#include "psen_scan/decode_exception.h"
 
 namespace psen_scan
 {

@@ -15,11 +15,11 @@
 
 #include <algorithm>
 
-#include <psen_scan/ros_parameter_handler.h>
+#include "psen_scan/ros_parameter_handler.h"
 #include "psen_scan/get_ros_parameter_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
-#include <psen_scan/default_parameters.h>
-#include <psen_scan/scanner_data.h>
+#include "psen_scan/default_parameters.h"
+#include "psen_scan/scanner_data.h"
 
 namespace psen_scan
 {

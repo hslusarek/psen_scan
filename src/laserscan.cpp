@@ -18,8 +18,8 @@
 #include <limits>
 #include <cmath>
 
-#include <psen_scan/laserscan.h>
-#include <psen_scan/degree_to_rad.h>
+#include "psen_scan/laserscan.h"
+#include "psen_scan/degree_to_rad.h"
 
 namespace psen_scan
 {

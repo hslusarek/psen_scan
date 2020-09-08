@@ -24,7 +24,7 @@
 #include <sensor_msgs/LaserScan.h>
 #include "psen_scan/build_ros_message_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
-#include <psen_scan/scanner_data.h>
+#include "psen_scan/scanner_data.h"
 
 #include "psen_scan/scanner.h"
 

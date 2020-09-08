@@ -16,11 +16,11 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <psen_scan/degree_to_rad.h>
-#include <psen_scan/scanner.h>
-#include <psen_scan/scanner_configuration.h>
-#include <psen_scan/scanner_controller.h>
-#include <psen_scan/scanner_controller_mock.h>
+#include "psen_scan/degree_to_rad.h"
+#include "psen_scan/scanner.h"
+#include "psen_scan/scanner_configuration.h"
+#include "psen_scan/scanner_controller.h"
+#include "psen_scan/scanner_controller_mock.h"
 
 using namespace psen_scan;
 

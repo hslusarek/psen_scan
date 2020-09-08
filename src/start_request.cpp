@@ -22,9 +22,9 @@
 #include <string>
 #include <iostream>
 
-#include <psen_scan/tenth_degree_conversion.h>
-#include <psen_scan/start_request.h>
-#include <psen_scan/degree_to_rad.h>
+#include "psen_scan/tenth_degree_conversion.h"
+#include "psen_scan/start_request.h"
+#include "psen_scan/degree_to_rad.h"
 
 namespace psen_scan
 {

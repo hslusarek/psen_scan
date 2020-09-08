@@ -17,11 +17,11 @@
 #include <boost/crc.hpp>
 #include <gtest/gtest.h>
 
-#include <psen_scan/scanner_configuration.h>
-#include <psen_scan/start_request.h>
-#include <psen_scan/tenth_degree_conversion.h>
-#include <psen_scan/degree_to_rad.h>
-#include <psen_scan/raw_data_test_helper.h>
+#include "psen_scan/scanner_configuration.h"
+#include "psen_scan/start_request.h"
+#include "psen_scan/tenth_degree_conversion.h"
+#include "psen_scan/degree_to_rad.h"
+#include "psen_scan/raw_data_test_helper.h"
 
 using namespace psen_scan;
 

@@ -15,7 +15,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <psen_scan/controller_state_machine.h>
+#include "psen_scan/controller_state_machine.h"
 
 using namespace psen_scan;
 

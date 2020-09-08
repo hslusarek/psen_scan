@@ -20,8 +20,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <psen_scan/reply_msg_from_scanner.h>
-#include <psen_scan/msg_decoder.h>
+#include "psen_scan/reply_msg_from_scanner.h"
+#include "psen_scan/msg_decoder.h"
 
 using namespace psen_scan;
 

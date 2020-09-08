@@ -20,7 +20,7 @@
 
 #include <gmock/gmock.h>
 
-#include <psen_scan/scanner_communication_interface.h>
+#include "psen_scan/scanner_communication_interface.h"
 
 namespace psen_scan_test
 {

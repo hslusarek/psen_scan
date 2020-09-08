@@ -16,7 +16,7 @@
 #include <gmock/gmock.h>
 
 #include "psen_scan/raw_scanner_data.h"
-#include <psen_scan/udp_client.h>
+#include "psen_scan/udp_client.h"
 
 namespace psen_scan_test
 {

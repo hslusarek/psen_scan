@@ -17,7 +17,7 @@
 #define PSEN_SCAN_CONTROLLER_STATE_MACHINE_H
 
 #include <mutex>
-#include <psen_scan/udp_connection_state_machine.h>
+#include "psen_scan/udp_connection_state_machine.h"
 
 namespace psen_scan
 {

@@ -19,7 +19,7 @@
 #include <cstdint>
 #include <string>
 
-#include <psen_scan/scanner_configuration.h>
+#include "psen_scan/scanner_configuration.h"
 
 namespace psen_scan
 {

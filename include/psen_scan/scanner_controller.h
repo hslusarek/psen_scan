@@ -24,12 +24,12 @@
 #include <string>
 #include <gtest/gtest_prod.h>
 
-#include <psen_scan/msg_decoder.h>
-#include <psen_scan/controller_state_machine.h>
-#include <psen_scan/udp_client.h>
-#include <psen_scan/controller_state_machine.h>
-#include <psen_scan/start_request.h>
-#include <psen_scan/scanner_configuration.h>
+#include "psen_scan/msg_decoder.h"
+#include "psen_scan/controller_state_machine.h"
+#include "psen_scan/udp_client.h"
+#include "psen_scan/controller_state_machine.h"
+#include "psen_scan/start_request.h"
+#include "psen_scan/scanner_configuration.h"
 
 namespace psen_scan
 {

@@ -18,8 +18,8 @@
 
 #include <gmock/gmock.h>
 
-#include <psen_scan/scanner_configuration.h>
-#include <psen_scan/scanner_controller.h>
+#include "psen_scan/scanner_configuration.h"
+#include "psen_scan/scanner_controller.h"
 
 namespace psen_scan_test
 {

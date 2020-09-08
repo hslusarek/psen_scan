@@ -18,8 +18,8 @@
 
 #include <gmock/gmock.h>
 
-#include <psen_scan/controller_state_machine.h>
-#include <psen_scan/function_pointers.h>
+#include "psen_scan/controller_state_machine.h"
+#include "psen_scan/function_pointers.h"
 
 namespace psen_scan_test
 {

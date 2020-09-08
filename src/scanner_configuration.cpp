@@ -20,8 +20,8 @@
 
 #include <arpa/inet.h>
 
-#include <psen_scan/scanner_configuration.h>
-#include <psen_scan/degree_to_rad.h>
+#include "psen_scan/scanner_configuration.h"
+#include "psen_scan/degree_to_rad.h"
 
 namespace psen_scan
 {
