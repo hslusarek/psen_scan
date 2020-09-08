@@ -55,11 +55,11 @@ int main(int argc, char** argv)
   }
   catch (PSENScanFatalException& e)
   {
-    std::cerr << e.what() << std::endl;
+    ROS_ERROR_STREAM(e.what());
   }
   catch (std::exception& e)
   {
-    std::cerr << e.what() << std::endl;
+    ROS_ERROR_STREAM(e.what());
   }
 
   return 0;

@@ -34,6 +34,7 @@
 #include "psen_scan/raw_scanner_data.h"
 #include "psen_scan/open_connection_failure.h"
 #include "psen_scan/close_connection_failure.h"
+#include "psen_scan/logging.h"
 
 namespace psen_scan
 {
@@ -154,7 +155,7 @@ inline UdpClientImpl::~UdpClientImpl()
   // No coverage check because testing the socket is not the objective here.
   catch (const CloseConnectionFailure& ex)
   {
-    std::cerr << "ERROR: " << ex.what() << std::endl;
+    PSENSCAN_ERROR("UdpClient", ex.what());
   }
   // LCOV_EXCL_STOP
 }
@@ -165,11 +166,10 @@ inline void UdpClientImpl::sendCompleteHandler(const boost::system::error_code& 
   // No coverage check because testing the if-loop is extremly difficult.
   if (error || bytes_transferred == 0)
   {
-    std::cerr << "Failed to send data."
-              << "Error message: " << error.message() << std::endl;
+    PSENSCAN_ERROR("UdpClient", "Failed to send data. Error message: " + error.message());
   }
   // LCOV_EXCL_STOP
-  std::cout << "Data successfully sent." << std::endl;
+  PSENSCAN_DEBUG("UdpClient", "Data successfully send.");
 }
 
 inline void UdpClientImpl::write(const std::vector<char>& data)

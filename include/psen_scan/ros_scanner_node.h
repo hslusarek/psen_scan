@@ -149,7 +149,7 @@ void ROSScannerNodeT<S>::processingLoop()
     }
     catch (const LaserScanBuildFailure& ex)
     {
-      std::cout << ex.what() << std::endl;
+      ROS_ERROR_STREAM(ex.what());
     }
     r.sleep();
   }
