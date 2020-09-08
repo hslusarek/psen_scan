@@ -20,6 +20,7 @@
 #include <psen_scan/scanner_configuration.h>
 #include <psen_scan/start_request.h>
 #include <psen_scan/tenth_degree_conversion.h>
+#include <psen_scan/degree_to_rad.h>
 #include <psen_scan/raw_data_test_helper.h>
 
 using namespace psen_scan;
@@ -86,6 +87,21 @@ TEST_F(StartRequestTest, constructorTest)
   EXPECT_TRUE(DecodingEquals<uint16_t>(data, 0x34, 0));  // Slave 3 Start Angle
   EXPECT_TRUE(DecodingEquals<uint16_t>(data, 0x36, 0));  // Slave 3 End Angle
   EXPECT_TRUE(DecodingEquals<uint16_t>(data, 0x38, 0));  // Slave 3 Angle Resolution
+}
+
+TEST_F(StartRequestTest, regressionForRealSystem)
+{
+  ScannerConfiguration sc("192.168.0.50", 55115, 0, "192.168.0.10", 0.0, degreeToRad(275.));
+  StartRequest sr(sc, 0);
+
+  auto data = sr.toRawType();
+
+  unsigned char expected_crc[4] = { 0x95, 0x58, 0x3a, 0x93 };  // see wireshark for this number
+
+  for (size_t i = 0; i < sizeof(expected_crc); i++)
+  {
+    EXPECT_EQ(static_cast<unsigned int>(static_cast<unsigned char>(data[i])), expected_crc[i]);
+  }
 }
 
 }  // namespace psen_scan_test
