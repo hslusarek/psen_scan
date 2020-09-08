@@ -39,9 +39,9 @@ class MsgDecoderTest : public ::testing::Test
 protected:
   MsgDecoderTest()
     : decoder_(std::bind(&MockCallbackHolder::start_reply_callback, &mock_),
-               std::bind(&MockCallbackHolder::error_callback, &mock_, std::placeholders::_1)),
-      reply_( ReplyMsgFromScanner::getStartOpCode(), DEFAULT_RESULT_CODE ),
-      reply_raw_( reply_.toCharArray() )
+               std::bind(&MockCallbackHolder::error_callback, &mock_, std::placeholders::_1))
+    , reply_(ReplyMsgFromScanner::getStartOpCode(), DEFAULT_RESULT_CODE)
+    , reply_raw_(reply_.toCharArray())
   {
     std::copy(reply_raw_.begin(), reply_raw_.end(), raw_data_.begin());
   }
