@@ -55,6 +55,9 @@ public:
   RawType toCharArray();
 
 private:
+  template <typename T>
+  void write(std::ostringstream &os, const T &data) const;
+
   ReplyMsgFromScanner() = delete;
 
 private:
@@ -132,10 +135,11 @@ inline ReplyMsgFromScanner::RawType ReplyMsgFromScanner::toCharArray()
   std::ostringstream os;
 
   uint32_t crc{ calcCRC(*this) };
-  os.write((char*)&crc, sizeof(uint32_t));
-  os.write((char*)&reserved_, sizeof(uint32_t));
-  os.write((char*)&opcode_, sizeof(uint32_t));
-  os.write((char*)&res_code_, sizeof(uint32_t));
+
+  write<uint32_t>(os, crc);
+  write<uint32_t>(os, reserved_);
+  write<uint32_t>(os, opcode_);
+  write<uint32_t>(os, res_code_);
 
   ReplyMsgFromScanner::RawType ret_val{};
 
@@ -145,6 +149,13 @@ inline ReplyMsgFromScanner::RawType ReplyMsgFromScanner::toCharArray()
   std::copy(data_str.begin(), data_str.end(), ret_val.begin());
 
   return ret_val;
+}
+
+template <typename T>
+inline void ReplyMsgFromScanner::write(std::ostringstream &os, const T &data) const
+{
+  os.write((char*)&data, sizeof(T));
+  return;
 }
 
 }  // namespace psen_scan
