@@ -43,7 +43,7 @@ public:
 
 private:
   template <typename T>
-  static void read(std::istringstream &is, const T &data);
+  static void read(std::istringstream& is, const T& data);
 
 public:
   ReplyMsgFromScanner(const uint32_t op_code, const uint32_t res_code);
@@ -53,7 +53,7 @@ public:
 
 private:
   template <typename T>
-  static void process_bytes(boost::crc_32_type &crc_32, const T &data);
+  static void process_bytes(boost::crc_32_type& crc_32, const T& data);
 
 public:
   using RawType = std::array<char, REPLY_MSG_FROM_SCANNER_SIZE>;
@@ -61,7 +61,7 @@ public:
 
 private:
   template <typename T>
-  void write(std::ostringstream &os, const T &data) const;
+  void write(std::ostringstream& os, const T& data) const;
 
   ReplyMsgFromScanner() = delete;
 
@@ -91,7 +91,7 @@ inline uint32_t ReplyMsgFromScanner::calcCRC(const ReplyMsgFromScanner& msg)
 }
 
 template <typename T>
-inline void ReplyMsgFromScanner::process_bytes(boost::crc_32_type &crc_32, const T &data)
+inline void ReplyMsgFromScanner::process_bytes(boost::crc_32_type& crc_32, const T& data)
 {
   crc_32.process_bytes(&(data), sizeof(T));
   return;
@@ -128,7 +128,7 @@ inline ReplyMsgFromScanner ReplyMsgFromScanner::fromRawData(const RawScannerData
 }
 
 template <typename T>
-inline void ReplyMsgFromScanner::read(std::istringstream &is, const T &data)
+inline void ReplyMsgFromScanner::read(std::istringstream& is, const T& data)
 {
   // Alternatives for transformation:
   // typedef boost::iostreams::basic_array_source<char> Device;
@@ -169,7 +169,7 @@ inline ReplyMsgFromScanner::RawType ReplyMsgFromScanner::toCharArray()
 }
 
 template <typename T>
-inline void ReplyMsgFromScanner::write(std::ostringstream &os, const T &data) const
+inline void ReplyMsgFromScanner::write(std::ostringstream& os, const T& data) const
 {
   os.write((char*)&data, sizeof(T));
   return;

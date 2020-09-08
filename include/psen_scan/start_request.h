@@ -43,7 +43,7 @@ public:
 
 private:
   template <typename T>
-  void write(std::ostringstream &os, const T &data) const;
+  void write(std::ostringstream& os, const T& data) const;
 
   uint32_t crc_{ 0 }; /**< Will be filled in constructor */
   uint32_t seq_number_;

@@ -100,7 +100,7 @@ StartRequest::RawType StartRequest::toRawType() const
 }
 
 template <typename T>
-void StartRequest::write(std::ostringstream &os, const T &data) const
+void StartRequest::write(std::ostringstream& os, const T& data) const
 {
   os.write((char*)&data, sizeof(T));
   return;
